@@ -1,0 +1,29 @@
+<RCC>
+  <qresource>
+    <file>images/add.png</file>
+    <file>images/copy.png</file>
+    <file>images/cut.png</file>
+    <file>images/digg_48.png</file>
+    <file>images/error.png</file>
+    <file>images/flags.png</file>
+    <file>images/group_type_force.png</file>
+    <file>images/modify.png</file>
+    <file>images/ms.png</file>
+    <file>images/msgbox1.png</file>
+    <file>images/msgbox4.png</file>
+    <file>images/msgbox5.png</file>
+    <file>images/msgbox6.png</file>
+    <file>images/new.png</file>
+    <file>images/open.png</file>
+    <file>images/out.png</file>
+    <file>images/paste.png</file>
+    <file>images/print.png</file>
+    <file>images/save.png</file>
+    <file>images/star_48.png</file>
+    <file>images/table.png</file>
+    <file>images/update.png</file>
+    <file>images/users_two_48.png</file>
+    <file>images/left.png</file>
+    <file>images/right.png</file>
+  </qresource>
+</RCC>

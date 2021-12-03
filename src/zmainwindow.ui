@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ZMainWindow</class>
+ <widget class="QMainWindow" name="ZMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>План-факт</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../DSV.qrc">
+    <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>1</number>
+    </property>
+    <property name="topMargin">
+     <number>1</number>
+    </property>
+    <property name="rightMargin">
+     <number>1</number>
+    </property>
+    <property name="bottomMargin">
+     <number>1</number>
+    </property>
+    <property name="spacing">
+     <number>1</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="activationOrder">
+       <enum>QMdiArea::CreationOrder</enum>
+      </property>
+      <property name="viewMode">
+       <enum>QMdiArea::SubWindowView</enum>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="actOpenFileXLSX"/>
+    <addaction name="actProtokol"/>
+    <addaction name="actClose"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Справочники</string>
+    </property>
+    <addaction name="actGroups"/>
+    <addaction name="actPersons"/>
+    <addaction name="actOrganisations"/>
+    <addaction name="actSmens"/>
+    <addaction name="actTariffs"/>
+    <addaction name="actArchivs"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Помощь</string>
+    </property>
+    <addaction name="actAbout"/>
+    <addaction name="actAboutQt"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>Инструменты</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actGroups"/>
+   <addaction name="actPersons"/>
+   <addaction name="actOrganisations"/>
+   <addaction name="actSmens"/>
+   <addaction name="actTariffs"/>
+   <addaction name="actPayments"/>
+   <addaction name="actProtokol"/>
+   <addaction name="actArchivs"/>
+  </widget>
+  <widget class="QDockWidget" name="dockMsgPanel">
+   <property name="windowTitle">
+    <string>Сообщения</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="leftMargin">
+      <number>1</number>
+     </property>
+     <property name="topMargin">
+      <number>1</number>
+     </property>
+     <property name="rightMargin">
+      <number>1</number>
+     </property>
+     <property name="bottomMargin">
+      <number>1</number>
+     </property>
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="cmdCleanMsg">
+       <property name="minimumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Очистить список</string>
+       </property>
+       <property name="statusTip">
+        <string>Очистить список</string>
+       </property>
+       <property name="whatsThis">
+        <string>Очистить список</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../DSV.qrc">
+         <normaloff>:/images/error.png</normaloff>:/images/error.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" rowspan="3">
+      <widget class="QTableView" name="msgList">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QToolButton" name="cmdSaveMsg">
+       <property name="minimumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Сохранить в файл</string>
+       </property>
+       <property name="statusTip">
+        <string>Сохранить в файл</string>
+       </property>
+       <property name="whatsThis">
+        <string>Сохранить в файл</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../DSV.qrc">
+         <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <spacer name="spacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>14</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actOpenFile">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Импорт из txt</string>
+   </property>
+   <property name="toolTip">
+    <string>Импорт из файла txt</string>
+   </property>
+  </action>
+  <action name="actClose">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/out.png</normaloff>:/images/out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Выход</string>
+   </property>
+   <property name="toolTip">
+    <string>Выход из программы</string>
+   </property>
+  </action>
+  <action name="actAbout">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="actAboutQt">
+   <property name="text">
+    <string>QT</string>
+   </property>
+  </action>
+  <action name="actGroups">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/group_type_force.png</normaloff>:/images/group_type_force.png</iconset>
+   </property>
+   <property name="text">
+    <string>Группы</string>
+   </property>
+   <property name="toolTip">
+    <string>Группы</string>
+   </property>
+  </action>
+  <action name="actPersons">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/users_two_48.png</normaloff>:/images/users_two_48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Люди</string>
+   </property>
+   <property name="toolTip">
+    <string>Люди</string>
+   </property>
+  </action>
+  <action name="actSmens">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/flags.png</normaloff>:/images/flags.png</iconset>
+   </property>
+   <property name="text">
+    <string>Смены</string>
+   </property>
+   <property name="toolTip">
+    <string>Смены</string>
+   </property>
+  </action>
+  <action name="actTariffs">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/msgbox5.png</normaloff>:/images/msgbox5.png</iconset>
+   </property>
+   <property name="text">
+    <string>Тарифы</string>
+   </property>
+   <property name="toolTip">
+    <string>Тарифы</string>
+   </property>
+  </action>
+  <action name="actOrganisations">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/digg_48.png</normaloff>:/images/digg_48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Организации</string>
+   </property>
+   <property name="toolTip">
+    <string>Организации</string>
+   </property>
+  </action>
+  <action name="actProtokol">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
+   </property>
+   <property name="text">
+    <string>Отчет</string>
+   </property>
+  </action>
+  <action name="actArchivs">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/modify.png</normaloff>:/images/modify.png</iconset>
+   </property>
+   <property name="text">
+    <string>Архив</string>
+   </property>
+   <property name="toolTip">
+    <string>Архив</string>
+   </property>
+  </action>
+  <action name="actOpenFileXLSX">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Импорт из xlsx</string>
+   </property>
+   <property name="toolTip">
+    <string>Импорт из файла CSV</string>
+   </property>
+  </action>
+  <action name="actPayments">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/ms.png</normaloff>:/images/ms.png</iconset>
+   </property>
+   <property name="text">
+    <string>Выплаты</string>
+   </property>
+   <property name="toolTip">
+    <string>Выплаты</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../DSV.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actClose</sender>
+   <signal>triggered()</signal>
+   <receiver>ZMainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,309 @@
+#include <QApplication>
+#include <QString>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QProgressDialog>
+#include "zparsexlsxfile.h"
+#include "zsettings.h"
+#include "zmessager.h"
+
+#include "xlsxdocument.h"
+#include "xlsxchartsheet.h"
+#include "xlsxcellrange.h"
+#include "xlsxchart.h"
+#include "xlsxrichstring.h"
+#include "xlsxworkbook.h"
+using namespace QXlsx;
+
+#define IMPORT_TAG_DT "dt"
+#define IMPORT_TAG_SMENA "smena"
+#define IMPORT_TAG_WORK "work"
+#define IMPORT_TAG_FIO "fio"
+#define IMPORT_TAG_NUM "num"
+#define IMPORT_TAG_TYRE "tyre"
+#define IMPORT_TAG_RATE "rate"
+
+bool ZParseXLSXFile::loadFile(const QString &fileName)
+{
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	QProgressDialog progress("Обработка файла...", "Отмена", 0, 0, QApplication::activeWindow());
+	progress.setWindowModality(Qt::WindowModal);
+	progress.show();
+
+	Document xlsxR(fileName);
+
+	//int sheetIndexNumber = 0;
+	//foreach(QString currentSheetName, xlsxR.sheetNames())
+	QStringList sheetNames = xlsxR.sheetNames();
+	if (sheetNames.size() == 0)
+	{
+		progress.close();
+		QApplication::restoreOverrideCursor();
+		ZMessager::Instance().Message(_Error, "В файле не найдено ни одного листа", "Ошибка");
+		return false;
+	}
+	QString currentSheetName = sheetNames[0];
+
+	AbstractSheet* currentSheet = xlsxR.sheet(currentSheetName);
+	if (!currentSheet)
+	{
+		progress.close();
+		QApplication::restoreOverrideCursor();
+		ZMessager::Instance().Message(_Error, "Невозможно получить данные", "Ошибка");
+		return false;
+	}
+	
+	currentSheet->workbook()->setActiveSheet(0);
+	Worksheet* wsheet = (Worksheet*)currentSheet->workbook()->activeSheet();
+	if (!wsheet)
+	{
+		progress.close();
+		QApplication::restoreOverrideCursor();
+		ZMessager::Instance().Message(_Error, "Невозможно получить данные с листа", "Ошибка");
+		return false;
+	}
+	
+	QString strSheetName = wsheet->sheetName(); 
+
+	QVector<CellLocation> clList = wsheet->getFullCells(&maxRow, &maxCol);
+	for (int rc = 0; rc < maxRow; rc++)
+	{
+		QVector<QVariant> tempValue;
+	
+		for (int cc = 0; cc < maxCol; cc++)
+		{
+			tempValue.push_back(QVariant());
+		}
+		m_Data.push_back(tempValue);
+	}
+
+	for (int ic = 0; ic < clList.size(); ++ic)
+	{
+		QApplication::processEvents();
+		if (progress.wasCanceled())
+			break;
+
+		CellLocation cl = clList.at(ic);
+
+		int row = cl.row - 1;
+		int col = cl.col - 1;
+
+		QSharedPointer<Cell> ptrCell = cl.cell; 
+
+		if(ptrCell->isDateTime())
+			m_Data[row][col] = ptrCell.data()->dateTime();
+		else
+			m_Data[row][col] = ptrCell.data()->value();
+	}
+	progress.close();
+	
+	QSqlQuery query;
+	QString dt_str = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	QString str_query = QString("INSERT INTO public.import(file, dt) VALUES('%1', '%2')").arg(fileName).arg(dt_str);
+	if (!query.exec(str_query))
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+	uint key = 0;
+	str_query = QString("SELECT id FROM public.import WHERE dt='%1'").arg(dt_str);
+	if (!query.exec(str_query) || !query.next())
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+	else
+		key = query.value(0).toInt();
+
+	int rc = insertData(key);
+
+	str_query = QString("UPDATE public.import SET status=%1 WHERE id='%2'").arg(rc).arg(key);
+	if (!query.exec(str_query))
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+
+	if (rc == 1)
+		ZMessager::Instance().Message(_Warning, "Импортирование успешно выполнено", "Внимание");
+
+	QApplication::restoreOverrideCursor();
+	return (rc == 1);
+}
+
+int ZParseXLSXFile::insertData(uint key)
+{
+	QSqlQuery query;
+	QString str_query, str_tmpl;
+	int i, j;
+	bool fNoData = true;
+
+	if (m_Data.size() == 0)
+	{
+		ZMessager::Instance().Message(_Error, "Содержимое файла не соответствует данным для импорта", "Ошибка");
+		return 0;
+	}
+
+	QMap<QString, int> columnMap;
+	auto iT = ZSettings::Instance().importTags.constBegin();
+	while (iT != ZSettings::Instance().importTags.constEnd())
+	{
+		fNoData = true;
+		i = 0;
+		foreach(QVariant v, m_Data[0])
+		{
+			if (v.toString() == iT.key())
+			{
+				fNoData = false;
+				columnMap.insert(iT.value(), i);
+				break;
+			}
+			i++;
+		}
+
+		if (fNoData)
+		{
+			ZMessager::Instance().Message(_Error, "Структура файла не соответствует данным для импорта", "Ошибка");
+			return 0;
+		}
+
+		++iT;
+	}
+	
+	if (!query.exec("SELECT id,txt,mode FROM tariff"))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+		return 0;
+	}
+
+	QProgressDialog progress("Обработка данных...", "Отмена", 0, m_Data.size(), QApplication::activeWindow());
+	progress.setWindowModality(Qt::WindowModal);
+	progress.show();
+
+	struct TariffInfo
+	{
+		int id;
+		int mode;
+		QString txt;
+	};
+	QList<TariffInfo> Tariffs;
+
+	while (query.next())
+	{
+		TariffInfo info;
+		info.id = query.value(0).toInt();
+		info.mode = query.value(2).toInt();
+		info.txt = query.value(1).toString();
+		Tariffs << info;
+	}
+		
+	int fio_id, tariff_id;
+
+	for (i = 1; i < m_Data.size(); i++)
+	{
+		QApplication::processEvents();
+		if (progress.wasCanceled())
+			break;
+		progress.setValue(i);
+
+		const QVector<QVariant>& row = m_Data[i];
+
+		//разбираю тариф
+		//mode: 0-столбец "станок" (вид работы), 1-столбец "модель шины" содержит txt, 2-столбец "модель шины" начинается с txt, 3-столбец "модель шины" заканчивается txt, 4-столбец "Rate" значение txt
+		tariff_id = 0;
+		// 1. проверяю столбец "Rate"
+		foreach(TariffInfo tar, Tariffs)
+		{
+			if (tar.mode != 4)
+				continue;
+			if (row[columnMap[IMPORT_TAG_RATE]].toString() == tar.txt)
+			{
+				tariff_id = tar.id;
+				break;
+			}
+		}
+		// 2. проверяю столбец "станок / вид работы"
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 0)
+					continue;
+				if (row[columnMap[IMPORT_TAG_WORK]].toString() == tar.txt)
+				{
+					tariff_id = tar.id;
+					break;
+				}
+			}
+		}
+		str_tmpl = row[columnMap[IMPORT_TAG_TYRE]].toString();
+		// 3. проверяю столбец "модель шины" заканчивается txt
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 3)
+					continue;
+				if (str_tmpl.endsWith(tar.txt))
+				{
+					tariff_id = tar.id;
+					break;
+				}
+			}
+		}
+		// 4. проверяю столбец "модель шины" начинается txt
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 2)
+					continue;
+				if (str_tmpl.startsWith(tar.txt))
+				{
+					tariff_id = tar.id;
+					break;
+				}
+			}
+		}
+		// 5. проверяю столбец "модель шины" содержит txt
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 1)
+					continue;
+				if (str_tmpl.contains(tar.txt))
+				{
+					tariff_id = tar.id;
+					break;
+				}
+			}
+		}
+
+		//работаем с fio
+		fio_id = 0;
+		str_tmpl = row[columnMap[IMPORT_TAG_FIO]].toString();
+		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_tmpl);
+		if (!query.exec(str_query) || !query.next())
+		{
+			QString str_query = QString("INSERT INTO fio(name) VALUES('%1')").arg(str_tmpl);
+			if (!query.exec(str_query))
+				ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+			else
+			{
+				str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_tmpl);
+				if (!query.exec(str_query) || !query.next())
+					ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+				else
+					fio_id = query.value(0).toInt();
+			}
+		}
+		else
+			fio_id = query.value(0).toInt();
+
+		str_query = QString("INSERT INTO import_data (dt,smena,tariff,fio,num,import_id) VALUES('%1', (SELECT id FROM smena WHERE name='%2'), %3, %4, %5, %6);")
+			.arg(row[columnMap[IMPORT_TAG_DT]].toString())
+			.arg(row[columnMap[IMPORT_TAG_SMENA]].toString())
+			.arg(tariff_id)
+			.arg(fio_id)
+			.arg(row[columnMap[IMPORT_TAG_NUM]].toInt())
+			.arg(key);
+		if (!query.exec(str_query))
+			ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+	}
+
+	return 1;
+}
+
