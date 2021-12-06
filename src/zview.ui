@@ -100,7 +100,14 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QComboBox" name="cboFilter"/>
+    <widget class="QComboBox" name="cboFilter">
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item row="5" column="2">
     <widget class="QToolButton" name="cmdPrint">

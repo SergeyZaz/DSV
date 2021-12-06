@@ -2,9 +2,9 @@
 #include <QCloseEvent>
 #include "zmdichild.h"
 
-ZMdiChild::ZMdiChild()
+ZMdiChild::ZMdiChild(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
 {
-	setAttribute(Qt::WA_DeleteOnClose);
+	//setAttribute(Qt::WA_DeleteOnClose);
 
 	m_tbl = new ZView(this);
 	QGridLayout *pLayput = new QGridLayout(this);

@@ -1,7 +1,7 @@
 #include "zpayments.h"
 
 
-ZPayments::ZPayments()
+ZPayments::ZPayments(QWidget* parent, Qt::WindowFlags flags) : ZMdiChild(parent, flags)
 {
 }
 

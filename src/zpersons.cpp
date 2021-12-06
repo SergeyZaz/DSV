@@ -1,6 +1,6 @@
 #include "zpersons.h"
 
-ZPersons::ZPersons()
+ZPersons::ZPersons(QWidget* parent, Qt::WindowFlags flags) : ZMdiChild(parent, flags)
 {
 }
 

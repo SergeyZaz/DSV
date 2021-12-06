@@ -19,7 +19,6 @@
 #include "zgroups.h"
 #include "zarchives.h"
 #include "zpayments.h"
-#include "zoperations.h"
 #include "zparsefile.h"
 #include "zparsexlsxfile.h"
 #include "zprotokol.h"
@@ -174,7 +173,7 @@ void ZMainWindow::slotOpenGroupsDialog()
 		}
 	}
 
-	ZGroups*child = new ZGroups;
+	ZGroups*child = new ZGroups(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actGroups->text(), ui.actGroups->icon());
@@ -193,7 +192,7 @@ void ZMainWindow::slotOpenPersonsDialog()
 		}
 	}
 
-	ZMdiChild *child = new ZPersons;
+	ZMdiChild *child = new ZPersons(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPersons->text(), ui.actPersons->icon());
@@ -212,7 +211,7 @@ void ZMainWindow::slotOpenSmensDialog()
 		}
 	}
 
-	ZMdiChild *child = new ZSmens;
+	ZMdiChild *child = new ZSmens(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actSmens->text(), ui.actSmens->icon());
@@ -231,11 +230,10 @@ void ZMainWindow::slotOpenTariffsDialog()
 		}
 	}
 
-	ZMdiChild *child = new ZTariffs;
+	ZTariffs *child = new ZTariffs(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
-	child->setWindowTitleAndIcon(ui.actTariffs->text(), ui.actTariffs->icon());
-	child->initDB(db, "tariff");
+	child->initDB(db);
 	child->show();
 }
 
@@ -250,7 +248,7 @@ void ZMainWindow::slotOpenOrganisationsDialog()
 		}
 	}
 
-	ZOrganisations* child = new ZOrganisations;
+	ZOrganisations* child = new ZOrganisations(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actOrganisations->text(), ui.actOrganisations->icon());
@@ -269,7 +267,7 @@ void ZMainWindow::slotOpenArchivsDialog()
 		}
 	}
 
-	ZMdiChild *child = new ZArchives;
+	ZMdiChild *child = new ZArchives(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actArchivs->text(), ui.actArchivs->icon());
@@ -288,7 +286,7 @@ void ZMainWindow::slotOpenPaymentsDialog()
 		}
 	}
 
-	ZMdiChild* child = new ZPayments;
+	ZMdiChild* child = new ZPayments(this);
 	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPayments->text(), ui.actPayments->icon());
@@ -299,8 +297,18 @@ void ZMainWindow::slotOpenPaymentsDialog()
 
 void ZMainWindow::slotOpenProtokolDialog()
 {
-	ZProtokol *pD = new ZProtokol(db, this);
-	pD->show();
+	foreach(QMdiSubWindow * window, ui.mdiArea->subWindowList())
+	{
+		if (dynamic_cast<ZProtokol*>(window->widget()))
+		{
+			ui.mdiArea->setActiveSubWindow(window);
+			return;
+		}
+	}
+
+	QDialog* child = new ZProtokol(this);
+	ui.mdiArea->addSubWindow(child);
+	child->show();
 }
 
 void ZMainWindow::slotUpdateAccountsVal(int account_id)

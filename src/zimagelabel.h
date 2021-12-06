@@ -1,5 +1,4 @@
-#ifndef ZIMAGELABEL_H
-#define ZIMAGELABEL_H
+#pragma once
 
 #include <QLabel>
 #include <QPainter>
@@ -54,4 +53,4 @@ protected:
 		}
 };
 
-#endif // ZIMAGELABEL_H
+

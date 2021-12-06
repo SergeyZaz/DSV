@@ -38,9 +38,6 @@
     <ClCompile Include="src\zeditbaseform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\zfilteroperations.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\zmainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\zparsefile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\zpartnersform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\zprotokol.cpp">
@@ -191,15 +185,15 @@
     <ClCompile Include="src\zgroups.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ztariffsform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ztariffhistory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\zfilteroperations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\zimagelabel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\zoperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\zparsefile.h">
@@ -358,9 +352,6 @@
     <ClInclude Include="src\zsmens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ztariffs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\zorganisations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -384,9 +375,6 @@
     <QtMoc Include="src\zmdichild.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\zpartnersform.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="src\zprotokol.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -405,18 +393,21 @@
     <QtMoc Include="src\zviewgroups.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\ztariffsform.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ztariffs.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ztariffhistory.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zmainwindow.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="src\zoperationsform.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="src\zpartnersform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zprotokol.ui">
@@ -429,6 +420,15 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zviewgroups.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\ztariffsform.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\ztariffs.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\ztariffhistory.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

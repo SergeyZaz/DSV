@@ -43,7 +43,7 @@ void ZView::init()
 	connect(ui.cmdDel, SIGNAL(clicked()), this, SLOT(del()));
 	connect(ui.cmdEdit, SIGNAL(clicked()), this, SLOT(edit()));
 	connect(ui.tbl, SIGNAL(clicked ( const QModelIndex &)), this, SLOT(clickedTbl ( const QModelIndex &)));
-	connect(ui.tbl, SIGNAL(doubleClicked ( const QModelIndex &)), this, SLOT(doubleClickedTbl ( const QModelIndex &)));
+	connect(ui.tbl, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(doubleClickedTbl(const QModelIndex&)));
 	connect(ui.cmdReload, SIGNAL(clicked()), this, SLOT(reload()));
 	
 	
@@ -205,6 +205,7 @@ int ZView::init(QList<int> &hideColumns, int sortCol)
 	//ui.tbl->horizontalHeader()->setSectionsMovable(true);
 	ui.tbl->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);//ResizeToContents);//QHeaderView::Interactive);
 	ui.tbl->setModel(&sortModel);
+	bool rc = connect(ui.tbl->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(selectionChanged(const QModelIndex&, const QModelIndex&)));
 
 	int indx;
 	qSort(hideColumns.begin(), hideColumns.end(), qGreater<int>());
@@ -444,6 +445,18 @@ void ZView::clickedTbl(const QModelIndex &index)
 	emit setCurrentElem(QEvent::MouseButtonRelease, id);
 }
 
+void ZView::selectionChanged(const QModelIndex& current, const QModelIndex&)
+{
+	if (!model)
+		return;
+	QModelIndex indx = sortModel.mapToSource(current);
+	int id = model->data(model->index(indx.row(), 0)).toInt();
+
+	ui.cmdDel->setEnabled(id > 0); // удалить нельзя
+	ui.cmdEdit->setEnabled(id > 0); // редактировать нельзя
+
+	emit setCurrentElem(QEvent::ActivationChange, id);
+}
 
 void ZView::doubleClickedTbl(const QModelIndex &index)
 {

@@ -1,6 +1,6 @@
 #include "zsmens.h"
 
-ZSmens::ZSmens()
+ZSmens::ZSmens(QWidget* parent, Qt::WindowFlags flags): ZMdiChild(parent, flags)
 {
 }
 

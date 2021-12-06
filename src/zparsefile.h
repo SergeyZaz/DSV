@@ -1,6 +1,4 @@
-#ifndef PARSEFILE_H
-#define PARSEFILE_H
-
+#pragma once
 #include <QMap>
 
 class ZParseFile
@@ -16,4 +14,4 @@ public:
 	bool loadFile(const QString &fileName);
 };
 
-#endif
+

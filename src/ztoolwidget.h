@@ -1,5 +1,4 @@
-#ifndef ZTOOLLABEL_H
-#define ZTOOLLABEL_H
+#pragma once
 
 #include <QTimer>
 #include "ui_ztoolwidget.h"
@@ -67,6 +66,3 @@ public:
 	static QPixmap *pixmap;
 	Ui::ToolLabel ui;
 };
-
-
-#endif // ZTOOLLABEL_H

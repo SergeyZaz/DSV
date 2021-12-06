@@ -1,5 +1,4 @@
-#ifndef ZSETTINGS_H
-#define ZSETTINGS_H
+#pragma once
 
 #include <QMap>
 #include <QString>
@@ -12,4 +11,4 @@ public:
 	static ZSettings& Instance();
 };
 
-#endif
+

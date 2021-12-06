@@ -35,7 +35,7 @@ class ZViewGroups : public QDialog
 public:
 	Ui::ZGroups ui;
 
-	ZViewGroups();
+	ZViewGroups(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZViewGroups() {};
 
 	void setWindowTitleAndIcon(const QString& title, const QIcon& icon)

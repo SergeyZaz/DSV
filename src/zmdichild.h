@@ -1,7 +1,7 @@
-#ifndef ZMDICHILD_H
-#define ZMDICHILD_H
+#pragma once
 
 #include <QDialog>
+#include <QWidget>
 #include <QSqlDatabase>
 #include "zview.h"
 
@@ -10,7 +10,7 @@ class ZMdiChild : public QDialog
     Q_OBJECT
 
 public:
-    ZMdiChild();
+    ZMdiChild(QWidget* parent, Qt::WindowFlags flags);
  
 	void setContextMenuForTbl(const QStringList &items);
 	virtual void initDB(QSqlDatabase &, const QString &){};
@@ -33,4 +33,4 @@ protected slots:
 	void slotCustomActionExec();
 };
 
-#endif
+

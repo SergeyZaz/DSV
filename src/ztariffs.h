@@ -1,15 +1,34 @@
 #pragma once
+#include <QDialog>
+#include <QSqlDatabase>
+#include <QSqlQueryModel>
+#include <QSortFilterProxyModel>
+#include "ui_ztariffs.h"
 
-#include "zmdichild.h"
-
-
-class ZTariffs : public ZMdiChild
+class ZTariffs : public QDialog
 {
+	Q_OBJECT
+
+	Ui::ZTariffs ui;
+
+	QSqlDatabase	m_DB;
+	QSqlQueryModel* model;
+	QSortFilterProxyModel sortModel;
+	int currentId;
+	void Update();
+	int openEditor(int id = -1);
 
 public:
-	ZTariffs();
+	ZTariffs(QWidget* parent, Qt::WindowFlags flags = 0);
  
-	void initDB(QSqlDatabase &m_DB, const QString &m_TblName);
+	void initDB(QSqlDatabase &m_DB);
+
+public slots:
+	void setCurrentElem(QEvent::Type, int id);
+	void add();
+	void del();
+	void edit();
+
 };
 
 

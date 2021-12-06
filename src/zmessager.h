@@ -1,5 +1,4 @@
-#ifndef ZMESSAGER_H
-#define ZMESSAGER_H
+#pragma once
 
 #include <QTableView>
 #include <QTime>
@@ -61,4 +60,4 @@ public:
 	void Message(OutputMsgType type, const QString& txt, const QString title = "");
 };
 
-#endif
+

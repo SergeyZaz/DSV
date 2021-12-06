@@ -135,9 +135,9 @@
     <ClCompile Include="QXlsx\source\xlsxzipwriter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\zgroups.cpp" />
+    <ClCompile Include="src\ztariffhistory.cpp" />
     <ClCompile Include="src\zviewgroups.cpp" />
     <ClCompile Include="src\zeditbaseform.cpp" />
-    <ClCompile Include="src\zfilteroperations.cpp" />
     <ClCompile Include="src\zmainwindow.cpp" />
     <ClCompile Include="src\zmdichild.cpp" />
     <ClCompile Include="src\zmessager.cpp" />
@@ -146,7 +146,7 @@
     <ClCompile Include="src\zparsefile.cpp" />
     <ClCompile Include="src\zpayments.cpp" />
     <ClCompile Include="src\ztariffs.cpp" />
-    <ClCompile Include="src\zpartnersform.cpp" />
+    <ClCompile Include="src\ztariffsform.cpp" />
     <ClCompile Include="src\zorganisations.cpp" />
     <ClCompile Include="src\zprotokol.cpp" />
     <ClCompile Include="src\zsmens.cpp" />
@@ -201,18 +201,17 @@
     <ClInclude Include="QXlsx\header\xlsxworksheet_p.h" />
     <ClInclude Include="QXlsx\header\xlsxzipreader_p.h" />
     <ClInclude Include="QXlsx\header\xlsxzipwriter_p.h" />
+    <QtMoc Include="src\ztariffhistory.h" />
     <QtMoc Include="QXlsx\header\xlsxdocument.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\zgroups.h" />
     <QtMoc Include="src\zviewgroups.h" />
-    <ClInclude Include="src\zfilteroperations.h" />
     <ClInclude Include="src\zimagelabel.h" />
     <QtMoc Include="src\zmessager.h" />
-    <ClInclude Include="src\zoperations.h" />
     <ClInclude Include="src\zparsexlsxfile.h" />
     <ClInclude Include="src\zparsefile.h" />
     <ClInclude Include="src\zpayments.h" />
-    <ClInclude Include="src\ztariffs.h" />
+    <QtMoc Include="src\ztariffs.h" />
     <ClInclude Include="src\zorganisations.h" />
     <ClInclude Include="src\zsmens.h" />
     <ClInclude Include="src\zsettings.h" />
@@ -220,7 +219,7 @@
     <QtMoc Include="src\zview.h" />
     <QtMoc Include="src\ztoolwidget.h" />
     <QtMoc Include="src\zprotokol.h" />
-    <QtMoc Include="src\zpartnersform.h" />
+    <QtMoc Include="src\ztariffsform.h" />
     <ClInclude Include="src\zarchives.h" />
     <QtMoc Include="src\zmdichild.h" />
     <QtMoc Include="src\zmainwindow.h" />
@@ -228,10 +227,11 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui" />
+    <QtUic Include="src\ztariffhistory.ui" />
+    <QtUic Include="src\ztariffs.ui" />
     <QtUic Include="src\zviewgroups.ui" />
     <QtUic Include="src\zmainwindow.ui" />
-    <QtUic Include="src\zoperationsform.ui" />
-    <QtUic Include="src\zpartnersform.ui" />
+    <QtUic Include="src\ztariffsform.ui" />
     <QtUic Include="src\zprotokol.ui" />
     <QtUic Include="src\ztoolwidget.ui" />
     <QtUic Include="src\zview.ui" />

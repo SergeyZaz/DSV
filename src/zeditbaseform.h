@@ -1,6 +1,4 @@
-#ifndef ZEDITBASEFORM_H
-#define ZEDITBASEFORM_H
-
+#pragma once
 #include <QDialog>
 #include <QSqlDatabase>
 #include <QDateTime>
@@ -100,6 +98,3 @@ public slots:
 	void applySlot();
 	void textChangedSlot(const QString &);
 };
-
-
-#endif // ZEDITBASEFORM_H

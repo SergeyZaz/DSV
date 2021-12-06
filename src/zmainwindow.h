@@ -1,5 +1,4 @@
-#ifndef ZMAINWINDOW_H
-#define ZMAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QSqlDatabase>
@@ -41,7 +40,3 @@ private:
 	void writeSettings();
 
 };
-
-unsigned long fZ();
-
-#endif

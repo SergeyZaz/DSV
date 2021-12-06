@@ -1,5 +1,4 @@
-#ifndef ZVIEW_H
-#define ZVIEW_H
+#pragma once
 
 #include <QWidget>
 #include <QSqlDatabase>
@@ -87,6 +86,7 @@ public slots:
 	void changeFilter(int);
 	void clickedTbl(const QModelIndex &);
 	void doubleClickedTbl(const QModelIndex &);
+	void selectionChanged(const QModelIndex&, const QModelIndex&);
 	void reload();
 	void applyEditor();
 signals:	
@@ -96,4 +96,4 @@ signals:
 	void needUpdateVal(int);
 };
 
-#endif // ZVIEW_H
+

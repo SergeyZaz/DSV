@@ -1,7 +1,7 @@
 #include "zarchives.h"
 
 
-ZArchives::ZArchives()
+ZArchives::ZArchives(QWidget* parent, Qt::WindowFlags flags): ZMdiChild(parent, flags)
 {
 }
 

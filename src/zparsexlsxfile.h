@@ -1,5 +1,4 @@
-#ifndef PARSEXLSXFILE_H
-#define PARSEXLSXFILE_H
+#pragma once
 
 #include <QVector>
 #include <QVariant>
@@ -16,4 +15,4 @@ public:
 	bool loadFile(const QString &fileName);
 };
 
-#endif
+
