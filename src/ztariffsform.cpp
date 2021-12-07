@@ -2,17 +2,16 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include "ztariffsform.h"
+#include "ztariffs.h"
 
 ZTariffsForm::ZTariffsForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbstractForm(parent, flags)
 {
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applyChanges()));
 	
-	ui.cboMode->addItem("вид работы", 0);
-	ui.cboMode->addItem("модель шины содержит ...", 1);
-	ui.cboMode->addItem("модель шины начинается с ...", 2);
-	ui.cboMode->addItem("модель шины заканчивается ...", 3);
-	ui.cboMode->addItem("Rate содержит ...", 4);
+	int i = 0;
+	foreach(QString t, ZTariffs::getModes())
+		ui.cboMode->addItem(t, i++);
 
 	ui.cboType->addItem("за смену", 0);
 	ui.cboType->addItem("за штуку", 1);

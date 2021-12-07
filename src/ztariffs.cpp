@@ -4,12 +4,21 @@
 #include "ztariffsform.h"
 #include "ztariffhistory.h"
 
+QStringList ZTariffs::l_Modes; 
+QStringList& ZTariffs::getModes()
+{
+	if (l_Modes.size() == 0)
+		l_Modes << "вид работы" << "модель шины содержит ..." << "модель шины начинается с ..." << "модель шины заканчивается ..." << "Rate содержит ...";
+	return l_Modes;
+}
+
 ZTariffs::ZTariffs(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags)
 {
 	model = NULL;
 	currentId = -1;
 	ui.setupUi(this);
 	connect(ui.m_tbl, SIGNAL(setCurrentElem(QEvent::Type, int)), this, SLOT(setCurrentElem(QEvent::Type, int)));
+	connect(ui.tbl, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(doubleClickedTbl(const QModelIndex&)));
 	connect(ui.cmdAdd, SIGNAL(clicked()), this, SLOT(add()));
 	connect(ui.cmdDel, SIGNAL(clicked()), this, SLOT(del()));
 	connect(ui.cmdEdit, SIGNAL(clicked()), this, SLOT(edit()));
@@ -33,11 +42,9 @@ void ZTariffs::initDB(QSqlDatabase &m_DB)
 
 	//столбец "станок" (вид работы), 1 - столбец "модель шины" содержит txt, 2 - столбец "модель шины" начинается с txt, 3 - столбец "модель шины" заканчивается txt, 4 - столбец "Rate" значение txt
 	QMap<int, QString> *pMap0 = new QMap<int, QString>;
-	pMap0->insert(0, "вид работы");
-	pMap0->insert(1, "модель шины содержит ...");
-	pMap0->insert(2, "модель шины начинается с ...");
-	pMap0->insert(3, "модель шины заканчивается ...");
-	pMap0->insert(4, "Rate содержит ...");
+	int i = 0;
+	foreach(QString t, getModes())
+		pMap0->insert(i++, t);
 	ui.m_tbl->setRelation(2, pMap0);
 	
 	QMap<int, QString>* pMap1 = new QMap<int, QString>;
@@ -48,6 +55,18 @@ void ZTariffs::initDB(QSqlDatabase &m_DB)
 	ui.m_tbl->init(hideColumns);
 
 	Update();
+}
+
+void ZTariffs::doubleClickedTbl(const QModelIndex& index)
+{
+	if (!model)
+		return;
+	QModelIndex indx = sortModel.mapToSource(index);
+	int id = model->data(model->index(indx.row(), 0)).toInt();
+
+	emit setCurrentElem(QEvent::MouseButtonDblClick, id);
+
+	openEditor(id);
 }
 
 void ZTariffs::setCurrentElem(QEvent::Type, int id)

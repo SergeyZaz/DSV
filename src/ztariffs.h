@@ -11,6 +11,8 @@ class ZTariffs : public QDialog
 
 	Ui::ZTariffs ui;
 
+	static QStringList l_Modes;
+
 	QSqlDatabase	m_DB;
 	QSqlQueryModel* model;
 	QSortFilterProxyModel sortModel;
@@ -23,11 +25,13 @@ public:
  
 	void initDB(QSqlDatabase &m_DB);
 
+	static QStringList& getModes();
 public slots:
 	void setCurrentElem(QEvent::Type, int id);
 	void add();
 	void del();
 	void edit();
+	void doubleClickedTbl(const QModelIndex&);
 
 };
 

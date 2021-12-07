@@ -57,6 +57,25 @@
        </layout>
       </item>
       <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Группа:</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QComboBox" name="cboFilter">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -100,22 +119,22 @@
      </property>
      <column>
       <property name="text">
-       <string notr="true">Организация</string>
+       <string notr="true">Организация / дата</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>ФИО</string>
+       <string>ФИО / смена</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Доплаты</string>
+       <string>Доплаты / количество</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Аванс</string>
+       <string>Аванс / тариф</string>
       </property>
      </column>
      <column>

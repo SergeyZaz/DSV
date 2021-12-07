@@ -90,6 +90,7 @@
     <addaction name="actOrganisations"/>
     <addaction name="actSmens"/>
     <addaction name="actTariffs"/>
+    <addaction name="actPayments"/>
     <addaction name="actArchivs"/>
    </widget>
    <widget class="QMenu" name="menu_3">
@@ -394,10 +395,10 @@
      <normaloff>:/images/ms.png</normaloff>:/images/ms.png</iconset>
    </property>
    <property name="text">
-    <string>Выплаты</string>
+    <string>Вычеты</string>
    </property>
    <property name="toolTip">
-    <string>Выплаты</string>
+    <string>Вычеты</string>
    </property>
   </action>
  </widget>
