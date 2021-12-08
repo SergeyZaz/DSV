@@ -218,6 +218,7 @@ int ZView::init(QList<int> &hideColumns, int sortCol)
 	ui.tbl->horizontalHeader()->setSortIndicator(sortCol, Qt::AscendingOrder); 
 	
 	ui.tbl->resizeColumnsToContents();
+	ui.tbl->resizeRowsToContents();
 
 	QApplication::restoreOverrideCursor();
 	return 1;
@@ -401,7 +402,12 @@ void ZView::changeFilter(int indx)
 {
 	if(!model)
 		return;
-	sortModel.setFilterKeyColumn(ui.cboFilter->itemData(indx).toInt()); 
+
+	ui.cboFilter->blockSignals(true);
+	ui.cboFilter->setCurrentIndex(indx);
+	ui.cboFilter->blockSignals(false);
+
+	sortModel.setFilterKeyColumn(ui.cboFilter->itemData(indx).toInt());
 	changeFilter(ui.txtFilter->text());
 }
 

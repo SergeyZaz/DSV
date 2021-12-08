@@ -91,6 +91,7 @@
     <addaction name="actSmens"/>
     <addaction name="actTariffs"/>
     <addaction name="actPayments"/>
+    <addaction name="actPayments2fio"/>
     <addaction name="actArchivs"/>
    </widget>
    <widget class="QMenu" name="menu_3">
@@ -127,6 +128,7 @@
    <addaction name="actSmens"/>
    <addaction name="actTariffs"/>
    <addaction name="actPayments"/>
+   <addaction name="actPayments2fio"/>
    <addaction name="actProtokol"/>
    <addaction name="actArchivs"/>
   </widget>
@@ -395,10 +397,22 @@
      <normaloff>:/images/ms.png</normaloff>:/images/ms.png</iconset>
    </property>
    <property name="text">
-    <string>Вычеты</string>
+    <string>Вычеты/выплаты</string>
    </property>
    <property name="toolTip">
-    <string>Вычеты</string>
+    <string>Вычеты/выплаты</string>
+   </property>
+  </action>
+  <action name="actPayments2fio">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/t_ms.png</normaloff>:/images/t_ms.png</iconset>
+   </property>
+   <property name="text">
+    <string>Вычеты/выплаты ФИО</string>
+   </property>
+   <property name="toolTip">
+    <string>Вычеты/выплаты ФИО</string>
    </property>
   </action>
  </widget>

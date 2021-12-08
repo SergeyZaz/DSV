@@ -156,8 +156,8 @@ INNER JOIN fio ON(import_data.fio = fio.id) \
 INNER JOIN organisation2fio ON(import_data.fio = value) \
 INNER JOIN organisation ON(organisation2fio.key = organisation.id) \
 INNER JOIN smena ON(smena.id = smena) \
-INNER JOIN groups2fio ON(import_data.fio = groups2fio.value) \
-INNER JOIN groups ON(groups2fio.key = groups.id) \
+LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
+LEFT JOIN groups ON(groups2fio.key = groups.id) \
 WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 .arg(ui.dateStart->date().toString("yyyy-MM-dd"))
 .arg(ui.dateEnd->date().toString("yyyy-MM-dd"));

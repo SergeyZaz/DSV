@@ -18,7 +18,6 @@ void ZPersons::initDB(QSqlDatabase &m_DB, const QString &m_TblName)
 
 	m_tbl->setTable(m_TblName, headers, cRem);
 	m_tbl->init(hideColumns);
-	//m_tbl->setCustomEditor(new ZUrPersonsForm);
 	m_tbl->moveSection(3, 5);
 }
 

@@ -135,6 +135,9 @@
     <ClCompile Include="QXlsx\source\xlsxzipwriter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\zgroups.cpp" />
+    <ClCompile Include="src\zpayments2fio.cpp" />
+    <ClCompile Include="src\zpayments2fioform.cpp" />
+    <ClCompile Include="src\zpaymentsform.cpp" />
     <ClCompile Include="src\ztariffhistory.cpp" />
     <ClCompile Include="src\zviewgroups.cpp" />
     <ClCompile Include="src\zeditbaseform.cpp" />
@@ -213,6 +216,9 @@
     <ClInclude Include="src\zpayments.h" />
     <QtMoc Include="src\ztariffs.h" />
     <ClInclude Include="src\zorganisations.h" />
+    <ClInclude Include="src\zpayments2fio.h" />
+    <QtMoc Include="src\zpaymentsform.h" />
+    <QtMoc Include="src\zpayments2fioform.h" />
     <ClInclude Include="src\zsmens.h" />
     <ClInclude Include="src\zsettings.h" />
     <ClInclude Include="src\zpersons.h" />
@@ -227,6 +233,8 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui" />
+    <QtUic Include="src\zpayments2fioform.ui" />
+    <QtUic Include="src\zpaymentsform.ui" />
     <QtUic Include="src\ztariffhistory.ui" />
     <QtUic Include="src\ztariffs.ui" />
     <QtUic Include="src\zviewgroups.ui" />

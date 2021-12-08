@@ -24,6 +24,7 @@
 #include "zprotokol.h"
 #include "zsettings.h"
 #include "zmessager.h"
+#include "zpayments2fio.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -47,6 +48,7 @@ ZMainWindow::ZMainWindow()
 	connect(ui.actOrganisations, SIGNAL(triggered()), this,	SLOT(slotOpenOrganisationsDialog()));
 	connect(ui.actArchivs, SIGNAL(triggered()), this, SLOT(slotOpenArchivsDialog()));
 	connect(ui.actPayments, SIGNAL(triggered()), this, SLOT(slotOpenPaymentsDialog()));
+	connect(ui.actPayments2fio, SIGNAL(triggered()), this, SLOT(slotOpenPayments2fioDialog()));
 
 	connect(ui.actProtokol, SIGNAL(triggered()), this,	SLOT(slotOpenProtokolDialog()));
 	
@@ -291,6 +293,25 @@ void ZMainWindow::slotOpenPaymentsDialog()
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPayments->text(), ui.actPayments->icon());
 	child->initDB(db, "payments");
+	child->show();
+}
+
+void ZMainWindow::slotOpenPayments2fioDialog()
+{
+	foreach(QMdiSubWindow * window, ui.mdiArea->subWindowList())
+	{
+		if (dynamic_cast<ZPayments2fio*>(window->widget()))
+		{
+			ui.mdiArea->setActiveSubWindow(window);
+			return;
+		}
+	}
+
+	ZMdiChild* child = new ZPayments2fio(this);
+	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
+	ui.mdiArea->addSubWindow(child);
+	child->setWindowTitleAndIcon(ui.actPayments2fio->text(), ui.actPayments2fio->icon());
+	child->initDB(db, "payments2fio");
 	child->show();
 }
 
