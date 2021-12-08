@@ -8,4 +8,10 @@
     <LocalDebuggerEnvironment>PATH=%PATH%;C:/Qt/Qt5.11.0/5.11.0/msvc2017_64/bin;./lib</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtLastBackgroundBuild>2021-12-08T17:07:16.4911648Z</QtLastBackgroundBuild>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtLastBackgroundBuild>2021-12-04T15:25:26.8307978Z</QtLastBackgroundBuild>
+  </PropertyGroup>
 </Project>

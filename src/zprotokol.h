@@ -34,12 +34,11 @@ public:
 	int getTextForPayment(int id, int col, QString& text, QVariantList &vList, double &summa);
 	void updateSumm();
 
+	Ui::ZProtokol ui;
+
 public slots:
 	void buildProtokol();
 	void saveProtokol();
-
-private:
-	Ui::ZProtokol ui;
 };
 
 
@@ -48,9 +47,12 @@ class ZTreeDataDelegate : public QItemDelegate
 	Q_OBJECT
 
 	ZProtokol* pEditor;
+	mutable QWidget* w;
 	mutable QListWidget* listWidget;
 	mutable int column;
 	mutable int fio_id;
+	
+	int openEditor(int id);
 
 public:
 	ZTreeDataDelegate(ZProtokol *Editor, QObject* parent = 0);

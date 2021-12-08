@@ -19,7 +19,6 @@
 #include "zgroups.h"
 #include "zarchives.h"
 #include "zpayments.h"
-#include "zparsefile.h"
 #include "zparsexlsxfile.h"
 #include "zprotokol.h"
 #include "zsettings.h"

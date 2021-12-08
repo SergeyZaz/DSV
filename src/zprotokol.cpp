@@ -1,8 +1,11 @@
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QFileDialog>
+#include <QDesktopServices>
 #include "zprotokol.h"
 #include "zmessager.h"
 #include "ztariffs.h"
+#include "zpayments2fioform.h"
 
 #define FIO_ID_ROLE			Qt::UserRole
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
@@ -165,7 +168,7 @@ INNER JOIN organisation ON(organisation2fio.key = organisation.id) \
 INNER JOIN smena ON(smena.id = smena) \
 LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
-WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
+WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 .arg(ui.dateStart->date().toString("yyyy-MM-dd"))
 .arg(ui.dateEnd->date().toString("yyyy-MM-dd"));
 
@@ -254,7 +257,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 		for (i = 0; i < pItem->columnCount(); i++)
 		{
 			fnt = pItem->font(i);
-			if (i > 1 && i < 5)
+			if (i > 1 && i < 5 || i == 6)
 				fnt.setPointSizeF(8);
 			else
 				fnt.setBold(true);
@@ -353,6 +356,11 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 
 void ZProtokol::saveProtokol()
 {
+	QString fileName = QFileDialog::getSaveFileName(this, "Выбор файла для экспорта", "", "XLSX-файлы (*.xlsx)");
+	if (fileName.isEmpty())
+		return;
+
+	QDesktopServices::openUrl(QUrl("file:///" + fileName, QUrl::TolerantMode));
 }
 
 
@@ -361,6 +369,7 @@ ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
 	: QItemDelegate(parent), pEditor(Editor)
 {
 	listWidget = NULL;
+	w = NULL;
 }
 
 QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
@@ -375,7 +384,7 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 
 	if (fio_id > 0)
 	{
-		QWidget* w = new QWidget(parent);
+		w = new QWidget(parent);
 		w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
 		QPushButton* tb1 = new QPushButton(w);
@@ -420,6 +429,8 @@ void ZTreeDataDelegate::setEditorData(QWidget* editor,
 		QStringList items = index.model()->data(index, Qt::DisplayRole).toString().split("\n");
 		QVariantList vList = index.model()->data(index, PAYMENT_ID_ROLE).toList();
 		int i = 0;
+		if (vList.size() != items.size())
+			return;
 		foreach(QVariant v, vList)
 		{
 			QListWidgetItem* pItem = new QListWidgetItem(items[i++]);
@@ -465,6 +476,10 @@ void ZTreeDataDelegate::add_clicked()
 	if (!listWidget)
 		return;
 
+	if (openEditor(ADD_UNIC_CODE) == 0)
+		return;
+
+	commitData(w);
 }
 
 void ZTreeDataDelegate::edit_clicked()
@@ -476,37 +491,63 @@ void ZTreeDataDelegate::edit_clicked()
 		return;
 	int id = pItem->data(Qt::UserRole).toInt();
 
+	if (openEditor(id) == 0)
+		return;
+
+	commitData(w);
 }
 
 void ZTreeDataDelegate::del_clicked()
 {
-	if (!listWidget)
+	if (!listWidget || !w)
 		return;
 
 	QListWidgetItem* pItem = listWidget->currentItem();
 	if (!pItem)
 		return;
 	int id = pItem->data(Qt::UserRole).toInt();
-/*
+
 	QSqlQuery m_Query;
-	QString s_Query = tr("DELETE FROM tariff_history WHERE id IN (");
-
-	for (int i = 0; i < ids.size(); i++)
-	{
-		if (i != 0)
-			s_Query += ",";
-
-		s_Query += QString::number(ids[i]);
-	}
-
-	s_Query += ")";
-
-	if (!m_Query.exec(s_Query))
+	if (!m_Query.exec(QString("DELETE FROM payments2fio WHERE id=%1").arg(id)))
 	{
 		ZMessager::Instance().Message(_Error, m_Query.lastError().text());
 		return;
 	}
-*/
+	commitData(w);
+}
+
+int ZTreeDataDelegate::openEditor(int id)
+{
+	ZPayments2FioForm* pD = new ZPayments2FioForm(listWidget->parentWidget());
+	pD->init("payments2fio", id);
+
+	switch (column)
+	{
+	case 2://Доплаты
+		pD->ui.cboMode->setCurrentIndex(0);
+		pD->ui.cboPayment->removeItem(0);
+		break;
+	case 3://Аванс
+		pD->ui.cboPayment->setEnabled(false);
+		break;
+	case 4://Вычеты
+		pD->ui.cboMode->setCurrentIndex(1);
+		break;
+	default:
+		return 0;
+	}
+	pD->ui.cboFIO->setEnabled(false);
+	pD->ui.cboMode->setEnabled(false);
+	pD->ui.dateEdit->setMinimumDate(pEditor->ui.dateStart->date());
+	pD->ui.dateEdit->setMaximumDate(pEditor->ui.dateEnd->date());
+
+	if(id== ADD_UNIC_CODE)
+		pD->ui.cboFIO->setCurrentIndex(pD->ui.cboFIO->findData(fio_id));
+
+	if (pD->exec() != QDialog::Accepted)
+		return 0;
+
+	return 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

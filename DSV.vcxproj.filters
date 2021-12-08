@@ -44,9 +44,6 @@
     <ClCompile Include="src\zmdichild.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\zparsefile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\zprotokol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,9 +200,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\zimagelabel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\zparsefile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">

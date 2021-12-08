@@ -146,7 +146,6 @@
     <ClCompile Include="src\zmessager.cpp" />
     <ClCompile Include="src\zarchives.cpp" />
     <ClCompile Include="src\zparsexlsxfile.cpp" />
-    <ClCompile Include="src\zparsefile.cpp" />
     <ClCompile Include="src\zpayments.cpp" />
     <ClCompile Include="src\ztariffs.cpp" />
     <ClCompile Include="src\ztariffsform.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="src\zimagelabel.h" />
     <QtMoc Include="src\zmessager.h" />
     <ClInclude Include="src\zparsexlsxfile.h" />
-    <ClInclude Include="src\zparsefile.h" />
     <ClInclude Include="src\zpayments.h" />
     <QtMoc Include="src\ztariffs.h" />
     <ClInclude Include="src\zorganisations.h" />

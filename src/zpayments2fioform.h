@@ -6,7 +6,6 @@
 class ZPayments2FioForm : public ZEditAbstractForm
 {
     Q_OBJECT
-	Ui::ZPayments2FioForm ui;
 
 	void loadFio();
 
@@ -15,6 +14,7 @@ public:
 	~ZPayments2FioForm();
 
 	int init(const QString& table, int id);
+	Ui::ZPayments2FioForm ui;
 
 protected slots:
 	void applyChanges();
