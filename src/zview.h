@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-#include <QSqlDatabase>
 #include <QSqlRelationalTableModel>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -19,7 +18,7 @@
 class ZTableModel :  public QSqlRelationalTableModel
 {
 public:
-	ZTableModel(QObject * parent = 0, QSqlDatabase db = QSqlDatabase());
+	ZTableModel(QObject * parent = 0);
 	~ZTableModel();
 	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 	Qt::ItemFlags flags ( const QModelIndex & index ) const;
@@ -42,7 +41,6 @@ class ZView : public QWidget
 {
 	Q_OBJECT
 
-	QSqlDatabase			m_DB;
 	ZSortFilterProxyModel	sortModel;
 	QSqlQueryModel			*model;
 	QPointer<ZEditAbstractForm>		pEditForm;
@@ -50,10 +48,8 @@ class ZView : public QWidget
 
 public:
 	ZView(QWidget *parent = 0, Qt::WindowFlags flags = 0);
-	ZView(QSqlDatabase &DB, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~ZView();
 	void init();
-	void setDatabase(QSqlDatabase &DB);
 	void setColorHighligthIfColumnContain(int col, QList<int> *plist);
 	int setTable(const QString &tbl, QStringList &headers, QList<int> &removeColumns);
 	void setTable(const QString &tbl) { mTable=tbl;}

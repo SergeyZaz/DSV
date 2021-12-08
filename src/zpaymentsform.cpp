@@ -14,9 +14,9 @@ ZPaymentsForm::ZPaymentsForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbst
 
 ZPaymentsForm::~ZPaymentsForm(){}
 
-int ZPaymentsForm::init( QSqlDatabase &database, const QString &table, int id )
+int ZPaymentsForm::init(const QString &table, int id )
 {
-	ZEditAbstractForm::init(database, table, id);
+	ZEditAbstractForm::init(table, id);
 
 	ui.txtName->setFocus();
 
@@ -33,7 +33,7 @@ int ZPaymentsForm::init( QSqlDatabase &database, const QString &table, int id )
 	}
 
 	// execute request
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	bool result = query.exec(stringQuery);
 	if (result)
 	{
@@ -61,7 +61,7 @@ void ZPaymentsForm::applyChanges()
 	else
 		stringQuery = QString("UPDATE payments SET name=?, mode=?, comment=? WHERE id=%1").arg(curEditId);
 
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	query.prepare(stringQuery);
 
 	text = ui.txtName->text();

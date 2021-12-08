@@ -2,7 +2,6 @@
 
 #include <QDialog>
 #include <QWidget>
-#include <QSqlDatabase>
 #include "zview.h"
 
 class ZMdiChild : public QDialog
@@ -13,7 +12,7 @@ public:
     ZMdiChild(QWidget* parent, Qt::WindowFlags flags);
  
 	void setContextMenuForTbl(const QStringList &items);
-	virtual void initDB(QSqlDatabase &, const QString &){};
+	virtual void init(const QString &){};
 	// set icon and title
 	virtual void setWindowTitleAndIcon(const QString &title, const QIcon &icon) 
 	{

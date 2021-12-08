@@ -19,9 +19,9 @@ void ZEditBaseForm::closeEvent(QCloseEvent *)
 {
 }
 
-int ZEditBaseForm::init(QSqlDatabase &db, const QString &tbl, int id)
+int ZEditBaseForm::init(const QString &tbl, int id)
 {
-	ZEditAbstractForm::init(db, tbl, id);
+	ZEditAbstractForm::init(tbl, id);
 
 	fNeedComment = true;
 
@@ -55,7 +55,7 @@ int ZEditBaseForm::init(QSqlDatabase &db, const QString &tbl, int id)
 
 	
 	QStringList list;
-	QSqlQuery m_Query(m_DB);
+	QSqlQuery m_Query;
 	int rc = m_Query.exec(sQry);
 	if(rc)
 	{
@@ -129,7 +129,7 @@ void ZEditBaseForm::applySlot()
 	}
 
 
-	QSqlQuery m_Query(m_DB);
+	QSqlQuery m_Query;
 	int rc = m_Query.exec(sQry);
 	if(!rc)
 	{

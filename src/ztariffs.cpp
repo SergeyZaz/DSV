@@ -25,11 +25,8 @@ ZTariffs::ZTariffs(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, fla
 }
 
 
-void ZTariffs::initDB(QSqlDatabase &m_DB)
+void ZTariffs::init()
 {
-	m_DB = m_DB;
-	ui.m_tbl->setDatabase(m_DB);
-
 	QList<int> hideColumns;
 	QStringList headers;
 	QList<int> cRem;
@@ -85,7 +82,7 @@ void ZTariffs::Update()
 
 	model = new QSqlQueryModel();
 
-	model->setQuery(QString("SELECT id,dt,val FROM tariff_history WHERE tariff_id=%1").arg(currentId), m_DB);
+	model->setQuery(QString("SELECT id,dt,val FROM tariff_history WHERE tariff_id=%1").arg(currentId));
 
 	sortModel.setSourceModel(model);
 	sortModel.setFilterKeyColumn(1);
@@ -130,7 +127,7 @@ void ZTariffs::del()
 	if (QMessageBox::question(this, tr("Внимание"), tr("Вы действительно хотите удалить выделенные элементы?"), tr("Да"), tr("Нет"), QString::null, 0, 1) != 0)
 		return;
 
-	QSqlQuery m_Query(m_DB);
+	QSqlQuery m_Query;
 	QString s_Query = tr("DELETE FROM tariff_history WHERE id IN (");
 
 	for (int i = 0; i < ids.size(); i++)

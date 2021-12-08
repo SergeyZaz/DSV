@@ -12,7 +12,7 @@ public:
 	ZPaymentsForm(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZPaymentsForm();
 
-	int init( QSqlDatabase &database, const QString &table, int id );
+	int init(const QString &table, int id );
 
 protected slots:
 	void applyChanges();

@@ -4,10 +4,8 @@ ZSmens::ZSmens(QWidget* parent, Qt::WindowFlags flags): ZMdiChild(parent, flags)
 {
 }
 
-void ZSmens::initDB(QSqlDatabase &m_DB, const QString &m_TblName)
+void ZSmens::init(const QString &m_TblName)
 {
-	m_tbl->setDatabase(m_DB);
-
 	QList<int> hideColumns;
 	QStringList headers;
 	QList<int> cRem;

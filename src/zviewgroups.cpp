@@ -18,14 +18,11 @@ ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags): QDialog(parent
 	connect(ui.m_tbl, SIGNAL(setCurrentElem(QEvent::Type, int)), this, SLOT(setCurrentElem(QEvent::Type, int)));	
 }
 
-void ZViewGroups::setDatabase(QSqlDatabase& DB)
+void ZViewGroups::setup()
 {
-	m_DB = DB;
-	ui.m_tbl->setDatabase(m_DB);
-
 	modelFIO = new ZFioModel();
 
-	modelFIO->setQuery("SELECT id,name FROM public.fio", m_DB);
+	modelFIO->setQuery("SELECT id,name FROM public.fio");
 	if (modelFIO->lastError().isValid())
 	{
 		QApplication::restoreOverrideCursor();
@@ -104,7 +101,7 @@ void  ZViewGroups::Update()
 
 	model = new QSqlQueryModel();
 
-	model->setQuery(QString("SELECT value,name FROM %2 INNER JOIN fio ON (value = fio.id) WHERE key=%1").arg(currentId).arg(linkTableName), m_DB);
+	model->setQuery(QString("SELECT value,name FROM %2 INNER JOIN fio ON (value = fio.id) WHERE key=%1").arg(currentId).arg(linkTableName));
 
 	sortModel.setSourceModel(model);
 	sortModel.setFilterKeyColumn(1);

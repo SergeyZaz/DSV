@@ -14,7 +14,7 @@ public:
 	ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZPayments2FioForm();
 
-	int init( QSqlDatabase &database, const QString &table, int id );
+	int init(const QString& table, int id);
 
 protected slots:
 	void applyChanges();

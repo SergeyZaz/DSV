@@ -16,9 +16,9 @@ ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : Z
 
 ZPayments2FioForm::~ZPayments2FioForm(){}
 
-int ZPayments2FioForm::init( QSqlDatabase &database, const QString &table, int id )
+int ZPayments2FioForm::init(const QString &table, int id )
 {
-	ZEditAbstractForm::init(database, table, id);
+	ZEditAbstractForm::init(table, id);
 
 	loadFio();
 
@@ -38,7 +38,7 @@ int ZPayments2FioForm::init( QSqlDatabase &database, const QString &table, int i
 	}
 
 	// execute request
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	bool result = query.exec(stringQuery);
 	if (result)
 	{
@@ -66,7 +66,7 @@ void ZPayments2FioForm::loadFio()
 {
 	ui.cboFIO->clear();
 
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	if (query.exec("SELECT id,name FROM fio ORDER BY name"))
 	{
 		while (query.next())
@@ -86,7 +86,7 @@ void ZPayments2FioForm::changeMode(int indx)
 
 	ui.cboPayment->clear();
 
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	QString stringQuery = QString("SELECT id,name FROM payments WHERE mode = %1 ORDER BY name").arg(indx);
 	if (query.exec(stringQuery))
 	{
@@ -110,7 +110,7 @@ void ZPayments2FioForm::applyChanges()
 	else
 		stringQuery = QString("UPDATE payments2fio SET payment=?, fio=?, dt=?, val=? WHERE id=%1").arg(curEditId);
 
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	query.prepare(stringQuery);
 	
 	query.addBindValue(ui.cboPayment->itemData(ui.cboMode->currentIndex(), Qt::UserRole));

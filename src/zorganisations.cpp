@@ -5,9 +5,9 @@ ZOrganisations::ZOrganisations(QWidget* parent, Qt::WindowFlags flags) : ZViewGr
 {
 }
 
-void ZOrganisations::initDB(QSqlDatabase &m_DB, const QString &m_TblName)
+void ZOrganisations::init(const QString &m_TblName)
 {
-	setDatabase(m_DB);
+	setup();
 
 	QList<int> hideColumns;
 	QStringList headers;

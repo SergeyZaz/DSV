@@ -5,9 +5,9 @@ ZGroups::ZGroups(QWidget* parent, Qt::WindowFlags flags) : ZViewGroups(parent, f
 }
 
 
-void ZGroups::initDB(QSqlDatabase &m_DB, const QString &m_TblName)
+void ZGroups::init(const QString &m_TblName)
 {
-	setDatabase(m_DB);
+	setup();
 
 	QList<int> hideColumns;
 	QStringList headers;

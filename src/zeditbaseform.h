@@ -1,6 +1,5 @@
 #pragma once
 #include <QDialog>
-#include <QSqlDatabase>
 #include <QDateTime>
 #include <QComboBox>
 #include <QSqlQuery>
@@ -14,15 +13,13 @@ class ZEditAbstractForm : public QDialog
 public:
 	int						curEditId;
 	QString					m_tbl;
-	QSqlDatabase			m_DB;
 
 	ZEditAbstractForm(QWidget *parent = 0, Qt::WindowFlags flags = 0):QDialog(parent, flags)
 	{
 		setModal(true);
 	}
-	virtual int init(QSqlDatabase &db, const QString &tbl, int id)
+	virtual int init(const QString &tbl, int id)
 	{
-		m_DB = db;
 		m_tbl = tbl;
 		curEditId = id;
 		return 1;
@@ -34,7 +31,7 @@ public:
 		QString strQuery, txt = comboBox->currentText();
 
 		// create query
-		QSqlQuery query(m_DB);
+		QSqlQuery query;
 
 		// clear box
 		comboBox->clear();
@@ -91,7 +88,7 @@ class ZEditBaseForm : public ZEditAbstractForm
 	int fNeedComment;
 	void closeEvent(QCloseEvent *event);
 public:
-	int init(QSqlDatabase &db, const QString &tbl, int id);
+	int init(const QString &tbl, int id);
 	ZEditBaseForm(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~ZEditBaseForm();
 public slots:

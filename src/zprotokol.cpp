@@ -4,6 +4,10 @@
 #include "zmessager.h"
 #include "ztariffs.h"
 
+#define FIO_ID_ROLE Qt::UserRole
+#define TYPE_ROLE Qt::UserRole+1
+#define TYPE_VALUE 'Z'
+
 ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
 {
 	ui.setupUi(this);
@@ -19,6 +23,8 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, fl
 	ui.tree->setColumnWidth(1, 200);
 	ui.tree->setColumnWidth(2, 200);
 	ui.tree->setColumnWidth(3, 200);
+	
+	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
 	loadItemsTo(ui.cboFilter, "groups");
 	buildProtokol();
@@ -190,11 +196,23 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 		if (!pItemGroup)
 		{
 			pItemGroup = new QTreeWidgetItem(ui.tree);
+			pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
+
 			pItemGroup->setText(0, query.value(4).toString());
 			pItemGroup->setText(1, query.value(2).toString());
+			pItemGroup->setData(1, FIO_ID_ROLE, id);
 			pItemGroup->setText(6, query.value(10).toString());
+			
 			ui.tree->addTopLevelItem(pItemGroup);
 			mapFIO.insert(id, pItemGroup);
+
+			pItemGroup->setData(2, TYPE_ROLE, TYPE_VALUE);
+			pItemGroup->setData(2, FIO_ID_ROLE, id);
+			pItemGroup->setData(3, TYPE_ROLE, TYPE_VALUE);
+			pItemGroup->setData(3, FIO_ID_ROLE, id);
+			pItemGroup->setData(4, TYPE_ROLE, TYPE_VALUE);
+			pItemGroup->setData(4, FIO_ID_ROLE, id);
+			pItemGroup->setSizeHint(0, QSize(100, 50));
 		}
 
 		pItem = new QTreeWidgetItem(pItemGroup);
@@ -212,10 +230,8 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 		pItem->setText(3, txt);
 #ifndef MONEY_FORMAT
 		pItem->setText(5, QString::number(v, 'f', 2));
-		//		pItem->setText(4, QString::number(bonus, 'f', 2));
 #else
 		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
-		//		pItem->setText(4, QString("%L1").arg(bonus, 0, 'f', 2));
 #endif
 	}
 
@@ -241,7 +257,102 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 	}
 }
 
+QString ZProtokol::getTextForPayment(int id, int col)
+{
+	QString txt = QString("id=%1, col=%2").arg(id).arg(col);
+	return txt;
+}
+
 void ZProtokol::saveProtokol()
 {
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
+	: QItemDelegate(parent), pEditor(Editor)
+{
+	txtEdit = NULL;
+}
+
+QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index) const
+{
+	column = index.column();
+	if (column < 2 || column > 4)
+		return 0;
+
+	int type = index.model()->data(index, TYPE_ROLE).toInt();
+	id = index.model()->data(index, FIO_ID_ROLE).toInt();
+
+	if (type == TYPE_VALUE)
+	{
+		QWidget* w = new QWidget(parent);
+		w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+		QPushButton* tb = new QPushButton(w);
+		tb->setText("...");
+		tb->setObjectName("tb");
+		tb->setFixedWidth(20);
+		connect(tb, SIGNAL(clicked()), this, SLOT(b_clicked()));
+
+		txtEdit = new QTextEdit(w);
+		txtEdit->setReadOnly(true);
+
+		QGridLayout* pLayout = new QGridLayout(w);
+		pLayout->setSizeConstraint(QLayout::SetNoConstraint);
+		pLayout->setMargin(0);
+		pLayout->setSpacing(0);
+		pLayout->addWidget(txtEdit, 0, 0);
+		pLayout->addWidget(tb, 0, 1, Qt::AlignTop);
+		return w;
+	}
+	return QItemDelegate::createEditor(parent, option, index);
+}
+
+void ZTreeDataDelegate::setEditorData(QWidget* editor,
+	const QModelIndex& index) const
+{
+	int type = index.model()->data(index, TYPE_ROLE).toInt();
+	QString value = index.model()->data(index, Qt::DisplayRole).toString();
+
+	if (txtEdit)
+	{
+		txtEdit->setText(value);
+		return;
+	}
+	QItemDelegate::setEditorData(editor, index);
+}
+
+void ZTreeDataDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
+	const QModelIndex& index) const
+{
+	int type = index.model()->data(index, TYPE_ROLE).toInt();
+	if (type == TYPE_VALUE)
+	{
+		if (txtEdit)
+		{
+			QString value = txtEdit->toPlainText();
+			model->setData(index, value, Qt::EditRole);
+		}
+		return;
+	}
+	QItemDelegate::setModelData(editor, model, index);
+}
+
+void ZTreeDataDelegate::updateEditorGeometry(QWidget* editor,
+	const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	editor->setGeometry(option.rect);
+}
+
+void ZTreeDataDelegate::b_clicked()
+{
+	if (!txtEdit)
+		return;
+
+	txtEdit->setText(pEditor->getTextForPayment(id, column));
+	commitData(txtEdit);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////

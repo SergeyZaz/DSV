@@ -179,7 +179,7 @@ void ZMainWindow::slotOpenGroupsDialog()
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actGroups->text(), ui.actGroups->icon());
-	child->initDB(db, "groups");
+	child->init("groups");
 	child->show();
 }
 
@@ -198,7 +198,7 @@ void ZMainWindow::slotOpenPersonsDialog()
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPersons->text(), ui.actPersons->icon());
-	child->initDB(db, "fio");
+	child->init("fio");
 	child->show();
 }
 
@@ -217,7 +217,7 @@ void ZMainWindow::slotOpenSmensDialog()
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actSmens->text(), ui.actSmens->icon());
-	child->initDB(db, "smena");
+	child->init("smena");
 	child->show();
 }
 
@@ -235,7 +235,7 @@ void ZMainWindow::slotOpenTariffsDialog()
 	ZTariffs *child = new ZTariffs(this);
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
-	child->initDB(db);
+	child->init();
 	child->show();
 }
 
@@ -254,7 +254,7 @@ void ZMainWindow::slotOpenOrganisationsDialog()
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actOrganisations->text(), ui.actOrganisations->icon());
-	child->initDB(db, "organisation");
+	child->init("organisation");
 	child->show();
 }
 
@@ -273,7 +273,7 @@ void ZMainWindow::slotOpenArchivsDialog()
 	connect(child, SIGNAL(needUpdate()), this,SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actArchivs->text(), ui.actArchivs->icon());
-	child->initDB(db, "import");
+	child->init("import");
 	child->show();
 }
 
@@ -292,7 +292,7 @@ void ZMainWindow::slotOpenPaymentsDialog()
 	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPayments->text(), ui.actPayments->icon());
-	child->initDB(db, "payments");
+	child->init("payments");
 	child->show();
 }
 
@@ -311,7 +311,7 @@ void ZMainWindow::slotOpenPayments2fioDialog()
 	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actPayments2fio->text(), ui.actPayments2fio->icon());
-	child->initDB(db, "payments2fio");
+	child->init("payments2fio");
 	child->show();
 }
 

@@ -6,10 +6,8 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : ZMdiChild
 {
 }
 
-void ZPayments2fio::initDB(QSqlDatabase& m_DB, const QString& m_TblName)
+void ZPayments2fio::init(const QString& m_TblName)
 {
-	m_tbl->setDatabase(m_DB);
-
 	QList<int> hideColumns;
 	QStringList headers;
 	QList<int> cRem;

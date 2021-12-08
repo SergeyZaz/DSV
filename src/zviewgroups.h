@@ -1,6 +1,5 @@
 #pragma once
 #include <QDialog>
-#include <QSqlDatabase>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include "ui_zviewgroups.h"
@@ -21,7 +20,6 @@ class ZViewGroups : public QDialog
 {
 	Q_OBJECT
 
-	QSqlDatabase	m_DB;
 	ZFioModel* modelFIO;
 	QSqlQueryModel* model;
 	QSortFilterProxyModel sortModelFIO, sortModel;
@@ -43,7 +41,7 @@ public:
 		setWindowTitle(title);
 		setWindowIcon(icon);
 	}
-	void setDatabase(QSqlDatabase& DB);
+	void setup();
 	void setLinkTableName(const QString& tbl);
 
 public slots:

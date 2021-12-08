@@ -12,7 +12,7 @@ public:
 	ZTariffsForm(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZTariffsForm();
 
-	int init( QSqlDatabase &database, const QString &table, int id );
+	int init(const QString &table, int id );
 
 protected slots:
 	void applyChanges();

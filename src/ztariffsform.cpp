@@ -20,9 +20,9 @@ ZTariffsForm::ZTariffsForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbstra
 
 ZTariffsForm::~ZTariffsForm(){}
 
-int ZTariffsForm::init( QSqlDatabase &database, const QString &table, int id )
+int ZTariffsForm::init(const QString &table, int id )
 {
-	ZEditAbstractForm::init(database, table, id);
+	ZEditAbstractForm::init(table, id);
 
 	ui.txtName->setFocus();
 
@@ -41,7 +41,7 @@ int ZTariffsForm::init( QSqlDatabase &database, const QString &table, int id )
 	}
 
 	// execute request
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	bool result = query.exec(stringQuery);
 	if (result)
 	{
@@ -71,7 +71,7 @@ void ZTariffsForm::applyChanges()
 	else
 		stringQuery = QString("UPDATE tariff SET txt=?, mode=?, bonus=?, type=?, comment=? WHERE id=%1").arg(curEditId);
 
-	QSqlQuery query(m_DB);
+	QSqlQuery query;
 	query.prepare(stringQuery);
 
 	text = ui.txtName->text();

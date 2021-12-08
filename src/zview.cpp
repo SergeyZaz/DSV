@@ -23,13 +23,6 @@ ZView::ZView(QWidget *parent, Qt::WindowFlags flags)
 {
 	init();
 }
-
-ZView::ZView(QSqlDatabase &DB, QWidget *parent, Qt::WindowFlags flags)
-	: QWidget(parent, flags)
-{
-	init();
-	setDatabase(DB);
-}
 	
 void ZView::init()
 {
@@ -73,11 +66,6 @@ ZView::~ZView()
 		delete model;
 }
 	
-void ZView::setDatabase(QSqlDatabase &DB)
-{
-	m_DB = DB;
-}
-	
 void ZView::setColorHighligthIfColumnContain(int col, QList<int> *plist)
 {
 	ZTableModel *pModel = dynamic_cast<ZTableModel*>(model);
@@ -114,7 +102,7 @@ int ZView::setTable(const QString &tbl, QStringList &headers, QList<int> &remove
 
 	mTable = tbl;
 
-	ZTableModel *pModel = new ZTableModel(this, m_DB);
+	ZTableModel *pModel = new ZTableModel(this);
 	pModel->setTable(tbl);
 	pModel->setEditStrategy(QSqlTableModel::OnFieldChange);
 
@@ -156,7 +144,7 @@ int ZView::setQuery(const QString &query, QStringList &headers, bool fRemoveOldM
 	if(!model)
 		model = new QSqlQueryModel();
 
-	model->setQuery(query, m_DB);
+	model->setQuery(query);
 	if (model->lastError().isValid())
 	{
 		QApplication::restoreOverrideCursor();
@@ -250,7 +238,7 @@ void ZView::update()
 	}
 	else
 	{
-		model->setQuery(model->query().lastQuery(), m_DB);
+		model->setQuery(model->query().lastQuery());
 	}
 
 	QApplication::restoreOverrideCursor();
@@ -317,7 +305,7 @@ int ZView::openEditor(int id)
 	if(!pEditForm || id == 0 || id == -1)
 		return 0;
 
-	if(!pEditForm->init(m_DB, mTable, id))
+	if(!pEditForm->init(mTable, id))
 		return 0;
 	
 	pEditForm->show();
@@ -326,8 +314,6 @@ int ZView::openEditor(int id)
 
 void ZView::applyEditor()
 {
-	if(m_DB.isOpen())
-	{
 		QModelIndex indx = ui.tbl->currentIndex();
 		int r = indx.row();
 		int c = indx.column();
@@ -337,7 +323,8 @@ void ZView::applyEditor()
 		indx = ui.tbl->model()->index(r, c);
 		ui.tbl->setCurrentIndex(indx);
 		ui.tbl->scrollTo(indx);
-	}
+		ui.tbl->resizeColumnsToContents();
+		ui.tbl->resizeRowsToContents();
 }
 	
 void ZView::setCustomEditor(ZEditAbstractForm *pD)
@@ -372,7 +359,7 @@ void ZView::del()
 	if ( QMessageBox::question( this, tr("Внимание"), tr("Вы действительно хотите удалить выделенные элементы?"), tr("Да"), tr("Нет"), QString::null, 0, 1 ) != 0)
 		return;
 
-	QSqlQuery m_Query(m_DB);
+	QSqlQuery m_Query;
 	QString s_Query = tr("DELETE FROM %1 WHERE id IN (").arg(mTable);
 
 	for(int i=0;i<ids.size();i++)
@@ -506,7 +493,7 @@ void ZView::setVisiblePrint(bool fTrue)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ZTableModel::ZTableModel(QObject *parent, QSqlDatabase db): QSqlRelationalTableModel(parent, db)
+ZTableModel::ZTableModel(QObject *parent): QSqlRelationalTableModel(parent)
 {
 	m_HighlightColumn = -1;
 	pHighlightItems = NULL;

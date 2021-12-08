@@ -1,6 +1,5 @@
 #pragma once
 #include <QDialog>
-#include <QSqlDatabase>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include "ui_ztariffs.h"
@@ -13,7 +12,6 @@ class ZTariffs : public QDialog
 
 	static QStringList l_Modes;
 
-	QSqlDatabase	m_DB;
 	QSqlQueryModel* model;
 	QSortFilterProxyModel sortModel;
 	int currentId;
@@ -23,7 +21,7 @@ class ZTariffs : public QDialog
 public:
 	ZTariffs(QWidget* parent, Qt::WindowFlags flags = 0);
  
-	void initDB(QSqlDatabase &m_DB);
+	void init();
 
 	static QStringList& getModes();
 public slots:
