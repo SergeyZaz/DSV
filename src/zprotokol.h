@@ -1,6 +1,6 @@
 #pragma once
 #include <QItemDelegate>
-#include <QTextEdit>
+#include <QListWidget>
 #include <QDialog>
 #include "ui_zprotokol.h"
 
@@ -25,13 +25,14 @@ class ZProtokol : public QDialog
 	double getTariffValue(const QDate& date, int id, int num, QString& txt, double& bonus);
 	void loadItemsTo(QComboBox* cbo, const QString& tableName);
 	void loadTariffs();
-	QSize	sizeHint() const { return QSize(1200, 600); }
+	QSize	sizeHint() const { return QSize(1400, 600); }
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
 
 public:
 	ZProtokol(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZProtokol();
-	QString getTextForPayment(int id, int col);
+	int getTextForPayment(int id, int col, QString& text, QVariantList &vList, double &summa);
+	void updateSumm();
 
 public slots:
 	void buildProtokol();
@@ -47,14 +48,12 @@ class ZTreeDataDelegate : public QItemDelegate
 	Q_OBJECT
 
 	ZProtokol* pEditor;
-	mutable QTextEdit* txtEdit;
+	mutable QListWidget* listWidget;
 	mutable int column;
-	mutable int id;
+	mutable int fio_id;
 
 public:
 	ZTreeDataDelegate(ZProtokol *Editor, QObject* parent = 0);
-
-	void commitUserData() { if(txtEdit) commitData(txtEdit); }
 
 	QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option,
 		const QModelIndex& index) const;
@@ -68,5 +67,7 @@ public:
 		const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
 public slots:
-	void b_clicked();
+	void add_clicked();
+	void edit_clicked();
+	void del_clicked();
 };

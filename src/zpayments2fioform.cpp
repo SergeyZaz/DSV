@@ -1,5 +1,6 @@
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QCompleter>
 #include <QMessageBox>
 #include "zpayments2fioform.h"
 
@@ -12,6 +13,8 @@ ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : Z
 	ui.dateEdit->setDate(QDate::currentDate());
 	ui.cboMode->addItem("выплата", 0);
 	ui.cboMode->addItem("вычет", 1);
+
+	ui.cboFIO->setEditable(true);
 }
 
 ZPayments2FioForm::~ZPayments2FioForm(){}
@@ -78,6 +81,10 @@ void ZPayments2FioForm::loadFio()
 	{
 		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
 	}
+
+	QCompleter* completer = new QCompleter(this);
+	completer->setModel(ui.cboFIO->model());
+	ui.cboFIO->setCompleter(completer);
 }
 
 void ZPayments2FioForm::changeMode(int indx)
@@ -113,8 +120,10 @@ void ZPayments2FioForm::applyChanges()
 	QSqlQuery query;
 	query.prepare(stringQuery);
 	
-	query.addBindValue(ui.cboPayment->itemData(ui.cboMode->currentIndex(), Qt::UserRole));
-	query.addBindValue(ui.cboFIO->itemData(ui.cboMode->currentIndex(), Qt::UserRole));
+//	QString t = ui.cboFIO->currentText();
+//	int i = ui.cboFIO->findText(t);
+	query.addBindValue(ui.cboPayment->itemData(ui.cboPayment->currentIndex(), Qt::UserRole));
+	query.addBindValue(ui.cboFIO->itemData(ui.cboFIO->findText(ui.cboFIO->currentText()), Qt::UserRole));
 	query.addBindValue(ui.dateEdit->date());
 	query.addBindValue(ui.spinVal->value());
 

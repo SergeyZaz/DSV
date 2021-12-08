@@ -4,9 +4,9 @@
 #include "zmessager.h"
 #include "ztariffs.h"
 
-#define FIO_ID_ROLE Qt::UserRole
-#define TYPE_ROLE Qt::UserRole+1
-#define TYPE_VALUE 'Z'
+#define FIO_ID_ROLE			Qt::UserRole
+#define PAYMENT_ID_ROLE		Qt::UserRole+1
+#define PAYMENT_ROLE		Qt::UserRole+2
 
 ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
 {
@@ -23,7 +23,8 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, fl
 	ui.tree->setColumnWidth(1, 200);
 	ui.tree->setColumnWidth(2, 200);
 	ui.tree->setColumnWidth(3, 200);
-	
+	ui.tree->setColumnWidth(4, 300);
+
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
 	loadItemsTo(ui.cboFilter, "groups");
@@ -183,6 +184,9 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 	double v, bonus;
 	QString txt;
 	QDate date;
+	int i, j, n;
+	QVariantList vList;
+	QStringList sList;
 
 	int groupId = ui.cboFilter->currentData().toInt();
 
@@ -206,12 +210,18 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 			ui.tree->addTopLevelItem(pItemGroup);
 			mapFIO.insert(id, pItemGroup);
 
-			pItemGroup->setData(2, TYPE_ROLE, TYPE_VALUE);
-			pItemGroup->setData(2, FIO_ID_ROLE, id);
-			pItemGroup->setData(3, TYPE_ROLE, TYPE_VALUE);
-			pItemGroup->setData(3, FIO_ID_ROLE, id);
-			pItemGroup->setData(4, TYPE_ROLE, TYPE_VALUE);
-			pItemGroup->setData(4, FIO_ID_ROLE, id);
+			for (i = 2; i < 5; i++)
+			{
+				pItemGroup->setData(i, FIO_ID_ROLE, id);
+
+				getTextForPayment(id, i, txt, vList, v);
+
+				pItemGroup->setText(i, txt);
+				pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
+
+				pItemGroup->setData(i, PAYMENT_ROLE, v);
+			}
+
 			pItemGroup->setSizeHint(0, QSize(100, 50));
 		}
 
@@ -236,31 +246,109 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY dt")
 	}
 
 	QFont fnt;
+	n = ui.tree->topLevelItemCount();
+	for (j = 0; j < n; j++)
+	{
+		pItem = ui.tree->topLevelItem(j);
+
+		for (i = 0; i < pItem->columnCount(); i++)
+		{
+			fnt = pItem->font(i);
+			if (i > 1 && i < 5)
+				fnt.setPointSizeF(8);
+			else
+				fnt.setBold(true);
+			pItem->setFont(i, fnt);
+		}
+	}
+
+	updateSumm();
+}
+
+void ZProtokol::updateSumm()
+{
 	int i, j, n = ui.tree->topLevelItemCount();
+	QTreeWidgetItem* pItem;
+	double v;
+
 	for (j = 0; j < n; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
 
 		v = getSumma(pItem, 5);
+
+		for (i = 2; i < 5; i++)
+		{
+			v += pItem->data(i, PAYMENT_ROLE).toDouble();
+		}
+
 #ifndef MONEY_FORMAT
 		pItem->setText(5, QString::number(v, 'f', 2));
 #else
 		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
 #endif
-
-		for (i = 0; i < pItem->columnCount(); i++)
-		{
-			fnt = pItem->font(i);
-			fnt.setBold(true);
-			pItem->setFont(i, fnt);
-		}
 	}
 }
 
-QString ZProtokol::getTextForPayment(int id, int col)
+int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa)
 {
-	QString txt = QString("id=%1, col=%2").arg(id).arg(col);
-	return txt;
+	vList.clear();
+	summa = 0;
+
+	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
+	switch (col)
+	{
+	case 2://Доплаты
+		stringQuery += "payments.mode = 0 AND payment <> 0";
+		break;
+	case 3://Аванс
+		stringQuery += "payment = 0";
+		break;
+	case 4://Вычеты
+		stringQuery += "payments.mode = 1";
+		break;
+	default:
+		return 0;
+	}
+
+	stringQuery += QString(" AND dt >= '%1' AND dt <= '%2' ORDER BY dt")
+		.arg(ui.dateStart->date().toString("yyyy-MM-dd"))
+		.arg(ui.dateEnd->date().toString("yyyy-MM-dd"));
+
+	QSqlQuery query;
+	if (!query.exec(stringQuery))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+		return 0;
+	}
+
+	QString txt;
+	int pay_id;
+	double v;
+	QStringList sList;
+
+	while (query.next())
+	{
+		pay_id = query.value(0).toInt();
+		txt = QString("%1 %2 ").arg(query.value(1).toString()).arg(query.value(2).toString());
+		
+		v = query.value(3).toDouble();
+#ifndef MONEY_FORMAT
+		txt += QString::number(v, 'f', 2);
+#else
+		txt += QString("%L1").arg(v, 0, 'f', 2);
+#endif
+		summa += v;
+
+		sList.push_back(txt);
+		vList.push_back(pay_id);
+	}
+
+	if (col == 4)//Вычеты
+		summa *= -1;
+
+	text = sList.join("\n");
+	return 1;
 }
 
 void ZProtokol::saveProtokol()
@@ -272,7 +360,7 @@ void ZProtokol::saveProtokol()
 ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
 	: QItemDelegate(parent), pEditor(Editor)
 {
-	txtEdit = NULL;
+	listWidget = NULL;
 }
 
 QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
@@ -283,28 +371,41 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 	if (column < 2 || column > 4)
 		return 0;
 
-	int type = index.model()->data(index, TYPE_ROLE).toInt();
-	id = index.model()->data(index, FIO_ID_ROLE).toInt();
+	fio_id = index.model()->data(index, FIO_ID_ROLE).toInt();
 
-	if (type == TYPE_VALUE)
+	if (fio_id > 0)
 	{
 		QWidget* w = new QWidget(parent);
 		w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-		QPushButton* tb = new QPushButton(w);
-		tb->setText("...");
-		tb->setObjectName("tb");
-		tb->setFixedWidth(20);
-		connect(tb, SIGNAL(clicked()), this, SLOT(b_clicked()));
 
-		txtEdit = new QTextEdit(w);
-		txtEdit->setReadOnly(true);
+		QPushButton* tb1 = new QPushButton(w);
+		tb1->setText("+");
+		tb1->setObjectName("tb1");
+		tb1->setFixedWidth(20);
+		connect(tb1, SIGNAL(clicked()), this, SLOT(add_clicked()));
+
+		QPushButton* tb2 = new QPushButton(w);
+		tb2->setText("...");
+		tb2->setObjectName("tb2");
+		tb2->setFixedWidth(20);
+		connect(tb2, SIGNAL(clicked()), this, SLOT(edit_clicked()));
+
+		QPushButton* tb3 = new QPushButton(w);
+		tb3->setText("-");
+		tb3->setObjectName("tb3");
+		tb3->setFixedWidth(20);
+		connect(tb3, SIGNAL(clicked()), this, SLOT(del_clicked()));
+
+		listWidget = new QListWidget(w);
 
 		QGridLayout* pLayout = new QGridLayout(w);
 		pLayout->setSizeConstraint(QLayout::SetNoConstraint);
 		pLayout->setMargin(0);
 		pLayout->setSpacing(0);
-		pLayout->addWidget(txtEdit, 0, 0);
-		pLayout->addWidget(tb, 0, 1, Qt::AlignTop);
+		pLayout->addWidget(listWidget, 0, 0, 3, 1);
+		pLayout->addWidget(tb1, 0, 1, Qt::AlignTop);
+		pLayout->addWidget(tb2, 1, 1, Qt::AlignTop);
+		pLayout->addWidget(tb3, 2, 1, Qt::AlignTop);
 		return w;
 	}
 	return QItemDelegate::createEditor(parent, option, index);
@@ -313,12 +414,18 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 void ZTreeDataDelegate::setEditorData(QWidget* editor,
 	const QModelIndex& index) const
 {
-	int type = index.model()->data(index, TYPE_ROLE).toInt();
-	QString value = index.model()->data(index, Qt::DisplayRole).toString();
-
-	if (txtEdit)
+	if (listWidget)
 	{
-		txtEdit->setText(value);
+		listWidget->clear();
+		QStringList items = index.model()->data(index, Qt::DisplayRole).toString().split("\n");
+		QVariantList vList = index.model()->data(index, PAYMENT_ID_ROLE).toList();
+		int i = 0;
+		foreach(QVariant v, vList)
+		{
+			QListWidgetItem* pItem = new QListWidgetItem(items[i++]);
+			pItem->setData(Qt::UserRole, v);
+			listWidget->addItem(pItem);
+		}
 		return;
 	}
 	QItemDelegate::setEditorData(editor, index);
@@ -327,14 +434,21 @@ void ZTreeDataDelegate::setEditorData(QWidget* editor,
 void ZTreeDataDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 	const QModelIndex& index) const
 {
-	int type = index.model()->data(index, TYPE_ROLE).toInt();
-	if (type == TYPE_VALUE)
+	if (listWidget)
 	{
-		if (txtEdit)
-		{
-			QString value = txtEdit->toPlainText();
-			model->setData(index, value, Qt::EditRole);
-		}
+		QVariantList vList;
+		QString txt;
+		double v;
+
+		int col = index.column();
+
+		pEditor->getTextForPayment(fio_id, col, txt, vList, v);
+
+		model->setData(index, vList, PAYMENT_ID_ROLE);
+		model->setData(index, v, PAYMENT_ROLE);
+		model->setData(index, txt, Qt::EditRole);
+
+		pEditor->updateSumm();
 		return;
 	}
 	QItemDelegate::setModelData(editor, model, index);
@@ -346,13 +460,53 @@ void ZTreeDataDelegate::updateEditorGeometry(QWidget* editor,
 	editor->setGeometry(option.rect);
 }
 
-void ZTreeDataDelegate::b_clicked()
+void ZTreeDataDelegate::add_clicked()
 {
-	if (!txtEdit)
+	if (!listWidget)
 		return;
 
-	txtEdit->setText(pEditor->getTextForPayment(id, column));
-	commitData(txtEdit);
+}
+
+void ZTreeDataDelegate::edit_clicked()
+{
+	if (!listWidget)
+		return;
+	QListWidgetItem* pItem = listWidget->currentItem();
+	if (!pItem)
+		return;
+	int id = pItem->data(Qt::UserRole).toInt();
+
+}
+
+void ZTreeDataDelegate::del_clicked()
+{
+	if (!listWidget)
+		return;
+
+	QListWidgetItem* pItem = listWidget->currentItem();
+	if (!pItem)
+		return;
+	int id = pItem->data(Qt::UserRole).toInt();
+/*
+	QSqlQuery m_Query;
+	QString s_Query = tr("DELETE FROM tariff_history WHERE id IN (");
+
+	for (int i = 0; i < ids.size(); i++)
+	{
+		if (i != 0)
+			s_Query += ",";
+
+		s_Query += QString::number(ids[i]);
+	}
+
+	s_Query += ")";
+
+	if (!m_Query.exec(s_Query))
+	{
+		ZMessager::Instance().Message(_Error, m_Query.lastError().text());
+		return;
+	}
+*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
