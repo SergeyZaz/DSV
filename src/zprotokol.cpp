@@ -7,6 +7,9 @@
 #include "ztariffs.h"
 #include "zpayments2fioform.h"
 
+#include "xlsxdocument.h"
+using namespace QXlsx;
+
 #define FIO_ID_ROLE			Qt::UserRole
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
@@ -169,8 +172,8 @@ INNER JOIN smena ON(smena.id = smena) \
 LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
 WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
-.arg(ui.dateStart->date().toString("yyyy-MM-dd"))
-.arg(ui.dateEnd->date().toString("yyyy-MM-dd"));
+.arg(ui.dateStart->date().toString(DATE_FORMAT))
+.arg(ui.dateEnd->date().toString(DATE_FORMAT));
 
 	QSqlQuery query;
 	if (!query.exec(stringQuery))
@@ -224,6 +227,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 
 				pItemGroup->setData(i, PAYMENT_ROLE, v);
 			}
+			pItemGroup->setData(6, FIO_ID_ROLE, id);
 
 			pItemGroup->setSizeHint(0, QSize(100, 50));
 		}
@@ -231,7 +235,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		pItem = new QTreeWidgetItem(pItemGroup);
 
 		date = query.value(0).toDate();
-		pItem->setText(0, date.toString("yyyy-MM-dd"));
+		pItem->setText(0, date.toString(DATE_FORMAT));
 		pItem->setText(1, query.value(6).toString());
 
 		id = query.value(7).toInt();
@@ -315,8 +319,8 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 	}
 
 	stringQuery += QString(" AND dt >= '%1' AND dt <= '%2' ORDER BY dt")
-		.arg(ui.dateStart->date().toString("yyyy-MM-dd"))
-		.arg(ui.dateEnd->date().toString("yyyy-MM-dd"));
+		.arg(ui.dateStart->date().toString(DATE_FORMAT))
+		.arg(ui.dateEnd->date().toString(DATE_FORMAT));
 
 	QSqlQuery query;
 	if (!query.exec(stringQuery))
@@ -354,11 +358,77 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 	return 1;
 }
 
+int ZProtokol::updateComment(int id, const QString & text)
+{
+	QString stringQuery = QString("UPDATE fio SET comment='%1' WHERE id=%2").arg(text).arg(id);
+	QSqlQuery query;
+	if (!query.exec(stringQuery))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+		return 0;
+	}
+	return 1;
+}
+
 void ZProtokol::saveProtokol()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Выбор файла для экспорта", "", "XLSX-файлы (*.xlsx)");
+	QString fileName = ui.dateEnd->date().toString(DATE_FORMAT) + "-" + ui.dateStart->date().toString(DATE_FORMAT);
+
+	fileName = QFileDialog::getSaveFileName(this, "Выбор файла для экспорта", fileName, "XLSX-файлы (*.xlsx)");
 	if (fileName.isEmpty())
 		return;
+
+	QXlsx::Document xlsxW;
+
+	Format fBold;
+	fBold.setFontBold(true);
+
+	xlsxW.write(1, 1, "Начало периода:", fBold);
+	xlsxW.write(1, 2, ui.dateStart->date());
+	xlsxW.write(2, 1, "Окончание периода:", fBold);
+	xlsxW.write(2, 2, ui.dateEnd->date());
+
+	xlsxW.write(3, 1, "Группа:", fBold);
+	xlsxW.write(3, 2, ui.cboFilter->currentText());
+
+	int i, j, n = ui.tree->topLevelItemCount();
+	QTreeWidgetItem* pItem;
+
+	fBold.setHorizontalAlignment(Format::AlignHCenter);
+
+	xlsxW.write(5, 1, "Организация", fBold);
+	xlsxW.setColumnWidth(1, 30);
+	xlsxW.write(5, 2, "ФИО", fBold);
+	xlsxW.setColumnWidth(2, 50);
+	xlsxW.write(5, 3, "Доплаты", fBold);
+	xlsxW.setColumnWidth(3, 50);
+	xlsxW.write(5, 4, "Аванс", fBold);
+	xlsxW.setColumnWidth(4, 50);
+	xlsxW.write(5, 5, "Вычеты", fBold);
+	xlsxW.setColumnWidth(5, 50);
+	xlsxW.write(5, 6, "Сумма", fBold);
+	//xlsxW.setColumnWidth(6, 50);
+	xlsxW.write(5, 7, "примечания", fBold);
+	xlsxW.setColumnWidth(7, 50);
+
+	QVariant v;
+	QStringList l;
+	QString s;
+	Format fMultiLine;
+	fMultiLine.setTextWrap(true);
+
+	for (i = 0; i < n; i++)
+	{
+		pItem = ui.tree->topLevelItem(i);
+
+		for (j = 0; j < 7; j++)
+		{
+			v = pItem->data(j, Qt::DisplayRole);
+			xlsxW.write(i + 6, j + 1, v, fMultiLine);
+		}
+	}
+
+	xlsxW.saveAs(fileName);
 
 	QDesktopServices::openUrl(QUrl("file:///" + fileName, QUrl::TolerantMode));
 }
@@ -370,6 +440,7 @@ ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
 {
 	listWidget = NULL;
 	w = NULL;
+	textEdit = NULL;
 }
 
 QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
@@ -377,47 +448,58 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 	const QModelIndex& index) const
 {
 	column = index.column();
-	if (column < 2 || column > 4)
-		return 0;
 
 	fio_id = index.model()->data(index, FIO_ID_ROLE).toInt();
+	
+	textEdit = NULL;
+	w = NULL;
+	listWidget = NULL;
 
 	if (fio_id > 0)
 	{
-		w = new QWidget(parent);
-		w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+		if (column > 1 && column < 5)
+		{
+			w = new QWidget(parent);
+			w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-		QPushButton* tb1 = new QPushButton(w);
-		tb1->setText("+");
-		tb1->setObjectName("tb1");
-		tb1->setFixedWidth(20);
-		connect(tb1, SIGNAL(clicked()), this, SLOT(add_clicked()));
+			QPushButton* tb1 = new QPushButton(w);
+			tb1->setText("+");
+			tb1->setObjectName("tb1");
+			tb1->setFixedWidth(20);
+			connect(tb1, SIGNAL(clicked()), this, SLOT(add_clicked()));
 
-		QPushButton* tb2 = new QPushButton(w);
-		tb2->setText("...");
-		tb2->setObjectName("tb2");
-		tb2->setFixedWidth(20);
-		connect(tb2, SIGNAL(clicked()), this, SLOT(edit_clicked()));
+			QPushButton* tb2 = new QPushButton(w);
+			tb2->setText("...");
+			tb2->setObjectName("tb2");
+			tb2->setFixedWidth(20);
+			connect(tb2, SIGNAL(clicked()), this, SLOT(edit_clicked()));
 
-		QPushButton* tb3 = new QPushButton(w);
-		tb3->setText("-");
-		tb3->setObjectName("tb3");
-		tb3->setFixedWidth(20);
-		connect(tb3, SIGNAL(clicked()), this, SLOT(del_clicked()));
+			QPushButton* tb3 = new QPushButton(w);
+			tb3->setText("-");
+			tb3->setObjectName("tb3");
+			tb3->setFixedWidth(20);
+			connect(tb3, SIGNAL(clicked()), this, SLOT(del_clicked()));
 
-		listWidget = new QListWidget(w);
+			listWidget = new QListWidget(w);
 
-		QGridLayout* pLayout = new QGridLayout(w);
-		pLayout->setSizeConstraint(QLayout::SetNoConstraint);
-		pLayout->setMargin(0);
-		pLayout->setSpacing(0);
-		pLayout->addWidget(listWidget, 0, 0, 3, 1);
-		pLayout->addWidget(tb1, 0, 1, Qt::AlignTop);
-		pLayout->addWidget(tb2, 1, 1, Qt::AlignTop);
-		pLayout->addWidget(tb3, 2, 1, Qt::AlignTop);
-		return w;
+			QGridLayout* pLayout = new QGridLayout(w);
+			pLayout->setSizeConstraint(QLayout::SetNoConstraint);
+			pLayout->setMargin(0);
+			pLayout->setSpacing(0);
+			pLayout->addWidget(listWidget, 0, 0, 3, 1);
+			pLayout->addWidget(tb1, 0, 1, Qt::AlignTop);
+			pLayout->addWidget(tb2, 1, 1, Qt::AlignTop);
+			pLayout->addWidget(tb3, 2, 1, Qt::AlignTop);
+			return w;
+		}
+		if (column == 6)
+		{
+			textEdit = new QTextEdit(parent);
+			textEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+			return textEdit;
+		}
 	}
-	return QItemDelegate::createEditor(parent, option, index);
+	return NULL;
 }
 
 void ZTreeDataDelegate::setEditorData(QWidget* editor,
@@ -437,6 +519,12 @@ void ZTreeDataDelegate::setEditorData(QWidget* editor,
 			pItem->setData(Qt::UserRole, v);
 			listWidget->addItem(pItem);
 		}
+		return;
+	}
+	if (textEdit)
+	{
+		QString txt = index.model()->data(index, Qt::DisplayRole).toString();
+		textEdit->setText(txt);
 		return;
 	}
 	QItemDelegate::setEditorData(editor, index);
@@ -462,6 +550,15 @@ void ZTreeDataDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 		pEditor->updateSumm();
 		return;
 	}
+	if (textEdit)
+	{
+		QString txt = textEdit->toPlainText();
+
+		if(pEditor->updateComment(fio_id, txt))
+			model->setData(index, txt, Qt::EditRole);
+
+		return;
+	}
 	QItemDelegate::setModelData(editor, model, index);
 }
 
@@ -473,7 +570,7 @@ void ZTreeDataDelegate::updateEditorGeometry(QWidget* editor,
 
 void ZTreeDataDelegate::add_clicked()
 {
-	if (!listWidget)
+	if (!listWidget || !w)
 		return;
 
 	if (openEditor(ADD_UNIC_CODE) == 0)
@@ -484,7 +581,7 @@ void ZTreeDataDelegate::add_clicked()
 
 void ZTreeDataDelegate::edit_clicked()
 {
-	if (!listWidget)
+	if (!listWidget || !w)
 		return;
 	QListWidgetItem* pItem = listWidget->currentItem();
 	if (!pItem)

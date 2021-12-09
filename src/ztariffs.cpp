@@ -193,11 +193,11 @@ int ZTariffs::openEditor(int id)
 
 	if (id == -1)
 	{
-		s_Query = QString("INSERT INTO tariff_history(tariff_id,dt,val) VALUES (%1, '%2', %3)").arg(currentId).arg(d.toString("yyyy-MM-dd")).arg(val);
+		s_Query = QString("INSERT INTO tariff_history(tariff_id,dt,val) VALUES (%1, '%2', %3)").arg(currentId).arg(d.toString(DATE_FORMAT)).arg(val);
 	}
 	else
 	{
-		s_Query = QString("UPDATE tariff_history SET dt='%1', val=%2 WHERE id=%3").arg(d.toString("yyyy-MM-dd")).arg(val).arg(id);
+		s_Query = QString("UPDATE tariff_history SET dt='%1', val=%2 WHERE id=%3").arg(d.toString(DATE_FORMAT)).arg(val).arg(id);
 	}
 
 

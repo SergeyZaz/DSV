@@ -1,6 +1,7 @@
 #pragma once
 #include <QItemDelegate>
 #include <QListWidget>
+#include <QTextEdit>
 #include <QDialog>
 #include "ui_zprotokol.h"
 
@@ -33,6 +34,7 @@ public:
 	~ZProtokol();
 	int getTextForPayment(int id, int col, QString& text, QVariantList &vList, double &summa);
 	void updateSumm();
+	int updateComment(int id, const QString& text);
 
 	Ui::ZProtokol ui;
 
@@ -48,6 +50,7 @@ class ZTreeDataDelegate : public QItemDelegate
 
 	ZProtokol* pEditor;
 	mutable QWidget* w;
+	mutable QTextEdit* textEdit;
 	mutable QListWidget* listWidget;
 	mutable int column;
 	mutable int fio_id;
