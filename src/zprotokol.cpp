@@ -130,6 +130,19 @@ double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &tx
 	return v;
 }
 
+double QString2Double(QString& txt)
+{
+	bool ok;	
+	txt.replace(QChar::Nbsp, "");
+	double v = txt.toDouble(&ok);
+	if (!ok)
+	{
+		txt.replace(",", ".");
+		v = txt.toDouble(&ok);
+	}
+	return v;
+}
+
 double ZProtokol::getSumma(QTreeWidgetItem* pItemRoot, int col)
 {
 	double s = 0;
@@ -147,15 +160,7 @@ double ZProtokol::getSumma(QTreeWidgetItem* pItemRoot, int col)
 	}
 	else
 	{
-		QString txt = pItemRoot->text(col).replace(QChar::Nbsp, "");
-		bool ok;
-		double v = txt.toDouble(&ok);
-		if (!ok)
-		{
-			txt.replace(",", ".");
-			v = txt.toDouble(&ok);
-		}
-		s += v;
+		s += QString2Double(pItemRoot->text(col));
 	}
 	return s;
 }
@@ -407,15 +412,16 @@ void ZProtokol::saveProtokol()
 	xlsxW.write(5, 5, "Вычеты", fBold);
 	xlsxW.setColumnWidth(5, 50);
 	xlsxW.write(5, 6, "Сумма", fBold);
-	//xlsxW.setColumnWidth(6, 50);
+	xlsxW.setColumnWidth(6, 20);
 	xlsxW.write(5, 7, "примечания", fBold);
 	xlsxW.setColumnWidth(7, 50);
 
 	QVariant v;
-	QStringList l;
 	QString s;
 	Format fMultiLine;
 	fMultiLine.setTextWrap(true);
+	Format fMoney;
+	fMoney.setNumberFormat("#,##0.00\"р.\"");
 
 	for (i = 0; i < n; i++)
 	{
@@ -424,7 +430,14 @@ void ZProtokol::saveProtokol()
 		for (j = 0; j < 7; j++)
 		{
 			v = pItem->data(j, Qt::DisplayRole);
-			xlsxW.write(i + 6, j + 1, v, fMultiLine);
+			if (j == 5)
+			{
+				s = v.toString();
+				v = QString2Double(s);
+				xlsxW.write(i + 6, j + 1, v, fMoney);
+			}
+			else
+				xlsxW.write(i + 6, j + 1, v, fMultiLine);
 		}
 	}
 
