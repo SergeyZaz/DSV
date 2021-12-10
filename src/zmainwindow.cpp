@@ -92,6 +92,25 @@ void ZMainWindow::readSettings()
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
 
+	qint64 d = settings.value("magic", 0).toLongLong();
+	if (d == 0)
+	{
+		d = QDate::currentDate().toJulianDay();
+		settings.setValue("magic", d);
+	}
+	if (d != 159753)
+	{
+		d = 30 - QDate::currentDate().toJulianDay() + d;
+		if (d < 0)
+		{
+			QMessageBox::warning(this, "Внимание", "Ознакомительный период закончился, программа будет закрыта!");
+			exit(0);
+		}
+
+		QMessageBox::warning(this, tr("Внимание"),
+			QString("Вы используете ознакомительную версию, программа перестанет работать через %1 дней!").arg(d));
+	}
+
 	move(pos);
 	resize(size);
 }
