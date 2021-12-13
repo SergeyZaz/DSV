@@ -4,8 +4,8 @@
 #include <QHelpEvent>
 #include <QMessageBox>
 #include <QPainter>
-#include <QPrintDialog>
-#include <QPrinter>
+//#include <QPrintDialog>
+//#include <QPrinter>
 #include <QHeaderView>
 #include "zview.h"
 #include "ztoolwidget.h"

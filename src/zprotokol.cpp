@@ -130,7 +130,7 @@ double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &tx
 	return v;
 }
 
-double QString2Double(QString& txt)
+double QString2Double(QString txt)
 {
 	bool ok;	
 	txt.replace(QChar::Nbsp, "");
@@ -382,6 +382,9 @@ void ZProtokol::saveProtokol()
 	fileName = QFileDialog::getSaveFileName(this, "Выбор файла для экспорта", fileName, "XLSX-файлы (*.xlsx)");
 	if (fileName.isEmpty())
 		return;
+
+	if(!fileName.endsWith(".xlsx", Qt::CaseInsensitive))
+	    fileName += ".xlsx"; 
 
 	QXlsx::Document xlsxW;
 
