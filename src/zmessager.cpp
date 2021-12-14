@@ -62,7 +62,7 @@ QVariant ZMsgModel::data(const QModelIndex& index, int role) const
 		switch (index.column())
 		{
 		case 0://код
-			return QVariant(m_Data.at(index.row()).text);
+			return QVariant();
 		case 1://время
 			return QVariant(m_Data.at(index.row()).time.toString("hh:mm:ss.zzz"));
 		case 2://текст

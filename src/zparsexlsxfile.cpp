@@ -275,6 +275,18 @@ int ZParseXLSXFile::insertData(uint key)
 		//работаем с fio
 		fio_id = 0;
 		str_tmpl = row[columnMap[IMPORT_TAG_FIO]].toString();
+		if (str_tmpl.isEmpty())
+			continue;
+
+		if (tariff_id == 0) //значит неопознанный тариф
+		{
+			str_tmpl.clear();
+			foreach(QVariant v, row)
+				str_tmpl += v.toString() + " ";
+			ZMessager::Instance().Message(_Error, QString("В строке %1, неопознанный вид тарифа: \"%2\"").arg(i+1).arg(str_tmpl));
+			continue;
+		}
+
 		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_tmpl);
 		if (!query.exec(str_query) || !query.next())
 		{
@@ -301,7 +313,10 @@ int ZParseXLSXFile::insertData(uint key)
 			.arg(row[columnMap[IMPORT_TAG_NUM]].toInt())
 			.arg(key);
 		if (!query.exec(str_query))
-			ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+		{
+			str_query = query.lastError().text();
+			ZMessager::Instance().Message(_CriticalError, str_query);
+		}
 	}
 
 	return 1;
