@@ -78,6 +78,7 @@
      <string>Файл</string>
     </property>
     <addaction name="actOpenFileXLSX"/>
+    <addaction name="actImportData"/>
     <addaction name="actProtokol"/>
     <addaction name="actClose"/>
    </widget>
@@ -122,6 +123,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actImportData"/>
    <addaction name="actGroups"/>
    <addaction name="actPersons"/>
    <addaction name="actOrganisations"/>
@@ -413,6 +415,18 @@
    </property>
    <property name="toolTip">
     <string>Вычеты/выплаты ФИО</string>
+   </property>
+  </action>
+  <action name="actImportData">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Импортированные данные</string>
+   </property>
+   <property name="toolTip">
+    <string>Импортированные данные</string>
    </property>
   </action>
  </widget>

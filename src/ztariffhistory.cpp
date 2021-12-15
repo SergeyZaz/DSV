@@ -1,6 +1,6 @@
 #include "ztariffhistory.h"
 
-ZTariffsHistory::ZTariffsHistory(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags)
+ZTariffsHistory::ZTariffsHistory(QWidget* parent, Qt::WindowFlags flags)// : QDialog(parent, flags)
 {
 	ui.setupUi(this);
 	ui.dateEdit->setCalendarPopup(true);

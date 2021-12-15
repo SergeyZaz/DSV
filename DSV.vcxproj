@@ -135,6 +135,7 @@
     <ClCompile Include="QXlsx\source\xlsxzipwriter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\zgroups.cpp" />
+    <ClCompile Include="src\zimportdata.cpp" />
     <ClCompile Include="src\zpayments2fio.cpp" />
     <ClCompile Include="src\zpayments2fioform.cpp" />
     <ClCompile Include="src\zpaymentsform.cpp" />
@@ -210,6 +211,7 @@
     <QtMoc Include="src\zviewgroups.h" />
     <ClInclude Include="src\zimagelabel.h" />
     <QtMoc Include="src\zmessager.h" />
+    <ClInclude Include="src\zimportdata.h" />
     <ClInclude Include="src\zparsexlsxfile.h" />
     <ClInclude Include="src\zpayments.h" />
     <QtMoc Include="src\ztariffs.h" />

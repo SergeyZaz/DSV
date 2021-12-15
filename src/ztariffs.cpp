@@ -12,7 +12,7 @@ QStringList& ZTariffs::getModes()
 	return l_Modes;
 }
 
-ZTariffs::ZTariffs(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags)
+ZTariffs::ZTariffs(QWidget* parent, Qt::WindowFlags flags)// : QDialog(parent, flags)
 {
 	model = NULL;
 	currentId = -1;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ZProtokol</class>
- <widget class="QDialog" name="ZProtokol">
+ <widget class="QWidget" name="ZProtokol">
   <property name="geometry">
    <rect>
     <x>0</x>

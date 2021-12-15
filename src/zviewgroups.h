@@ -1,5 +1,5 @@
 #pragma once
-#include <QDialog>
+#include <QWidget>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include "ui_zviewgroups.h"
@@ -16,7 +16,7 @@ public:
 };
 
 	
-class ZViewGroups : public QDialog
+class ZViewGroups : public QWidget
 {
 	Q_OBJECT
 
@@ -33,7 +33,7 @@ class ZViewGroups : public QDialog
 public:
 	Ui::ZGroups ui;
 
-	ZViewGroups(QWidget* parent, Qt::WindowFlags flags = 0);
+	ZViewGroups(QWidget* parent = NULL, Qt::WindowFlags flags = 0);
 	~ZViewGroups() {};
 
 	void setWindowTitleAndIcon(const QString& title, const QIcon& icon)

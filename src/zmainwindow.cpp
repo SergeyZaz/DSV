@@ -24,6 +24,7 @@
 #include "zsettings.h"
 #include "zmessager.h"
 #include "zpayments2fio.h"
+#include "zimportdata.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -48,6 +49,7 @@ ZMainWindow::ZMainWindow()
 	connect(ui.actArchivs, SIGNAL(triggered()), this, SLOT(slotOpenArchivsDialog()));
 	connect(ui.actPayments, SIGNAL(triggered()), this, SLOT(slotOpenPaymentsDialog()));
 	connect(ui.actPayments2fio, SIGNAL(triggered()), this, SLOT(slotOpenPayments2fioDialog()));
+	connect(ui.actImportData, SIGNAL(triggered()), this, SLOT(slotOpenImportDataDialog()));
 
 	connect(ui.actProtokol, SIGNAL(triggered()), this,	SLOT(slotOpenProtokolDialog()));
 	
@@ -345,8 +347,27 @@ void ZMainWindow::slotOpenProtokolDialog()
 		}
 	}
 
-	QDialog* child = new ZProtokol(this);
+	QWidget* child = new ZProtokol(this);
 	ui.mdiArea->addSubWindow(child);
+	child->show();
+}
+
+void ZMainWindow::slotOpenImportDataDialog()
+{
+	foreach(QMdiSubWindow * window, ui.mdiArea->subWindowList())
+	{
+		if (dynamic_cast<ZImportData*>(window->widget()))
+		{
+			ui.mdiArea->setActiveSubWindow(window);
+			return;
+		}
+	}
+
+	ZMdiChild* child = new ZImportData(this);
+	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
+	ui.mdiArea->addSubWindow(child);
+	child->setWindowTitleAndIcon(ui.actImportData->text(), ui.actImportData->icon());
+	child->init("import_data");
 	child->show();
 }
 

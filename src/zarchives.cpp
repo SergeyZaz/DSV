@@ -25,4 +25,5 @@ void ZArchives::init(const QString& m_TblName)
 	m_tbl->init(hideColumns);
 	m_tbl->moveSection(1, 2);
 
+	m_tbl->setReadOnly(true, true, false);
 }

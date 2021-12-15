@@ -14,7 +14,7 @@ using namespace QXlsx;
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
 
-ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
+ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
 {
 	ui.setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);

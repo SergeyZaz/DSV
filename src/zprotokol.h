@@ -2,10 +2,10 @@
 #include <QItemDelegate>
 #include <QListWidget>
 #include <QTextEdit>
-#include <QDialog>
+#include <QWidget>
 #include "ui_zprotokol.h"
 
-class ZProtokol : public QDialog
+class ZProtokol : public QWidget
 {
 	Q_OBJECT
 

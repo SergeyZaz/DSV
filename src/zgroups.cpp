@@ -1,6 +1,6 @@
 #include "zgroups.h"
 
-ZGroups::ZGroups(QWidget* parent, Qt::WindowFlags flags) : ZViewGroups(parent, flags)
+ZGroups::ZGroups(QWidget* parent, Qt::WindowFlags flags)// : ZViewGroups(parent, flags)
 {
 }
 

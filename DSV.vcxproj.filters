@@ -197,6 +197,9 @@
     <ClCompile Include="src\zpayments2fioform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\zimportdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\zimagelabel.h">
@@ -368,6 +371,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\zpayments2fio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zimportdata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

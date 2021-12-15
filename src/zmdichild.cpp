@@ -2,7 +2,7 @@
 #include <QCloseEvent>
 #include "zmdichild.h"
 
-ZMdiChild::ZMdiChild(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
+ZMdiChild::ZMdiChild(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
 {
 	//setAttribute(Qt::WA_DeleteOnClose);
 

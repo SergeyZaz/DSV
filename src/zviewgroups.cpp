@@ -3,7 +3,7 @@
 
 #define HIGHLIGHTCOLOR Qt::cyan
 
-ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags): QDialog(parent, flags)
+ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
 {
 	ui.setupUi(this);
 	

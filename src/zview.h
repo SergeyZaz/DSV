@@ -61,7 +61,7 @@ public:
 	void moveSection(int from, int to);
 	void setFilter(const QString & filter);
 	void setCustomEditor(ZEditAbstractForm *pD);
-	void setReadOnly(bool fEdit);
+	void setReadOnly(bool fEdit, bool fAdd, bool fDel);
 	void setVisiblePrint(bool fTrue);
 	QItemSelectionModel *selectionModel();
 	QSqlQueryModel *getModel() { return model;}

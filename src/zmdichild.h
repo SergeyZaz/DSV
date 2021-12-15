@@ -1,10 +1,9 @@
 #pragma once
 
-#include <QDialog>
 #include <QWidget>
 #include "zview.h"
 
-class ZMdiChild : public QDialog
+class ZMdiChild : public QWidget
 {
     Q_OBJECT
 

@@ -464,10 +464,10 @@ void ZView::doubleClickedTbl(const QModelIndex &index)
 }
 
 	
-void ZView::setReadOnly(bool fEdit)
+void ZView::setReadOnly(bool fEdit, bool fAdd, bool fDel)
 {
-	ui.cmdAdd->setVisible(!fEdit);
-	ui.cmdDel->setVisible(!fEdit);
+	ui.cmdAdd->setVisible(!fAdd);
+	ui.cmdDel->setVisible(!fDel);
 	ui.cmdEdit->setVisible(!fEdit);
 	ZTableModel *pModel = dynamic_cast<ZTableModel*>(model);
 	if(pModel) 

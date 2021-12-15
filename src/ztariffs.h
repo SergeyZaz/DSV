@@ -1,12 +1,12 @@
 #pragma once
-#include <QDialog>
+#include <QWidget>
 #include <QSqlQueryModel>
 #include <QSortFilterProxyModel>
 #include "ui_ztariffs.h"
 
 #define DATE_FORMAT "yyyy-MM-dd"
 
-class ZTariffs : public QDialog
+class ZTariffs : public QWidget
 {
 	Q_OBJECT
 

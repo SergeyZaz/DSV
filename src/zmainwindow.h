@@ -31,6 +31,7 @@ private slots:
 	void slotOpenArchivsDialog();
 	void slotOpenPaymentsDialog();
 	void slotOpenPayments2fioDialog();
+	void slotOpenImportDataDialog();
 	void slotUpdate();
 	void slotUpdateAccountsVal(int account_id);
 	void slotCleanMsg();
