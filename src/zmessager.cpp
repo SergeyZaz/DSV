@@ -114,10 +114,15 @@ void ZMessager::setWidget(QTableView* pW)
 	if (!pMsgList)
 		return;
 		
+	pMsgList->horizontalHeader()->setSectionsClickable(true);
+	pMsgList->horizontalHeader()->setSortIndicatorShown(true);
+	pMsgList->setSortingEnabled(true);
+	QObject::connect(pMsgList->horizontalHeader(), SIGNAL(sectionClicked(int)), pMsgList, SLOT(sortByColumn(int)));
+
 	pMsgList->setModel(model.sortModel);
 	model.sortModel->setDynamicSortFilter(true);
 	model.sortModel->setFilterKeyColumn(1);
-
+	pMsgList->horizontalHeader()->setSortIndicator(1, Qt::DescendingOrder);
 	pMsgList->sortByColumn(1, Qt::DescendingOrder);
 	pMsgList->setColumnWidth(0, MSG_PIXMAP_SIZE + 5);
 	pMsgList->setColumnWidth(1, 100);
