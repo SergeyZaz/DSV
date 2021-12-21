@@ -258,6 +258,7 @@ void ZView::update()
 		model->setQuery(model->query().lastQuery());
 	}
 
+	emit needUpdateVal(-1);
 	QApplication::restoreOverrideCursor();
 }
 
@@ -283,8 +284,6 @@ void ZView::updateAndShow(bool fMaximized)
 
 void ZView::reload()
 {
-	emit needUpdateVal(-1); 
-
 	update();
 }
 
@@ -415,6 +414,8 @@ void ZView::changeFilter(int indx)
 
 	QRegExp	regExp(ui.txtFilter->text(), Qt::CaseInsensitive, QRegExp::FixedString);
 	sortModel.setFilterRegExp(regExp);
+	
+	emit needUpdateVal(-1);
 }
 
 void ZView::changeFilter(const QString &text)
@@ -424,6 +425,8 @@ void ZView::changeFilter(const QString &text)
 	
 	QRegExp	regExp(text, Qt::CaseInsensitive, QRegExp::FixedString);
 	sortModel.setFilterRegExp(regExp);
+
+	emit needUpdateVal(-1);
 }
 
 bool ZView::eventFilter(QObject *obj, QEvent *event)
@@ -658,5 +661,40 @@ QVariant ZQueryModel::data(const QModelIndex& index, int role) const
 		if (c != Qt::transparent)
 			return c;
 	}
+
+	QVariant v = QSqlQueryModel::data(index, role);
+	if (v.type() == QVariant::Date)
+		return v.toDate().toString(DATE_FORMAT);
+
 	return QSqlQueryModel::data(index, role);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+double QString2Double(QString txt)
+{
+	bool ok;
+	txt.replace(QChar::Nbsp, "");
+	double v = txt.toDouble(&ok);
+	if (!ok)
+	{
+		txt.replace(",", ".");
+		v = txt.toDouble(&ok);
+	}
+	return v;
+}
+
+void loadItemsToComboBox(QComboBox* cbo, const QString& tableName)
+{
+	QSqlQuery query;
+	cbo->clear();
+	auto result = query.exec(QString("SELECT id, name FROM %1 ORDER BY id").arg(tableName));
+	if (result)
+	{
+		while (query.next())
+		{
+			cbo->addItem(query.value(1).toString(), query.value(0).toInt());
+		}
+	}
+	cbo->setCurrentIndex(0);
 }

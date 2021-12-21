@@ -455,6 +455,9 @@
     <QtUic Include="src\zpayments2fioform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="src\zpayments2fio.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DSV.qrc">

@@ -327,10 +327,10 @@ void ZMainWindow::slotOpenPayments2fioDialog()
 		}
 	}
 
-	ZMdiChild* child = new ZPayments2fio(this);
+	ZPayments2fio* child = new ZPayments2fio(this);
 	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
-	child->setWindowTitleAndIcon(ui.actPayments2fio->text(), ui.actPayments2fio->icon());
+	//child->setWindowTitleAndIcon(ui.actPayments2fio->text(), ui.actPayments2fio->icon());
 	child->init("payments2fio");
 	child->show();
 }

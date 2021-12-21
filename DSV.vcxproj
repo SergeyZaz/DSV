@@ -216,7 +216,7 @@
     <ClInclude Include="src\zpayments.h" />
     <QtMoc Include="src\ztariffs.h" />
     <ClInclude Include="src\zorganisations.h" />
-    <ClInclude Include="src\zpayments2fio.h" />
+    <QtMoc Include="src\zpayments2fio.h" />
     <QtMoc Include="src\zpaymentsform.h" />
     <QtMoc Include="src\zpayments2fioform.h" />
     <ClInclude Include="src\zsmens.h" />
@@ -233,6 +233,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui" />
+    <QtUic Include="src\zpayments2fio.ui" />
     <QtUic Include="src\zpayments2fioform.ui" />
     <QtUic Include="src\zpaymentsform.ui" />
     <QtUic Include="src\ztariffhistory.ui" />

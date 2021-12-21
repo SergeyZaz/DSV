@@ -33,7 +33,7 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
-	loadItemsTo(ui.cboFilter, "groups");
+	loadItemsToComboBox(ui.cboFilter, "groups");
 	buildProtokol();
 }
 
@@ -88,21 +88,6 @@ void ZProtokol::loadTariffs()
 	}
 }
 
-void ZProtokol::loadItemsTo(QComboBox* cbo, const QString &tableName)
-{
-	QSqlQuery query;
-	cbo->clear();
-	auto result = query.exec(QString("SELECT id, name FROM %1 ORDER BY id").arg(tableName));
-	if (result)
-	{
-		while (query.next()) 
-		{
-			cbo->addItem(query.value(1).toString(), query.value(0).toInt());
-		}
-	}
-	cbo->setCurrentIndex(0);
-}
-
 double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &txt, double &bonus)
 {
 	double v = 0;
@@ -126,19 +111,6 @@ double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &tx
 			v *= num;
 		v += t.bonus;
 		break;
-	}
-	return v;
-}
-
-double QString2Double(QString txt)
-{
-	bool ok;	
-	txt.replace(QChar::Nbsp, "");
-	double v = txt.toDouble(&ok);
-	if (!ok)
-	{
-		txt.replace(",", ".");
-		v = txt.toDouble(&ok);
 	}
 	return v;
 }

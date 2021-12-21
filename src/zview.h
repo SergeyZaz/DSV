@@ -42,10 +42,10 @@ public:
 class ZSortFilterProxyModel : public QSortFilterProxyModel
 {
 	bool lessThan ( const QModelIndex & left, const QModelIndex & right ) const;
-	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 public:
 	ZSortFilterProxyModel(){};
 	~ZSortFilterProxyModel(){};
+	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 };
 
 class ZView : public QWidget
@@ -106,4 +106,5 @@ signals:
 	void needUpdateVal(int);
 };
 
-
+double QString2Double(QString txt);
+void loadItemsToComboBox(QComboBox* cbo, const QString& tableName);
