@@ -15,7 +15,9 @@ ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags)//: QDialog(pare
 	connect(ui.txtFilter_2, SIGNAL(textChanged(const QString&)), this, SLOT(changeFilterFIO(const QString&)));
 	connect(ui.toLeftToolButton, SIGNAL(clicked()), this, SLOT(toLeftSlot()));
 	connect(ui.toRightToolButton, SIGNAL(clicked()), this, SLOT(toRightSlot()));
-	connect(ui.m_tbl, SIGNAL(setCurrentElem(QEvent::Type, int)), this, SLOT(setCurrentElem(QEvent::Type, int)));	
+	connect(ui.m_tbl, SIGNAL(setCurrentElem(QEvent::Type, int)), this, SLOT(setCurrentElem(QEvent::Type, int)));
+	connect(ui.tbl_2, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(moveElemSlot(const QModelIndex&)));
+	connect(ui.tbl_3, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(moveElemSlot(const QModelIndex&)));
 }
 
 void ZViewGroups::setup()
@@ -39,7 +41,7 @@ void ZViewGroups::setup()
 	ui.tbl_3->setColumnHidden(0, true);
 	ui.tbl_3->verticalHeader()->hide();
 	ui.tbl_3->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
-	ui.tbl_3->horizontalHeader()->setStretchLastSection(true);
+	//ui.tbl_3->horizontalHeader()->setStretchLastSection(true);
 
 	Update();
 }
@@ -50,17 +52,8 @@ void ZViewGroups::changeFilterFIO(const QString& text)
 		return;
 
 	QSortFilterProxyModel* pSortModel = &sortModelFIO;
-	QLineEdit* pW = ui.txtFilter_3;
-
 	if (sender() == ui.txtFilter_2)
-	{
-		pW = ui.txtFilter_2;
 		pSortModel = &sortModel;
-	}
-
-	pW->blockSignals(true);
-	pW->setText(text);
-	pW->blockSignals(false);
 
 	QRegExp regExp(text, Qt::CaseInsensitive);
 	pSortModel->setFilterRegExp(regExp);
@@ -74,6 +67,14 @@ void ZViewGroups::toLeftSlot()
 void ZViewGroups::toRightSlot()
 {
 	updateGroups(ui.tbl_2, ZViewGroups::DELETE_OPERATION);
+}
+
+void ZViewGroups::moveElemSlot(const QModelIndex& index)
+{
+	if(sender() == ui.tbl_3)
+		updateGroups(ui.tbl_3, ZViewGroups::INSERT_OPERATION);
+	else
+		updateGroups(ui.tbl_2, ZViewGroups::DELETE_OPERATION);
 }
 
 void ZViewGroups::setLinkTableName(const QString& tbl)
@@ -112,7 +113,7 @@ void  ZViewGroups::Update()
 	ui.tbl_2->setColumnHidden(0, true);
 	ui.tbl_2->verticalHeader()->hide();
 	ui.tbl_2->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
-	ui.tbl_2->horizontalHeader()->setStretchLastSection(true);
+	//ui.tbl_2->horizontalHeader()->setStretchLastSection(true);
 
 	ui.tbl_3->viewport()->update();
 }
@@ -120,6 +121,14 @@ void  ZViewGroups::Update()
 void ZViewGroups::setCurrentElem(QEvent::Type, int id)
 {
 	currentId = id;
+
+	QSqlQuery query;
+	int rc = query.exec(QString("SELECT name FROM %1 WHERE id=%2").arg(ui.m_tbl->getTable()).arg(currentId));
+	if (rc && query.next())
+		ui.group->setTitle(query.value(0).toString());
+	else
+		ui.group->setTitle("");
+
 	Update();
 }
 

@@ -26,12 +26,12 @@ void ZMdiChild::setContextMenuForTbl(const QStringList &items)
 
 	foreach(QString item, items)
 	{
-		QAction *pAct = new QAction(item, m_tbl->getTable());
+		QAction *pAct = new QAction(item, m_tbl->getTblView());
 		contextMnuActions.append(pAct);
 		connect(pAct, SIGNAL(triggered()), this, SLOT(slotCustomActionExec()));
 	}
-	m_tbl->getTable()->setContextMenuPolicy(Qt::ActionsContextMenu);
-	m_tbl->getTable()->addActions(contextMnuActions);
+	m_tbl->getTblView()->setContextMenuPolicy(Qt::ActionsContextMenu);
+	m_tbl->getTblView()->addActions(contextMnuActions);
 }
 
 void ZMdiChild::slotCustomActionExec()

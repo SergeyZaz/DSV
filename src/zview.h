@@ -14,6 +14,7 @@
 #include "zeditbaseform.h"
 
 #define SORT_ROLE	Qt::UserRole+99
+#define DATE_FORMAT "yyyy-MM-dd"
 
 class ZTableModel :  public QSqlRelationalTableModel
 {
@@ -26,6 +27,16 @@ public:
 	QList<int> *pHighlightItems;
 	QMap< int , QMap<int, QString>* > relMaps;
 	bool fEdit;
+};
+
+class ZQueryModel : public QSqlQueryModel
+{
+public:
+	ZQueryModel(QObject* parent = 0);
+	~ZQueryModel();
+	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+	int m_HighlightColumn;
+	QMap<int, QColor> mHighlightItems;
 };
 
 class ZSortFilterProxyModel : public QSortFilterProxyModel
@@ -50,9 +61,11 @@ public:
 	ZView(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~ZView();
 	void init();
-	void setColorHighligthIfColumnContain(int col, QList<int> *plist);
-	int setTable(const QString &tbl, QStringList &headers, QList<int> &removeColumns);
-	void setTable(const QString &tbl) { mTable=tbl;}
+	void setColorHighligthIfColumnContain(int col, QList<int> *plist, const QColor& c);
+	void setColorHighligthIfColumnContain(int col, int val, const QColor& c);
+	int setTable(const QString& tbl, QStringList& headers, QList<int>& removeColumns);
+	void setTable(const QString& tbl) { mTable = tbl; }
+	QString &getTable() { return mTable; }
 	int setQuery(const QString &query, QStringList &headers, bool fRemoveOldModel = true);
 	int init(QList<int> &hideColumns, int sortCol = 1);
 	void setRelation(int column, const QString &tbl, const QString &attId, const QString &attValue);
@@ -66,7 +79,7 @@ public:
 	QItemSelectionModel *selectionModel();
 	QSqlQueryModel *getModel() { return model;}
 	ZSortFilterProxyModel *getSortModel() { return &sortModel;}
-	QTableView *getTable() { return ui.tbl;}
+	QTableView *getTblView() { return ui.tbl;}
 	//bool loadView(int sortCol);
 	QSize	sizeHint() const { return QSize(800, 600); }
 private:
@@ -85,6 +98,7 @@ public slots:
 	void selectionChanged(const QModelIndex&, const QModelIndex&);
 	void reload();
 	void applyEditor();
+	void errorQuerySlot(const QDateTime&, long, const QString&);
 signals:	
 	void errorQuery(const QDateTime &, long , const QString &);
 	void setCurrentElem( QEvent::Type, int );

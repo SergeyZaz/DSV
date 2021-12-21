@@ -9,6 +9,7 @@
 #include <QHeaderView>
 #include "zview.h"
 #include "ztoolwidget.h"
+#include "zmessager.h"
 
 #define HIGHLIGHTCOLOR Qt::cyan
 #define PLUS_COLOR	QColor(85, 255, 127)
@@ -52,7 +53,9 @@ void ZView::init()
 	bool rc;
 	pEditForm = new ZEditBaseForm(this);
 	rc = connect(pEditForm, SIGNAL(accepted()), this, SLOT(applyEditor()));
-	rc = connect(pEditForm, SIGNAL(errorQuery(const QDateTime&, long, const QString&)), this, SIGNAL(errorQuery(const QDateTime&, long, const QString&)));	
+	rc = connect(pEditForm, SIGNAL(errorQuery(const QDateTime&, long, const QString&)), this, SIGNAL(errorQuery(const QDateTime&, long, const QString&)));
+
+	rc = connect(this, SIGNAL(errorQuery(const QDateTime&, long, const QString&)), this, SLOT(errorQuerySlot(const QDateTime&, long, const QString&)));
 }
 
 ZView::~ZView()
@@ -66,12 +69,26 @@ ZView::~ZView()
 		delete model;
 }
 	
-void ZView::setColorHighligthIfColumnContain(int col, QList<int> *plist)
+void ZView::errorQuerySlot(const QDateTime&, long, const QString& text)
+{
+	ZMessager::Instance().Message(_CriticalError, text);
+}
+
+void ZView::setColorHighligthIfColumnContain(int col, QList<int> *plist, const QColor &c)
 {
 	ZTableModel *pModel = dynamic_cast<ZTableModel*>(model);
 	if(!pModel || !plist)
 		return;
 	pModel->pHighlightItems = plist;
+	pModel->m_HighlightColumn = col;
+}
+
+void ZView::setColorHighligthIfColumnContain(int col, int val, const QColor& c)
+{
+	ZQueryModel* pModel = dynamic_cast<ZQueryModel*>(model);
+	if (!pModel)
+		return;
+	pModel->mHighlightItems.insert(val, c);
 	pModel->m_HighlightColumn = col;
 }
 
@@ -137,12 +154,12 @@ int ZView::setQuery(const QString &query, QStringList &headers, bool fRemoveOldM
 	ui.cmdAdd->setVisible(false);
 	ui.cmdDel->setVisible(false);
 	ui.cmdEdit->setVisible(false);
-	ui.cmdReload->setVisible(false);
+	//ui.cmdReload->setVisible(false);
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	if(!model)
-		model = new QSqlQueryModel();
+		model = new ZQueryModel();
 
 	model->setQuery(query);
 	if (model->lastError().isValid())
@@ -323,7 +340,7 @@ void ZView::applyEditor()
 		indx = ui.tbl->model()->index(r, c);
 		ui.tbl->setCurrentIndex(indx);
 		ui.tbl->scrollTo(indx);
-		ui.tbl->resizeColumnsToContents();
+		//ui.tbl->resizeColumnsToContents();
 		ui.tbl->resizeRowsToContents();
 }
 	
@@ -395,7 +412,9 @@ void ZView::changeFilter(int indx)
 	ui.cboFilter->blockSignals(false);
 
 	sortModel.setFilterKeyColumn(ui.cboFilter->itemData(indx).toInt());
-	changeFilter(ui.txtFilter->text());
+
+	QRegExp	regExp(ui.txtFilter->text(), Qt::CaseInsensitive, QRegExp::FixedString);
+	sortModel.setFilterRegExp(regExp);
 }
 
 void ZView::changeFilter(const QString &text)
@@ -403,11 +422,7 @@ void ZView::changeFilter(const QString &text)
 	if(!model)
 		return;
 	
-	ui.txtFilter->blockSignals(true);
-	ui.txtFilter->setText(text);
-	ui.txtFilter->blockSignals(false);
-
-    QRegExp regExp(text, Qt::CaseInsensitive); 
+	QRegExp	regExp(text, Qt::CaseInsensitive, QRegExp::FixedString);
 	sortModel.setFilterRegExp(regExp);
 }
 
@@ -554,7 +569,9 @@ QVariant ZTableModel::data(const QModelIndex & index, int role) const
 	}
 
 	v = QSqlTableModel::data(index, role);
-	
+	if (v.type() == QVariant::Date)
+		return v.toDate().toString(DATE_FORMAT);
+
 	if(v.type() == QVariant::Double)
 #ifndef MONEY_FORMAT
 		return QString::number(v.toDouble(), 'f', 2);
@@ -615,4 +632,31 @@ QVariant ZSortFilterProxyModel::data( const QModelIndex & index, int role) const
 		return QString("%L1").arg(v.toDouble(), 0, 'f', 2);
 #endif
 	return v;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ZQueryModel::ZQueryModel(QObject* parent): QSqlQueryModel(parent)
+{
+	m_HighlightColumn = -1;
+}
+
+ZQueryModel::~ZQueryModel()
+{
+	
+}
+
+QVariant ZQueryModel::data(const QModelIndex& index, int role) const
+{
+	if (m_HighlightColumn != -1 && role == Qt::BackgroundColorRole)
+	{
+		int col = index.column();
+		int row = index.row();
+		QModelIndex t_indx = this->index(row, m_HighlightColumn);
+		QVariant v = data(t_indx, Qt::DisplayRole);
+		QColor c = mHighlightItems.value(v.toInt(), Qt::transparent);
+		if (c != Qt::transparent)
+			return c;
+	}
+	return QSqlQueryModel::data(index, role);
 }

@@ -48,7 +48,8 @@ public slots:
 	void changeFilterFIO(const QString&);
 	void toLeftSlot();
 	void toRightSlot();
-	void setCurrentElem(QEvent::Type, int);
+	void setCurrentElem(QEvent::Type, int); 
+	void moveElemSlot(const QModelIndex& index);
 
 };
 

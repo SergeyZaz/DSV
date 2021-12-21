@@ -23,5 +23,7 @@ void ZImportData::init(const QString &m_TblName)
 	m_tbl->init(hideColumns);
 
 	m_tbl->setReadOnly(true, true, false);
+
+	m_tbl->getTblView()->verticalHeader()->setVisible(true);
 }
 

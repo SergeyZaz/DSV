@@ -61,7 +61,7 @@ void ZTariffs::doubleClickedTbl(const QModelIndex& index)
 	QModelIndex indx = sortModel.mapToSource(index);
 	int id = model->data(model->index(indx.row(), 0)).toInt();
 
-	emit setCurrentElem(QEvent::MouseButtonDblClick, id);
+	//emit setCurrentElem(QEvent::MouseButtonDblClick, id);
 
 	openEditor(id);
 }
@@ -95,7 +95,7 @@ void ZTariffs::Update()
 	ui.tbl->verticalHeader()->hide();
 	ui.tbl->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 	ui.tbl->setColumnWidth(1, 150);
-	ui.tbl->horizontalHeader()->setStretchLastSection(true);
+	//ui.tbl->horizontalHeader()->setStretchLastSection(true);
 
 	ui.tbl->viewport()->update();
 

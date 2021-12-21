@@ -281,7 +281,7 @@ void ZProtokol::updateSumm()
 {
 	int i, j, n = ui.tree->topLevelItemCount();
 	QTreeWidgetItem* pItem;
-	double v;
+	double v, summa = 0;
 
 	for (j = 0; j < n; j++)
 	{
@@ -294,12 +294,16 @@ void ZProtokol::updateSumm()
 			v += pItem->data(i, PAYMENT_ROLE).toDouble();
 		}
 
+		summa += v;
+
 #ifndef MONEY_FORMAT
 		pItem->setText(5, QString::number(v, 'f', 2));
 #else
 		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 	}
+
+	ui.lblSumma->setText(QString("Сумма: %L1").arg(summa, 0, 'f', 2));
 }
 
 int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa)
@@ -443,6 +447,11 @@ void ZProtokol::saveProtokol()
 				xlsxW.write(i + 6, j + 1, v, fMultiLine);
 		}
 	}
+
+	xlsxW.write(n + 7, 5, "Сумма:", fBold);
+	v = QString2Double(ui.lblSumma->text().mid(7));
+	fMoney.setFontBold(true);
+	xlsxW.write(n + 7, 6, v, fMoney);
 
 	xlsxW.saveAs(fileName);
 
