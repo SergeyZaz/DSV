@@ -392,7 +392,9 @@ void ZProtokol::saveProtokol()
 	xlsxW.setColumnWidth(5, 50);
 	xlsxW.write(5, 6, "Сумма", fBold);
 	xlsxW.setColumnWidth(6, 20);
-	xlsxW.write(5, 7, "примечания", fBold);
+	xlsxW.write(5, 7, "Примечания", fBold);
+	xlsxW.setColumnWidth(7, 50);
+	xlsxW.write(5, 8, "Заметки", fBold);
 	xlsxW.setColumnWidth(7, 50);
 
 	QVariant v;
@@ -406,7 +408,7 @@ void ZProtokol::saveProtokol()
 	{
 		pItem = ui.tree->topLevelItem(i);
 
-		for (j = 0; j < 7; j++)
+		for (j = 0; j < 8; j++)
 		{
 			v = pItem->data(j, Qt::DisplayRole);
 			if (j == 5)

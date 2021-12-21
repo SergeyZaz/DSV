@@ -25,6 +25,7 @@
 #include "zmessager.h"
 #include "zpayments2fio.h"
 #include "zimportdata.h"
+#include "znotes.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -50,6 +51,8 @@ ZMainWindow::ZMainWindow()
 	connect(ui.actPayments, SIGNAL(triggered()), this, SLOT(slotOpenPaymentsDialog()));
 	connect(ui.actPayments2fio, SIGNAL(triggered()), this, SLOT(slotOpenPayments2fioDialog()));
 	connect(ui.actImportData, SIGNAL(triggered()), this, SLOT(slotOpenImportDataDialog()));
+	connect(ui.actNotes, SIGNAL(triggered()), this, SLOT(slotOpenNotesDialog()));
+
 
 	connect(ui.actProtokol, SIGNAL(triggered()), this,	SLOT(slotOpenProtokolDialog()));
 	
@@ -368,6 +371,25 @@ void ZMainWindow::slotOpenImportDataDialog()
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actImportData->text(), ui.actImportData->icon());
 	child->init("import_data");
+	child->show();
+}
+
+void ZMainWindow::slotOpenNotesDialog()
+{
+	foreach(QMdiSubWindow * window, ui.mdiArea->subWindowList())
+	{
+		if (dynamic_cast<ZNotes*>(window->widget()))
+		{
+			ui.mdiArea->setActiveSubWindow(window);
+			return;
+		}
+	}
+
+	ZMdiChild* child = new ZNotes(this);
+	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
+	ui.mdiArea->addSubWindow(child);
+	child->setWindowTitleAndIcon(ui.actNotes->text(), ui.actNotes->icon());
+	child->init("notes2fio");
 	child->show();
 }
 

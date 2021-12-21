@@ -11,7 +11,7 @@ void ZImportData::init(const QString &m_TblName)
 	QList<int> cRem;
 	
 	hideColumns << 0;
-	headers <<  tr("id") << tr("Дата") << tr("Смена") << tr("Тариф") << tr("ФИО") << tr("Количество") << tr("Файл");
+	headers <<  tr("id") << tr("Дата") << tr("Смена") << tr("Тариф") << tr("ФИО") << tr("Количество") << tr("Файл") << tr("Номер строки");
 
 	m_tbl->setTable(m_TblName, headers, cRem);	
 
@@ -22,8 +22,10 @@ void ZImportData::init(const QString &m_TblName)
 
 	m_tbl->init(hideColumns);
 
+	m_tbl->moveSection(7, 1);
+
 	m_tbl->setReadOnly(true, true, false);
 
-	m_tbl->getTblView()->verticalHeader()->setVisible(true);
+//	m_tbl->getTblView()->verticalHeader()->setVisible(true);
 }
 

@@ -88,6 +88,7 @@
     </property>
     <addaction name="actGroups"/>
     <addaction name="actPersons"/>
+    <addaction name="actNotes"/>
     <addaction name="actOrganisations"/>
     <addaction name="actSmens"/>
     <addaction name="actTariffs"/>
@@ -126,6 +127,7 @@
    <addaction name="actImportData"/>
    <addaction name="actGroups"/>
    <addaction name="actPersons"/>
+   <addaction name="actNotes"/>
    <addaction name="actOrganisations"/>
    <addaction name="actSmens"/>
    <addaction name="actTariffs"/>
@@ -427,6 +429,18 @@
    </property>
    <property name="toolTip">
     <string>Импортированные данные</string>
+   </property>
+  </action>
+  <action name="actNotes">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/bell.png</normaloff>:/images/bell.png</iconset>
+   </property>
+   <property name="text">
+    <string>Заметки</string>
+   </property>
+   <property name="toolTip">
+    <string>Заметки</string>
    </property>
   </action>
  </widget>

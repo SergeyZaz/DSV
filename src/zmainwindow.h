@@ -36,6 +36,7 @@ private slots:
 	void slotUpdateAccountsVal(int account_id);
 	void slotCleanMsg();
 	void slotSaveMsg();
+	void slotOpenNotesDialog();
 
 private:
 	void readSettings();

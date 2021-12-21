@@ -26,5 +26,6 @@
     <file>images/left.png</file>
     <file>images/right.png</file>
     <file>images/t_ms.png</file>
+    <file>images/bell.png</file>
   </qresource>
 </RCC>

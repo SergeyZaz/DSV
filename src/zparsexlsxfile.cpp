@@ -305,13 +305,14 @@ int ZParseXLSXFile::insertData(uint key)
 		else
 			fio_id = query.value(0).toInt();
 
-		str_query = QString("INSERT INTO import_data (dt,smena,tariff,fio,num,import_id) VALUES('%1', (SELECT id FROM smena WHERE name='%2'), %3, %4, %5, %6);")
+		str_query = QString("INSERT INTO import_data (dt,smena,tariff,fio,num,import_id,row_num) VALUES('%1', (SELECT id FROM smena WHERE name='%2'), %3, %4, %5, %6, %7);")
 			.arg(row[columnMap[IMPORT_TAG_DT]].toString())
 			.arg(row[columnMap[IMPORT_TAG_SMENA]].toString())
 			.arg(tariff_id)
 			.arg(fio_id)
 			.arg(row[columnMap[IMPORT_TAG_NUM]].toInt())
-			.arg(key);
+			.arg(key)
+			.arg(i+1);
 		if (!query.exec(str_query))
 		{
 			//str_query = query.lastError().text();

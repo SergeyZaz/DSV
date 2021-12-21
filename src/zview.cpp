@@ -331,6 +331,8 @@ int ZView::openEditor(int id)
 void ZView::applyEditor()
 {
 		QModelIndex indx = ui.tbl->currentIndex();
+		if (!indx.isValid())
+			return;
 		int r = indx.row();
 		int c = indx.column();
 

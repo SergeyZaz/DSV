@@ -200,6 +200,12 @@
     <ClCompile Include="src\zimportdata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\znotesform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\znotes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\zimagelabel.h">
@@ -370,10 +376,10 @@
     <ClInclude Include="src\zgroups.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\zpayments2fio.h">
+    <ClInclude Include="src\zimportdata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\zimportdata.h">
+    <ClInclude Include="src\znotes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -420,6 +426,12 @@
     <QtMoc Include="src\zpayments2fioform.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\zpayments2fio.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\znotesform.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui">
@@ -456,6 +468,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zpayments2fio.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\znotesform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

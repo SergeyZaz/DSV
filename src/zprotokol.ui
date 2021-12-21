@@ -155,6 +155,11 @@
        <string>Примечания</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Заметки</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
