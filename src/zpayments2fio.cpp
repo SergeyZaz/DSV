@@ -81,7 +81,10 @@ void ZPayments2fio::UpdateSumma(int)
 	for (i = 0; i < n; i++)
 	{
 		s = ui.m_tbl->getSortModel()->data(ui.m_tbl->getSortModel()->index(i, 7)).toString();
-		summa += QString2Double(s);
+		if(ui.m_tbl->getSortModel()->data(ui.m_tbl->getSortModel()->index(i, 8)).toInt())
+			summa -= QString2Double(s);
+		else
+			summa += QString2Double(s);
 	}
 	ui.lblSumma->setText(QString("Сумма: %L1").arg(summa, 0, 'f', 2));
 }
