@@ -12,7 +12,9 @@ class ZParseXLSXFile
 public:
 	ZParseXLSXFile() { maxRow = -1; maxCol = -1;}
 	~ZParseXLSXFile(){};
-	bool loadFile(const QString &fileName);
+	bool loadFile(const QString& fileName);
+	bool loadImportData(const QString& fileName);
+	bool loadPayments(const QString& fileName);
 };
 
 

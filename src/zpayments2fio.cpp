@@ -1,5 +1,7 @@
 #include "zpayments2fio.h"
 #include "zpayments2fioform.h"
+#include "zparsexlsxfile.h"
+#include <QFileDialog>
 
 
 ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(parent, flags)
@@ -12,6 +14,7 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(p
 
 	connect(ui.m_tbl, SIGNAL(needUpdateVal(int)), this, SLOT(UpdateSumma(int)));
 //	connect(ui.date, SIGNAL(dateChanged(const QDate&)), this, SLOT(dateChangedSlot(const QDate&)));
+	connect(ui.cmdImport, SIGNAL(clicked()), this, SLOT(ImportSlot()));
 	
 	connect(ui.cboFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
 		{
@@ -87,4 +90,16 @@ void ZPayments2fio::UpdateSumma(int)
 			summa += QString2Double(s);
 	}
 	ui.lblSumma->setText(QString("Сумма: %L1").arg(summa, 0, 'f', 2));
+}
+
+void ZPayments2fio::ImportSlot()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "Выбор файла для импорта", "", "XLSX-файлы (*.xlsx);;Все файлы (*.*)");
+	if (fileName.isEmpty())
+		return;
+	ZParseXLSXFile pFile;
+	if (pFile.loadPayments(fileName))
+	{
+		ChangeFilter();
+	}
 }

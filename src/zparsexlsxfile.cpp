@@ -23,7 +23,7 @@ using namespace QXlsx;
 #define IMPORT_TAG_TYRE "tyre"
 #define IMPORT_TAG_RATE "rate"
 
-bool ZParseXLSXFile::loadFile(const QString &fileName)
+bool ZParseXLSXFile::loadFile(const QString& fileName)
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -53,7 +53,7 @@ bool ZParseXLSXFile::loadFile(const QString &fileName)
 		ZMessager::Instance().Message(_Error, "Невозможно получить данные", "Ошибка");
 		return false;
 	}
-	
+
 	currentSheet->workbook()->setActiveSheet(0);
 	Worksheet* wsheet = (Worksheet*)currentSheet->workbook()->activeSheet();
 	if (!wsheet)
@@ -63,14 +63,14 @@ bool ZParseXLSXFile::loadFile(const QString &fileName)
 		ZMessager::Instance().Message(_Error, "Невозможно получить данные с листа", "Ошибка");
 		return false;
 	}
-	
-	QString strSheetName = wsheet->sheetName(); 
+
+	QString strSheetName = wsheet->sheetName();
 
 	QVector<CellLocation> clList = wsheet->getFullCells(&maxRow, &maxCol);
 	for (int rc = 0; rc < maxRow; rc++)
 	{
 		QVector<QVariant> tempValue;
-	
+
 		for (int cc = 0; cc < maxCol; cc++)
 		{
 			tempValue.push_back(QVariant());
@@ -89,15 +89,31 @@ bool ZParseXLSXFile::loadFile(const QString &fileName)
 		int row = cl.row - 1;
 		int col = cl.col - 1;
 
-		QSharedPointer<Cell> ptrCell = cl.cell; 
+		QSharedPointer<Cell> ptrCell = cl.cell;
 
-		if(ptrCell->isDateTime())
+		if (ptrCell->isDateTime())
 			m_Data[row][col] = ptrCell.data()->dateTime();
 		else
 			m_Data[row][col] = ptrCell.data()->value();
 	}
+
+	if (m_Data.size() == 0)
+	{
+		progress.close();
+		QApplication::restoreOverrideCursor();
+		ZMessager::Instance().Message(_Error, "Содержимое файла не соответствует данным для импорта", "Ошибка");
+		return false;
+	}
+
 	progress.close();
+	return true;
+}
 	
+bool ZParseXLSXFile::loadImportData(const QString & fileName)
+{
+	if (!loadFile(fileName))
+		return false;
+
 	QSqlQuery query;
 	QString dt_str = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
 	QString str_query = QString("INSERT INTO public.import(file, dt) VALUES('%1', '%2')").arg(fileName).arg(dt_str);
@@ -129,12 +145,6 @@ int ZParseXLSXFile::insertData(uint key)
 	QString str_query, str_tmpl;
 	int i, j;
 	bool fNoData = true;
-
-	if (m_Data.size() == 0)
-	{
-		ZMessager::Instance().Message(_Error, "Содержимое файла не соответствует данным для импорта", "Ошибка");
-		return 0;
-	}
 
 	QMap<QString, int> columnMap;
 	auto iT = ZSettings::Instance().importTags.constBegin();
@@ -323,3 +333,63 @@ int ZParseXLSXFile::insertData(uint key)
 	return 1;
 }
 
+bool ZParseXLSXFile::loadPayments(const QString& fileName)
+{
+	if (!loadFile(fileName))
+		return false;
+
+	int i, fio, payment, rc = 0;
+	QProgressDialog progress("Обработка данных...", "Отмена", 0, m_Data.size(), QApplication::activeWindow());
+	progress.setWindowModality(Qt::WindowModal);
+	progress.show();
+
+	QString str_fio, str_payment, str_query;
+	QSqlQuery query;
+
+	for (i = 1; i < m_Data.size(); i++)
+	{
+		QApplication::processEvents();
+		if (progress.wasCanceled())
+			break;
+		progress.setValue(i);
+
+		const QVector<QVariant>& row = m_Data[i];
+		str_fio = row[1].toString();
+		str_payment = row[2].toString();
+		if (str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[3].isNull())// могут быть пустые строки
+			continue;
+
+		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio);
+		if (!query.exec(str_query) || !query.next())
+		{
+			ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
+			continue;
+		}
+		fio = query.value(0).toInt();
+
+		str_query = QString("SELECT id FROM payments WHERE name='%1'").arg(str_payment);
+		if (!query.exec(str_query) || !query.next())
+		{
+			ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Выплаты' не найдена запсись: '%1'").arg(str_payment));
+			continue;
+		}
+		payment = query.value(0).toInt();
+
+		str_query = QString("INSERT INTO payments2fio (dt,fio,payment,val) VALUES('%1', %2, %3, %4);")
+			.arg(row[0].toString())
+			.arg(fio)
+			.arg(payment)
+			.arg(row[3].toDouble());
+		if (!query.exec(str_query))
+		{
+			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i).arg(query.lastError().text()));
+		}
+		else
+			rc++;
+	}
+
+	if (rc > 0)
+		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей").arg(rc), "Внимание");
+	QApplication::restoreOverrideCursor();
+	return (rc > 0);
+}

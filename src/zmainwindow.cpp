@@ -181,7 +181,7 @@ void ZMainWindow::slotOpenXlsxFile()
 	if (fileName.isEmpty()) 
 		return;
 	ZParseXLSXFile pFile;
-	if(pFile.loadFile(fileName))
+	if(pFile.loadImportData(fileName))
 	{
 		slotUpdate();
 	}

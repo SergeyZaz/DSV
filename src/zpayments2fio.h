@@ -19,5 +19,6 @@ public slots:
 	void UpdateSumma(int v = -1);
 	void ChangeFilter();
 	void dateChangedSlot(const QDate&);
+	void ImportSlot();
 };
 
