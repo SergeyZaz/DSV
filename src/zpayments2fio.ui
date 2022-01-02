@@ -56,7 +56,7 @@
        </property>
        <property name="text">
         <string>Импорт
-из xlsl</string>
+из xlsx</string>
        </property>
       </widget>
      </item>

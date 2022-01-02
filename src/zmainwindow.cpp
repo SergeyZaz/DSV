@@ -96,7 +96,7 @@ void ZMainWindow::readSettings()
 	QSettings settings("Zaz", "DSV");
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
-
+/*
 	qint64 d = settings.value("magic", 0).toLongLong();
 	if (d == 0)
 	{
@@ -115,7 +115,7 @@ void ZMainWindow::readSettings()
 		QMessageBox::warning(this, tr("Внимание"),
 			QString("Вы используете ознакомительную версию, программа перестанет работать через %1 дней!").arg(d));
 	}
-
+*/
 	move(pos);
 	resize(size);
 }

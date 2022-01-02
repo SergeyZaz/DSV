@@ -141,6 +141,9 @@ void ZProtokol::buildProtokol()
 {
 	loadTariffs();
 
+	QString dateStartStr = ui.dateStart->date().toString(DATE_FORMAT);
+	QString dateEndStr = ui.dateEnd->date().toString(DATE_FORMAT);
+
 	QString stringQuery = QString("SELECT dt, import_data.fio, fio.name, organisation.id, organisation.name, smena, smena.name, tariff, num, groups.id, fio.comment  FROM import_data \
 INNER JOIN fio ON(import_data.fio = fio.id) \
 INNER JOIN organisation2fio ON(import_data.fio = value) \
@@ -149,8 +152,8 @@ INNER JOIN smena ON(smena.id = smena) \
 LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
 WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
-.arg(ui.dateStart->date().toString(DATE_FORMAT))
-.arg(ui.dateEnd->date().toString(DATE_FORMAT));
+.arg(dateStartStr)
+.arg(dateEndStr);
 
 	QSqlQuery query;
 	if (!query.exec(stringQuery))
@@ -207,6 +210,21 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 			pItemGroup->setData(6, FIO_ID_ROLE, id);
 
 			pItemGroup->setSizeHint(0, QSize(100, 50));
+
+			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND begin_dt <= '%3'))")
+				.arg(id).arg(dateStartStr).arg(dateEndStr);
+			QSqlQuery query2;
+			if (query2.exec(stringQuery2))
+			{
+				stringQuery2.clear();
+
+				while (query2.next())
+				{
+					stringQuery2 += query2.value(0).toString() + "\n";
+				}
+				stringQuery2.chop(1);
+				pItemGroup->setText(7, stringQuery2);
+			}
 		}
 
 		pItem = new QTreeWidgetItem(pItemGroup);
@@ -395,7 +413,7 @@ void ZProtokol::saveProtokol()
 	xlsxW.write(5, 7, "Примечания", fBold);
 	xlsxW.setColumnWidth(7, 50);
 	xlsxW.write(5, 8, "Заметки", fBold);
-	xlsxW.setColumnWidth(7, 50);
+	xlsxW.setColumnWidth(8, 50);
 
 	QVariant v;
 	QString s;
