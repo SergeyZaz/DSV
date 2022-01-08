@@ -218,7 +218,7 @@ int ZParseXLSXFile::insertData(uint key)
 		{
 			if (tar.mode != 4)
 				continue;
-			if (row[columnMap[IMPORT_TAG_RATE]].toString() == tar.txt)
+			if (row[columnMap[IMPORT_TAG_RATE]].toString().compare(tar.txt, Qt::CaseInsensitive)==0)// == tar.txt)
 			{
 				tariff_id = tar.id;
 				break;
@@ -231,7 +231,7 @@ int ZParseXLSXFile::insertData(uint key)
 			{
 				if (tar.mode != 0)
 					continue;
-				if (row[columnMap[IMPORT_TAG_WORK]].toString() == tar.txt)
+				if (row[columnMap[IMPORT_TAG_WORK]].toString().compare(tar.txt, Qt::CaseInsensitive) == 0)// == tar.txt)
 				{
 					tariff_id = tar.id;
 					break;
@@ -246,7 +246,7 @@ int ZParseXLSXFile::insertData(uint key)
 			{
 				if (tar.mode != 3)
 					continue;
-				if (str_tmpl.endsWith(tar.txt))
+				if (str_tmpl.endsWith(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
 					break;
@@ -260,7 +260,7 @@ int ZParseXLSXFile::insertData(uint key)
 			{
 				if (tar.mode != 2)
 					continue;
-				if (str_tmpl.startsWith(tar.txt))
+				if (str_tmpl.startsWith(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
 					break;
@@ -274,7 +274,7 @@ int ZParseXLSXFile::insertData(uint key)
 			{
 				if (tar.mode != 1)
 					continue;
-				if (str_tmpl.contains(tar.txt))
+				if (str_tmpl.contains(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
 					break;

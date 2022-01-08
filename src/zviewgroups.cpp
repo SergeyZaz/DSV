@@ -10,7 +10,7 @@ ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags)//: QDialog(pare
 	modelFIO = NULL;
 	currentId = -1;
 	model = NULL;
-
+	bool rc;
 	connect(ui.txtFilter_3, SIGNAL(textChanged(const QString&)), this, SLOT(changeFilterFIO(const QString&)));
 	connect(ui.txtFilter_2, SIGNAL(textChanged(const QString&)), this, SLOT(changeFilterFIO(const QString&)));
 	connect(ui.toLeftToolButton, SIGNAL(clicked()), this, SLOT(toLeftSlot()));
@@ -18,10 +18,19 @@ ZViewGroups::ZViewGroups(QWidget* parent, Qt::WindowFlags flags)//: QDialog(pare
 	connect(ui.m_tbl, SIGNAL(setCurrentElem(QEvent::Type, int)), this, SLOT(setCurrentElem(QEvent::Type, int)));
 	connect(ui.tbl_2, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(moveElemSlot(const QModelIndex&)));
 	connect(ui.tbl_3, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(moveElemSlot(const QModelIndex&)));
+	rc = connect(ui.m_tbl, SIGNAL(needUpdateVal(int)), this, SLOT(UpdateSlot(int)));
+}
+
+void ZViewGroups::UpdateSlot(int)
+{
+	setup();
 }
 
 void ZViewGroups::setup()
 {
+	if (modelFIO)
+		delete modelFIO;
+
 	modelFIO = new ZFioModel();
 
 	modelFIO->setQuery("SELECT id,name FROM public.fio");

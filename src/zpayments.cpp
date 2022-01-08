@@ -19,7 +19,7 @@ void ZPayments::init(const QString& m_TblName)
 	m_tbl->setCustomEditor(new ZPaymentsForm(this));
 
 	QMap<int, QString>* pMap1 = new QMap<int, QString>;
-	pMap1->insert(0, "выплата");
+	pMap1->insert(0, "бонус");
 	pMap1->insert(1, "вычет");
 	m_tbl->setRelation(3, pMap1);
 

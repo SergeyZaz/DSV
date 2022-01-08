@@ -401,10 +401,10 @@
      <normaloff>:/images/ms.png</normaloff>:/images/ms.png</iconset>
    </property>
    <property name="text">
-    <string>Вычеты/выплаты</string>
+    <string>Вычеты/бонусы</string>
    </property>
    <property name="toolTip">
-    <string>Вычеты/выплаты</string>
+    <string>Вычеты/бонусы</string>
    </property>
   </action>
   <action name="actPayments2fio">
@@ -413,10 +413,10 @@
      <normaloff>:/images/t_ms.png</normaloff>:/images/t_ms.png</iconset>
    </property>
    <property name="text">
-    <string>Вычеты/выплаты ФИО</string>
+    <string>Вычеты/бонусы ФИО</string>
    </property>
    <property name="toolTip">
-    <string>Вычеты/выплаты ФИО</string>
+    <string>Вычеты/бонусы ФИО</string>
    </property>
   </action>
   <action name="actImportData">

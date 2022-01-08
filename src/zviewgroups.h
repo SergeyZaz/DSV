@@ -41,8 +41,8 @@ public:
 		setWindowTitle(title);
 		setWindowIcon(icon);
 	}
-	void setup();
 	void setLinkTableName(const QString& tbl);
+	void setup();
 
 public slots:
 	void changeFilterFIO(const QString&);
@@ -50,6 +50,7 @@ public slots:
 	void toRightSlot();
 	void setCurrentElem(QEvent::Type, int); 
 	void moveElemSlot(const QModelIndex& index);
+	void UpdateSlot(int);
 
 };
 

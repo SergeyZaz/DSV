@@ -136,6 +136,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\zgroups.cpp" />
     <ClCompile Include="src\zimportdata.cpp" />
+    <ClCompile Include="src\zimportdataform.cpp" />
     <ClCompile Include="src\znotes.cpp" />
     <ClCompile Include="src\znotesform.cpp" />
     <ClCompile Include="src\zpayments2fio.cpp" />
@@ -215,6 +216,7 @@
     <QtMoc Include="src\zmessager.h" />
     <ClInclude Include="src\zimportdata.h" />
     <QtMoc Include="src\znotesform.h" />
+    <QtMoc Include="src\zimportdataform.h" />
     <ClInclude Include="src\znotes.h" />
     <ClInclude Include="src\zparsexlsxfile.h" />
     <ClInclude Include="src\zpayments.h" />
@@ -237,6 +239,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui" />
+    <QtUic Include="src\zimportdataform.ui" />
     <QtUic Include="src\znotesform.ui" />
     <QtUic Include="src\zpayments2fio.ui" />
     <QtUic Include="src\zpayments2fioform.ui" />

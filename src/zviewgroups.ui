@@ -31,10 +31,17 @@
        </size>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QGroupBox" name="group">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="title">
           <string/>
          </property>

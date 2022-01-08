@@ -8,7 +8,7 @@ ZPaymentsForm::ZPaymentsForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbst
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applyChanges()));
 	
-	ui.cboMode->addItem("выплата", 0);
+	ui.cboMode->addItem("бонус", 0);
 	ui.cboMode->addItem("вычет", 1);
 }
 
