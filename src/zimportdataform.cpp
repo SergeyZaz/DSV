@@ -12,6 +12,10 @@ ZImportDataForm::ZImportDataForm(QWidget* parent, Qt::WindowFlags flags) : ZEdit
 	ui.date->setDate(QDate::currentDate());
 
 	ui.cboFIO->setEditable(true);
+	ui.cboTariff->setEditable(true);
+	ui.cboSmena->setEditable(true);
+	ui.spinNum->setMaximum(999999);
+	ui.spinNum->setMinimum(0);
 }
 
 ZImportDataForm::~ZImportDataForm(){}
@@ -20,15 +24,20 @@ int ZImportDataForm::init(const QString &table, int id )
 {
 	ZEditAbstractForm::init(table, id);
 
-	loadFio();
+	loadCbo(ui.cboFIO, "fio");
+	loadCbo(ui.cboTariff, "tariff"); 
+	loadCbo(ui.cboSmena, "smena");
 
-	QString stringQuery = QString("SELECT begin_dt, end_dt, fio, note FROM import_data WHERE id = %1")
+	QString stringQuery = QString("SELECT dt, smena, tariff, fio, num FROM import_data WHERE id = %1")
 		.arg(curEditId);
 
 	// new record
 	if (curEditId == ADD_UNIC_CODE)
 	{
 		ui.cboFIO->setCurrentIndex(0);
+		ui.cboTariff->setCurrentIndex(0);
+		ui.cboSmena->setCurrentIndex(0);
+		ui.spinNum->setValue(0);
 		return true;
 	}
 
@@ -41,8 +50,11 @@ int ZImportDataForm::init(const QString &table, int id )
 		{
 			int indx = query.value(4).toInt();
 
-			ui.cboFIO->setCurrentIndex(ui.cboFIO->findData(query.value(2).toInt()));
+			ui.cboFIO->setCurrentIndex(ui.cboFIO->findData(query.value(3).toInt()));
+			ui.cboTariff->setCurrentIndex(ui.cboTariff->findData(query.value(2).toInt()));
+			ui.cboSmena->setCurrentIndex(ui.cboSmena->findData(query.value(1).toInt()));
 			ui.date->setDate(query.value(0).toDate());
+			ui.spinNum->setValue(query.value(4).toInt());
 		}
 	}	
 	else 
@@ -53,16 +65,16 @@ int ZImportDataForm::init(const QString &table, int id )
 	return result;
 }
 
-void ZImportDataForm::loadFio()
+void ZImportDataForm::loadCbo(QComboBox *cbo, QString tbl)
 {
-	ui.cboFIO->clear();
+	cbo->clear();
 
 	QSqlQuery query;
-	if (query.exec("SELECT id,name FROM fio ORDER BY name"))
+	if (query.exec(QString("SELECT id,%2 FROM %1 ORDER BY %2").arg(tbl).arg(tbl=="tariff" ? "txt" : "name")))
 	{
 		while (query.next())
 		{
-			ui.cboFIO->addItem(query.value(1).toString(), query.value(0).toInt());
+			cbo->addItem(query.value(1).toString(), query.value(0).toInt());
 		}
 	}
 	else
@@ -71,8 +83,8 @@ void ZImportDataForm::loadFio()
 	}
 
 	QCompleter* completer = new QCompleter(this);
-	completer->setModel(ui.cboFIO->model());
-	ui.cboFIO->setCompleter(completer);
+	completer->setModel(cbo->model());
+	cbo->setCompleter(completer);
 }
 
 void ZImportDataForm::applyChanges()
@@ -80,15 +92,18 @@ void ZImportDataForm::applyChanges()
 	QString text, stringQuery;
 
 	if (curEditId == ADD_UNIC_CODE)
-		stringQuery = QString("INSERT INTO import_data (begin_dt, end_dt, fio, note) VALUES (?, ?, ?, ?)");
+		stringQuery = QString("INSERT INTO import_data (dt, smena, tariff, fio, num) VALUES (?, ?, ?, ?, ?)");
 	else
-		stringQuery = QString("UPDATE import_data SET begin_dt=?, end_dt=?, fio=?, note=? WHERE id=%1").arg(curEditId);
+		stringQuery = QString("UPDATE import_data SET dt=?, smena=?, tariff=?, fio=?, num=? WHERE id=%1").arg(curEditId);
 
 	QSqlQuery query;
 	query.prepare(stringQuery);
 	
 	query.addBindValue(ui.date->date());
+	query.addBindValue(ui.cboSmena->itemData(ui.cboSmena->findText(ui.cboSmena->currentText()), Qt::UserRole));
+	query.addBindValue(ui.cboTariff->itemData(ui.cboTariff->findText(ui.cboTariff->currentText()), Qt::UserRole));
 	query.addBindValue(ui.cboFIO->itemData(ui.cboFIO->findText(ui.cboFIO->currentText()), Qt::UserRole));
+	query.addBindValue(ui.spinNum->value());
 
 	if(!query.exec())
 	{

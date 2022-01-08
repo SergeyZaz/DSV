@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1051</width>
-    <height>669</height>
+    <width>988</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,6 +110,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="ckbExpandAll">
+     <property name="text">
+      <string>раскрыть все уровни</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTreeWidget" name="tree">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -132,7 +139,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Доплаты / количество</string>
+       <string>Бонусы / количество</string>
       </property>
      </column>
      <column>

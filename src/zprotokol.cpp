@@ -21,14 +21,16 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	ui.dateStart->setDate(QDate::currentDate().addMonths(-1));
 	ui.dateEnd->setDate(QDate::currentDate());
-	
+
 	connect(ui.cmdBuild, SIGNAL(clicked()), this, SLOT(buildProtokol()));
-	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(saveProtokol()));	
+	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(saveProtokol()));
+	connect(ui.ckbExpandAll, SIGNAL(clicked(bool)), this, SLOT(expandAll(bool)));
+
 
 	ui.tree->setColumnWidth(0, 200);
 	ui.tree->setColumnWidth(1, 200);
-	ui.tree->setColumnWidth(2, 200);
-	ui.tree->setColumnWidth(3, 200);
+	ui.tree->setColumnWidth(2, 250);
+	ui.tree->setColumnWidth(3, 250);
 	ui.tree->setColumnWidth(4, 300);
 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
@@ -37,9 +39,23 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	buildProtokol();
 }
 
+
 ZProtokol::~ZProtokol()
 {
 
+}
+
+QSize ZProtokol::sizeHint() const
+{
+	return QSize(1600, 750);
+}
+
+void ZProtokol::expandAll(bool fCheck)
+{
+	if (fCheck)
+		ui.tree->expandAll();
+	else
+		ui.tree->collapseAll();
 }
 
 void ZProtokol::loadTariffs()
@@ -163,6 +179,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 	}
 
 	ui.tree->clear();
+	ui.ckbExpandAll->setCheckState(Qt::Unchecked);
 
 	QTreeWidgetItem* pItem, * pItemGroup;
 	QMap<int, QTreeWidgetItem*> mapFIO;
@@ -257,7 +274,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		{
 			fnt = pItem->font(i);
 			if (i > 1 && i < 5 || i == 6)
-				fnt.setPointSizeF(8);
+				fnt.setPointSizeF(10);
 			else
 				fnt.setBold(true);
 			pItem->setFont(i, fnt);
@@ -304,7 +321,7 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
 	switch (col)
 	{
-	case 2://Доплаты
+	case 2://Бонусы
 		stringQuery += "payments.mode = 0 AND payment <> 0";
 		break;
 	case 3://Аванс
@@ -402,7 +419,7 @@ void ZProtokol::saveProtokol()
 	xlsxW.setColumnWidth(1, 30);
 	xlsxW.write(5, 2, "ФИО", fBold);
 	xlsxW.setColumnWidth(2, 50);
-	xlsxW.write(5, 3, "Доплаты", fBold);
+	xlsxW.write(5, 3, "Бонусы", fBold);
 	xlsxW.setColumnWidth(3, 50);
 	xlsxW.write(5, 4, "Аванс", fBold);
 	xlsxW.setColumnWidth(4, 50);
@@ -637,7 +654,7 @@ int ZTreeDataDelegate::openEditor(int id)
 
 	switch (column)
 	{
-	case 2://Доплаты
+	case 2://Бонусы
 		pD->ui.cboMode->setCurrentIndex(0);
 		pD->ui.cboPayment->removeItem(0);
 		break;

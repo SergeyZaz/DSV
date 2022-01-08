@@ -21,7 +21,6 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(p
 			filterOrganisationId = ui.cboFilter->currentData().toInt();
 			ChangeFilter();
 		});
-
 }
 
 void ZPayments2fio::ChangeFilter()

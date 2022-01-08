@@ -225,6 +225,8 @@ int ZView::init(QList<int> &hideColumns, int sortCol)
 	ui.tbl->resizeColumnsToContents();
 	ui.tbl->resizeRowsToContents();
 
+	ui.tbl->verticalHeader()->setDefaultSectionSize(30);
+
 	QApplication::restoreOverrideCursor();
 	return 1;
 }

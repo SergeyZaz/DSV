@@ -125,6 +125,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actImportData"/>
+   <addaction name="separator"/>
    <addaction name="actGroups"/>
    <addaction name="actPersons"/>
    <addaction name="actNotes"/>
@@ -133,8 +134,9 @@
    <addaction name="actTariffs"/>
    <addaction name="actPayments"/>
    <addaction name="actPayments2fio"/>
-   <addaction name="actProtokol"/>
    <addaction name="actArchivs"/>
+   <addaction name="separator"/>
+   <addaction name="actProtokol"/>
   </widget>
   <widget class="QDockWidget" name="dockMsgPanel">
    <property name="windowTitle">

@@ -26,7 +26,7 @@ class ZProtokol : public QWidget
 	double getTariffValue(const QDate& date, int id, int num, QString& txt, double& bonus);
 	void loadItemsTo(QComboBox* cbo, const QString& tableName);
 	void loadTariffs();
-	QSize	sizeHint() const { return QSize(1400, 600); }
+	QSize	sizeHint() const;
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
 
 public:
@@ -41,6 +41,8 @@ public:
 public slots:
 	void buildProtokol();
 	void saveProtokol();
+	void expandAll(bool fCheck);
+
 };
 
 

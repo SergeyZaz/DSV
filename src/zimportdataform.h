@@ -7,7 +7,7 @@ class ZImportDataForm : public ZEditAbstractForm
 {
     Q_OBJECT
 
-	void loadFio();
+	void loadCbo(QComboBox* cbo, QString tbl);
 
 public:
 	ZImportDataForm(QWidget* parent, Qt::WindowFlags flags = 0);
