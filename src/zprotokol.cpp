@@ -534,6 +534,8 @@ void ZProtokol::saveProtokol()
 		if (mode == 1) //Сокращенный
 			continue;
 
+		int curRowSave = curRow;
+
 		n_child = pItem->childCount();
 		for (k = 0; k < n_child; k++)
 		{
@@ -553,6 +555,7 @@ void ZProtokol::saveProtokol()
 			}
 			curRow++;
 		}
+		xlsxW.groupRows(curRowSave, curRow - 1);
 	}
 
 	xlsxW.saveAs(fileName);
