@@ -260,7 +260,8 @@ void ZView::update()
 		model->setQuery(model->query().lastQuery());
 	}
 
-	emit needUpdateVal(-1);
+	emit needUpdate();
+	//emit needUpdateVal(-1);
 	QApplication::restoreOverrideCursor();
 }
 

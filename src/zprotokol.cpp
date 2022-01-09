@@ -308,6 +308,8 @@ void ZProtokol::updateSumm()
 #else
 		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
 #endif
+		if (v < 0)
+			pItem->setBackground(5, QColor(255, 170, 127));
 	}
 
 	ui.lblSumma->setText(QString("Сумма: %L1").arg(summa, 0, 'f', 2));

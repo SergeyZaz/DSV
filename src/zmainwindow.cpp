@@ -170,7 +170,18 @@ void ZMainWindow::slotUpdate()
 		ZMdiChild *pChild = dynamic_cast<ZMdiChild *>(window->widget());
 		if (pChild)
 		{
+			pChild->blockSignals(true);
 			pChild->reload();
+			pChild->blockSignals(false);
+			continue;
+		}
+		ZViewGroups *pViewGroups = dynamic_cast<ZViewGroups*>(window->widget());
+		if (pViewGroups)
+		{
+			pViewGroups->blockSignals(true);
+			pViewGroups->UpdateSlot(0);
+			pViewGroups->blockSignals(false);
+			continue;
 		}
 	}
 }
