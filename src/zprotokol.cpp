@@ -2,6 +2,7 @@
 #include <QSqlError>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QMessageBox>
 #include "zprotokol.h"
 #include "zmessager.h"
 #include "ztariffs.h"
@@ -26,12 +27,14 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(saveProtokol()));
 	connect(ui.ckbExpandAll, SIGNAL(clicked(bool)), this, SLOT(expandAll(bool)));
 
+	ui.lblSumma->setVisible(false);
 
 	ui.tree->setColumnWidth(0, 200);
 	ui.tree->setColumnWidth(1, 200);
 	ui.tree->setColumnWidth(2, 250);
 	ui.tree->setColumnWidth(3, 250);
 	ui.tree->setColumnWidth(4, 300);
+	ui.tree->setColumnWidth(5, 200);
 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
@@ -47,7 +50,7 @@ ZProtokol::~ZProtokol()
 
 QSize ZProtokol::sizeHint() const
 {
-	return QSize(1600, 750);
+	return QSize(1700, 750);
 }
 
 void ZProtokol::expandAll(bool fCheck)
@@ -213,7 +216,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 			ui.tree->addTopLevelItem(pItemGroup);
 			mapFIO.insert(id, pItemGroup);
 
-			for (i = 2; i < 5; i++)
+			for (i = 3; i < 5; i++)
 			{
 				pItemGroup->setData(i, FIO_ID_ROLE, id);
 
@@ -253,16 +256,16 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		id = query.value(7).toInt();
 		num = query.value(8).toDouble();
 
-		pItem->setText(2, QString::number(num));
-
 		v = getTariffValue(date, id, num, txt, bonus);
 		pItem->setText(3, txt);
 #ifndef MONEY_FORMAT
-		pItem->setText(5, QString::number(v, 'f', 2));
+		pItem->setText(2, QString::number(v, 'f', 2));
 #else
-		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
+		pItem->setText(2, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 	}
+
+	updateSumm();
 
 	QFont fnt;
 	n = ui.tree->topLevelItemCount();
@@ -273,35 +276,92 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		for (i = 0; i < pItem->columnCount(); i++)
 		{
 			fnt = pItem->font(i);
-			if (i > 1 && i < 5 || i == 6)
+			if (i > 2 && i < 5 || i == 6)
 				fnt.setPointSizeF(10);
 			else
 				fnt.setBold(true);
 			pItem->setFont(i, fnt);
 		}
+
+		//количество смен
+		i = pItem->childCount();
+		pItem->setText(8, QString::number(i));
+		//среднее за смену
+		if (i > 0)
+		{
+			v = QString2Double(pItem->text(2)) / i;
+#ifndef MONEY_FORMAT
+			pItem->setText(9, QString::number(v, 'f', 2));
+#else
+			pItem->setText(9, QString("%L1").arg(v, 0, 'f', 2));
+#endif
+		}
 	}
 
-	updateSumm();
+	QList<int> cols;
+	cols << 2 << 3 << 4 << 5;
+	updateAllSumm(cols);
+
+	for(i=0;i< ui.tree->columnCount();i++)
+		ui.tree->resizeColumnToContents(i);
+}
+
+void ZProtokol::updateAllSumm(const QList<int>& cols)
+{
+	int i, j, n = ui.tree->topLevelItemCount();
+	QTreeWidgetItem* pItem;
+	double v, s;
+
+	QTreeWidgetItem* pSummItem = new QTreeWidgetItem(ui.tree);
+	pSummItem->setText(0, "Итого:");
+	ui.tree->addTopLevelItem(pSummItem);
+	QFont fnt = pSummItem->font(0);
+	fnt.setPointSizeF(14);
+	fnt.setBold(true);
+	pSummItem->setFont(0, fnt);
+
+	foreach(i, cols)
+	{
+		v = 0;
+		for (j = 0; j < n; j++)
+		{
+			pItem = ui.tree->topLevelItem(j);
+			if(i == 3 || i == 4)
+				s = pItem->data(i, PAYMENT_ROLE).toDouble();
+			else
+				s = QString2Double(pItem->text(i));
+			v += s;
+		}
+#ifndef MONEY_FORMAT
+		pSummItem->setText(i, QString::number(v, 'f', 2));
+#else
+		pSummItem->setText(i, QString("%L1").arg(v, 0, 'f', 2));
+#endif
+		pSummItem->setFont(i, fnt);
+}
 }
 
 void ZProtokol::updateSumm()
 {
 	int i, j, n = ui.tree->topLevelItemCount();
 	QTreeWidgetItem* pItem;
-	double v, summa = 0;
+	double v;
 
 	for (j = 0; j < n; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
 
-		v = getSumma(pItem, 5);
+		v = getSumma(pItem, 2);
+#ifndef MONEY_FORMAT
+		pItem->setText(2, QString::number(v, 'f', 2));
+#else
+		pItem->setText(2, QString("%L1").arg(v, 0, 'f', 2));
+#endif
 
-		for (i = 2; i < 5; i++)
+		for (i = 3; i < 5; i++)
 		{
 			v += pItem->data(i, PAYMENT_ROLE).toDouble();
 		}
-
-		summa += v;
 
 #ifndef MONEY_FORMAT
 		pItem->setText(5, QString::number(v, 'f', 2));
@@ -311,8 +371,6 @@ void ZProtokol::updateSumm()
 		if (v < 0)
 			pItem->setBackground(5, QColor(255, 170, 127));
 	}
-
-	ui.lblSumma->setText(QString("Сумма: %L1").arg(summa, 0, 'f', 2));
 }
 
 int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa)
@@ -323,12 +381,13 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
 	switch (col)
 	{
-	case 2://Бонусы
-		stringQuery += "payments.mode = 0 AND payment <> 0";
+	case 3://Бонусы
+		stringQuery += "payments.mode = 0";
+//		stringQuery += "payments.mode = 0 AND payment <> 0";
 		break;
-	case 3://Аванс
-		stringQuery += "payment = 0";
-		break;
+//	case 3://Аванс
+//		stringQuery += "payment = 0";
+//		break;
 	case 4://Вычеты
 		stringQuery += "payments.mode = 1";
 		break;
@@ -396,6 +455,10 @@ void ZProtokol::saveProtokol()
 	if (fileName.isEmpty())
 		return;
 
+	int mode = QMessageBox::question(this, tr("Вариант формирования"), tr("Сохраняем полный или сокращенный вариант?"), tr("Полный"), tr("Сокращенный"), QString::null, 0, 1);
+	if (mode != 0 && mode != 1)
+		return;
+
 	if(!fileName.endsWith(".xlsx", Qt::CaseInsensitive))
 	    fileName += ".xlsx"; 
 
@@ -412,27 +475,34 @@ void ZProtokol::saveProtokol()
 	xlsxW.write(3, 1, "Группа:", fBold);
 	xlsxW.write(3, 2, ui.cboFilter->currentText());
 
-	int i, j, n = ui.tree->topLevelItemCount();
+	int i, j, n_child, k, n = ui.tree->topLevelItemCount();
 	QTreeWidgetItem* pItem;
 
 	fBold.setHorizontalAlignment(Format::AlignHCenter);
 
-	xlsxW.write(5, 1, "Организация", fBold);
-	xlsxW.setColumnWidth(1, 30);
-	xlsxW.write(5, 2, "ФИО", fBold);
-	xlsxW.setColumnWidth(2, 50);
-	xlsxW.write(5, 3, "Бонусы", fBold);
-	xlsxW.setColumnWidth(3, 50);
-	xlsxW.write(5, 4, "Аванс", fBold);
-	xlsxW.setColumnWidth(4, 50);
-	xlsxW.write(5, 5, "Вычеты", fBold);
-	xlsxW.setColumnWidth(5, 50);
-	xlsxW.write(5, 6, "Сумма", fBold);
-	xlsxW.setColumnWidth(6, 20);
-	xlsxW.write(5, 7, "Примечания", fBold);
-	xlsxW.setColumnWidth(7, 50);
-	xlsxW.write(5, 8, "Заметки", fBold);
-	xlsxW.setColumnWidth(8, 50);
+	pItem = ui.tree->headerItem();
+	int colunms = pItem->columnCount();
+
+	int curRow = 5;
+
+	for (i = 0; i < colunms; i++)
+	{
+		xlsxW.write(curRow, i + 1, pItem->text(i), fBold);
+		switch (i)
+		{
+		case 0:
+		case 2:
+		case 5:
+		case 8:
+		case 9:
+			xlsxW.setColumnWidth(i + 1, 30);
+			break;
+		default:
+			xlsxW.setColumnWidth(i + 1, 50);
+			break;
+		}
+	}
+	curRow++;
 
 	QVariant v;
 	QString s;
@@ -440,29 +510,50 @@ void ZProtokol::saveProtokol()
 	fMultiLine.setTextWrap(true);
 	Format fMoney;
 	fMoney.setNumberFormat("#,##0.00\"р.\"");
+	
+	QTreeWidgetItem* pItemChild;
 
 	for (i = 0; i < n; i++)
 	{
 		pItem = ui.tree->topLevelItem(i);
 
-		for (j = 0; j < 8; j++)
+		for (j = 0; j < colunms; j++)
 		{
 			v = pItem->data(j, Qt::DisplayRole);
-			if (j == 5)
+			if (j == 2 || j == 5 || j == 9 || (i == n-1 && (j == 3 || j == 4)))
 			{
 				s = v.toString();
 				v = QString2Double(s);
-				xlsxW.write(i + 6, j + 1, v, fMoney);
+				xlsxW.write(curRow, j + 1, v, fMoney);
 			}
 			else
-				xlsxW.write(i + 6, j + 1, v, fMultiLine);
+				xlsxW.write(curRow, j + 1, v, fMultiLine);
+		}
+		curRow++;
+
+		if (mode == 1) //Сокращенный
+			continue;
+
+		n_child = pItem->childCount();
+		for (k = 0; k < n_child; k++)
+		{
+			pItemChild = pItem->child(k);
+
+			for (j = 0; j < colunms; j++)
+			{
+				v = pItemChild->data(j, Qt::DisplayRole);
+				if (j == 2)
+				{
+					s = v.toString();
+					v = QString2Double(s);
+					xlsxW.write(curRow, j + 1, v, fMoney);
+				}
+				else
+					xlsxW.write(curRow, j + 1, v, fMultiLine);
+			}
+			curRow++;
 		}
 	}
-
-	xlsxW.write(n + 7, 5, "Сумма:", fBold);
-	v = QString2Double(ui.lblSumma->text().mid(7));
-	fMoney.setFontBold(true);
-	xlsxW.write(n + 7, 6, v, fMoney);
 
 	xlsxW.saveAs(fileName);
 
@@ -493,7 +584,7 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 
 	if (fio_id > 0)
 	{
-		if (column > 1 && column < 5)
+		if (column > 2 && column < 5)
 		{
 			w = new QWidget(parent);
 			w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -656,13 +747,13 @@ int ZTreeDataDelegate::openEditor(int id)
 
 	switch (column)
 	{
-	case 2://Бонусы
+	case 3://Бонусы
 		pD->ui.cboMode->setCurrentIndex(0);
-		pD->ui.cboPayment->removeItem(0);
+//		pD->ui.cboPayment->removeItem(0);
 		break;
-	case 3://Аванс
-		pD->ui.cboPayment->setEnabled(false);
-		break;
+//	case 3://Аванс
+//		pD->ui.cboPayment->setEnabled(false);
+//		break;
 	case 4://Вычеты
 		pD->ui.cboMode->setCurrentIndex(1);
 		break;

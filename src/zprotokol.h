@@ -28,6 +28,8 @@ class ZProtokol : public QWidget
 	void loadTariffs();
 	QSize	sizeHint() const;
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
+	void updateAllSumm(const QList<int>& cols);
+
 
 public:
 	ZProtokol(QWidget* parent, Qt::WindowFlags flags = 0);

@@ -48,6 +48,12 @@
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QLineEdit" name="txtFilter_2">
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
             <property name="text">
              <string/>
             </property>

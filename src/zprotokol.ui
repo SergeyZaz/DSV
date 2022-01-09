@@ -139,12 +139,12 @@
      </column>
      <column>
       <property name="text">
-       <string>Бонусы / количество</string>
+       <string>Начисленная ЗП</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Аванс / тариф</string>
+       <string>Доплаты / тариф</string>
       </property>
      </column>
      <column>
@@ -154,7 +154,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Сумма</string>
+       <string>Остаток к выплате</string>
       </property>
      </column>
      <column>
@@ -165,6 +165,16 @@
      <column>
       <property name="text">
        <string>Заметки</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Количество смен</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Среднее за смену</string>
       </property>
      </column>
     </widget>
