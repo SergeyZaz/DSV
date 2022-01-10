@@ -7,6 +7,7 @@
 #include "zparsexlsxfile.h"
 #include "zsettings.h"
 #include "zmessager.h"
+#include "zview.h"
 
 #include "xlsxdocument.h"
 //#include "xlsxchartsheet.h"
@@ -362,7 +363,8 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		const QVector<QVariant>& row = m_Data[i];
 		str_fio = row[1].toString();
 		str_payment = row[2].toString();
-		if (str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[3].isNull())// могут быть пустые строки
+		double v = QString2Double(row[3].toString());
+		if (v == 0 || str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[3].isNull())// могут быть пустые строки
 			continue;
 
 		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio);
@@ -407,7 +409,7 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 			.arg(row[0].toString())
 			.arg(fio)
 			.arg(payment)
-			.arg(row[3].toDouble());
+			.arg(v);
 		if (!query.exec(str_query))
 		{
 			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i).arg(query.lastError().text()));
