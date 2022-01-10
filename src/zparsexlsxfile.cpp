@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QProgressDialog>
+#include <QInputDialog>
 #include "zparsexlsxfile.h"
 #include "zsettings.h"
 #include "zmessager.h"
@@ -346,6 +347,11 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 	QString str_fio, str_payment, str_query;
 	QSqlQuery query;
 
+	QStringList l_fio;
+	if (query.exec("SELECT name FROM fio ORDER BY name"))
+		while (query.next())
+			l_fio.push_back(query.value(0).toString());
+
 	for (i = 1; i < m_Data.size(); i++)
 	{
 		QApplication::processEvents();
@@ -362,8 +368,30 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio);
 		if (!query.exec(str_query) || !query.next())
 		{
-			ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
-			continue;
+			QString str_fio2 = str_fio;
+			QStringList items_fio = str_fio2.simplified().split(" ");
+			if (items_fio.size() > 2)
+				str_fio2 = items_fio[0] + " " + items_fio[1];
+
+			str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio2);
+			if (!query.exec(str_query) || !query.next())
+			{
+				bool ok;
+				str_fio2 = QInputDialog::getItem(NULL, QString("Внимание!"),
+					QString("В справочнике 'Люди' не найдена запсись: '%1'.\nНеобходимо выбрать из существующих:").arg(str_fio), l_fio, 0, false, &ok);
+				if (!ok || str_fio2.isEmpty())
+				{
+					ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
+					continue;
+				}
+				
+				str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio2);
+				if (!query.exec(str_query) || !query.next())
+				{
+					ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
+					continue;
+				}
+			}
 		}
 		fio = query.value(0).toInt();
 
