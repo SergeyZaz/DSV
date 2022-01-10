@@ -518,6 +518,13 @@ void ZProtokol::saveProtokol()
 
 	for (i = 0; i < n; i++)
 	{
+		if (i == n - 1)
+		{
+			fMultiLine.setFontBold(true);
+			fMoneyMinus.setFontBold(true);
+			fMoney.setFontBold(true);
+		}
+
 		pItem = ui.tree->topLevelItem(i);
 
 		for (j = 0; j < colunms; j++)
@@ -560,7 +567,15 @@ void ZProtokol::saveProtokol()
 		}
 		xlsxW.groupRows(curRowSave, curRow - 1);
 	}
-
+	
+	xlsxW.autosizeColumnWidth(1, colunms);
+	xlsxW.setDocumentProperty("title", "Офигенный отчет");
+	xlsxW.setDocumentProperty("subject", "А вам слабо!?");
+	xlsxW.setDocumentProperty("company", "zaz@29.ru");
+	xlsxW.setDocumentProperty("category", "Example spreadsheets");
+	xlsxW.setDocumentProperty("keywords", "ZAZ");
+	xlsxW.setDocumentProperty("creator", "ZAZ");
+	xlsxW.setDocumentProperty("description", "Create by ZAZ");
 	xlsxW.saveAs(fileName);
 
 	QDesktopServices::openUrl(QUrl("file:///" + fileName, QUrl::TolerantMode));
