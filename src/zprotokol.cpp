@@ -508,8 +508,11 @@ void ZProtokol::saveProtokol()
 	QString s;
 	Format fMultiLine;
 	fMultiLine.setTextWrap(true);
-	Format fMoney;
+	Format fMoney, fMoneyMinus;
 	fMoney.setNumberFormat("#,##0.00\"р.\"");
+	
+	fMoneyMinus = fMoney;
+	fMoneyMinus.setPatternBackgroundColor(QColor(255, 170, 127));
 	
 	QTreeWidgetItem* pItemChild;
 
@@ -524,7 +527,7 @@ void ZProtokol::saveProtokol()
 			{
 				s = v.toString();
 				v = QString2Double(s);
-				xlsxW.write(curRow, j + 1, v, fMoney);
+				xlsxW.write(curRow, j + 1, v, (i != n - 1 && v < 0) ? fMoneyMinus : fMoney);
 			}
 			else
 				xlsxW.write(curRow, j + 1, v, fMultiLine);
