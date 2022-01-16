@@ -18,6 +18,7 @@ public:
 
 protected slots:
 	void applyChanges();
+	void addNewSlot();
 	void changeMode(int indx);
 
 

@@ -87,11 +87,13 @@ class ZEditBaseForm : public ZEditAbstractForm
 	Ui::EditBaseForm ui;
 	int fNeedComment;
 	void closeEvent(QCloseEvent *event);
+	int applyChange();
 public:
 	int init(const QString &tbl, int id);
 	ZEditBaseForm(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 	~ZEditBaseForm();
 public slots:
 	void applySlot();
+	void addNewSlot();
 	void textChangedSlot(const QString &);
 };

@@ -7,6 +7,7 @@ ZEditBaseForm::ZEditBaseForm(QWidget*, Qt::WindowFlags)
 {
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applySlot()));
+	connect(ui.cmdSaveNew, SIGNAL(clicked()), this, SLOT(addNewSlot()));
 	connect(ui.txtName, SIGNAL(textChanged(const QString &)), this, SLOT(textChangedSlot(const QString &)));
 	textChangedSlot("");
 }
@@ -95,7 +96,20 @@ void ZEditBaseForm::textChangedSlot(const QString &text)
 	ui.cmdSave->setEnabled(fOK);
 }
 
+void ZEditBaseForm::addNewSlot()
+{
+	curEditId = ADD_UNIC_CODE;
+	if (applyChange() == 1)
+		accept();
+}
+
 void ZEditBaseForm::applySlot()
+{
+	if(applyChange()==1)
+		accept();
+}
+
+int ZEditBaseForm::applyChange()
 {
 	QString sQry;
 	QString tName = ui.txtName->text();
@@ -134,9 +148,9 @@ void ZEditBaseForm::applySlot()
 	if(!rc)
 	{
 		emit errorQuery(QDateTime::currentDateTime(), m_Query.lastError().number(), m_Query.lastError().text());
-		return;
+		return 0;
 	}
 
-	accept();
+	return 1;
 }
 

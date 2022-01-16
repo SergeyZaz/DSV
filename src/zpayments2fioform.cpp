@@ -8,6 +8,7 @@ ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : Z
 {
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applyChanges()));
+	connect(ui.cmdSaveNew, SIGNAL(clicked()), this, SLOT(addNewSlot()));
 	connect(ui.cboMode, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMode(int)));
 
 	ui.dateEdit->setDate(QDate::currentDate());
@@ -106,6 +107,12 @@ void ZPayments2FioForm::changeMode(int indx)
 	{
 		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
 	}
+}
+
+void ZPayments2FioForm::addNewSlot()
+{
+	curEditId = ADD_UNIC_CODE;
+	applyChanges();
 }
 
 void ZPayments2FioForm::applyChanges()

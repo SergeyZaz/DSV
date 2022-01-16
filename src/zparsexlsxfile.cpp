@@ -353,7 +353,9 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		while (query.next())
 			l_fio.push_back(query.value(0).toString());
 
-	for (i = 1; i < m_Data.size(); i++)
+	double sum = 0;
+
+	for (i = 0; i < m_Data.size(); i++)
 	{
 		QApplication::processEvents();
 		if (progress.wasCanceled())
@@ -361,7 +363,7 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		progress.setValue(i);
 
 		const QVector<QVariant>& row = m_Data[i];
-		str_fio = row[1].toString();
+		str_fio = row[1].toString().simplified();
 		str_payment = row[2].toString();
 		double v = QString2Double(row[3].toString());
 		if (v == 0 || str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[3].isNull())// могут быть пустые строки
@@ -415,11 +417,14 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i).arg(query.lastError().text()));
 		}
 		else
+		{
+			sum += v;
 			rc++;
+		}
 	}
 
 	if (rc > 0)
-		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей").arg(rc), "Внимание");
+		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей, на сумму %2").arg(rc).arg(sum), "Внимание");
 	QApplication::restoreOverrideCursor();
 	return (rc > 0);
 }
