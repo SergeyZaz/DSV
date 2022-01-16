@@ -15,6 +15,14 @@ using namespace QXlsx;
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
 
+int Round(double dVal)
+{
+	if ((dVal - (int)dVal) >= 0.5)
+		return (int)ceil(dVal);
+	else
+		return (int)floor(dVal);
+}
+
 ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
 {
 	ui.setupUi(this);
@@ -267,6 +275,9 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 
 	updateSumm();
 
+	if (ui.ckbRound->isChecked())
+		roundSumm();
+
 	QFont fnt;
 	n = ui.tree->topLevelItemCount();
 	for (j = 0; j < n; j++)
@@ -306,11 +317,26 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		ui.tree->resizeColumnToContents(i);
 }
 
+void ZProtokol::roundSumm()
+{
+	int j, n = ui.tree->topLevelItemCount();
+	QTreeWidgetItem* pItem;
+	double v;
+
+	for (j = 0; j < n; j++)
+	{
+		pItem = ui.tree->topLevelItem(j);
+		v = QString2Double(pItem->text(5));
+		pItem->setText(5, QString("%L1").arg(Round(v)));
+	}	
+}
+
 void ZProtokol::updateAllSumm(const QList<int>& cols)
 {
 	int i, j, n = ui.tree->topLevelItemCount();
 	QTreeWidgetItem* pItem;
 	double v, s;
+	bool fRound = ui.ckbRound->isChecked();
 
 	QTreeWidgetItem* pSummItem = new QTreeWidgetItem(ui.tree);
 	pSummItem->setText(0, "Итого:");
@@ -333,9 +359,9 @@ void ZProtokol::updateAllSumm(const QList<int>& cols)
 			v += s;
 		}
 #ifndef MONEY_FORMAT
-		pSummItem->setText(i, QString::number(v, 'f', 2));
+		pSummItem->setText(i, fRound ? QString::number(Round(v)) : QString::number(v, 'f', 2));
 #else
-		pSummItem->setText(i, QString("%L1").arg(v, 0, 'f', 2));
+		pSummItem->setText(i, fRound ? QString("%L1").arg(Round(v)) : QString("%L1").arg(v, 0, 'f', 2));
 #endif
 		pSummItem->setFont(i, fnt);
 }

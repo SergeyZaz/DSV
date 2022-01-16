@@ -382,7 +382,7 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 			{
 				bool ok;
 				str_fio2 = QInputDialog::getItem(NULL, QString("Внимание!"),
-					QString("В справочнике 'Люди' не найдена запсись: '%1'.\nНеобходимо выбрать из существующих:").arg(str_fio), l_fio, 0, false, &ok);
+					QString("В справочнике 'Люди' не найдена запись: '%1'.\nНеобходимо выбрать из существующих:").arg(str_fio), l_fio, 0, false, &ok, Qt::MSWindowsFixedSizeDialogHint);
 				if (!ok || str_fio2.isEmpty())
 				{
 					ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
@@ -411,7 +411,7 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 			.arg(row[0].toString())
 			.arg(fio)
 			.arg(payment)
-			.arg(v);
+			.arg(v, 0, 'f', 2);
 		if (!query.exec(str_query))
 		{
 			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i).arg(query.lastError().text()));

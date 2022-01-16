@@ -85,6 +85,7 @@ void ZPayments2FioForm::loadFio()
 
 	QCompleter* completer = new QCompleter(this);
 	completer->setModel(ui.cboFIO->model());
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	ui.cboFIO->setCompleter(completer);
 }
 

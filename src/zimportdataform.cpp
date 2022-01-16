@@ -8,7 +8,8 @@ ZImportDataForm::ZImportDataForm(QWidget* parent, Qt::WindowFlags flags) : ZEdit
 {
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applyChanges()));
-	
+	connect(ui.cmdSaveNew, SIGNAL(clicked()), this, SLOT(addNewSlot()));
+
 	ui.date->setDate(QDate::currentDate());
 
 	ui.cboFIO->setEditable(true);
@@ -85,6 +86,12 @@ void ZImportDataForm::loadCbo(QComboBox *cbo, QString tbl)
 	QCompleter* completer = new QCompleter(this);
 	completer->setModel(cbo->model());
 	cbo->setCompleter(completer);
+}
+
+void ZImportDataForm::addNewSlot()
+{
+	curEditId = ADD_UNIC_CODE;
+	applyChanges();
 }
 
 void ZImportDataForm::applyChanges()

@@ -171,6 +171,35 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="cmdSaveNew">
+       <property name="minimumSize">
+        <size>
+         <width>120</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Добавить новую запись</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../DSV.qrc">
+         <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="cmdCancel">
        <property name="minimumSize">
         <size>

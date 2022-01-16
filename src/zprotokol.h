@@ -29,6 +29,7 @@ class ZProtokol : public QWidget
 	QSize	sizeHint() const;
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
 	void updateAllSumm(const QList<int>& cols);
+	void roundSumm();
 
 
 public:

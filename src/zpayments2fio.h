@@ -8,6 +8,7 @@ class ZPayments2fio : public QWidget
 	Q_OBJECT
 
 	int filterOrganisationId;
+	int filterPaymentId;
 	QDate filterDate;
 	Ui::ZPayments2fioDialog ui;
 

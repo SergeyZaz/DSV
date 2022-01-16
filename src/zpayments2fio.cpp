@@ -7,10 +7,15 @@
 ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(parent, flags)
 {
 	filterOrganisationId = -1;
+	filterPaymentId = -1;
 	ui.setupUi(this);
 	
 	loadItemsToComboBox(ui.cboFilter, "organisation");
-//	ui.date->setDate(QDate::currentDate());
+
+	loadItemsToComboBox(ui.cboFilter2, "payments");
+	ui.cboFilter2->insertItem(0, "не задано", -1);
+	ui.cboFilter2->setCurrentIndex(0);
+	//	ui.date->setDate(QDate::currentDate());
 
 	connect(ui.m_tbl, SIGNAL(needUpdateVal(int)), this, SLOT(UpdateSumma(int)));
 //	connect(ui.date, SIGNAL(dateChanged(const QDate&)), this, SLOT(dateChangedSlot(const QDate&)));
@@ -19,6 +24,11 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(p
 	connect(ui.cboFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
 		{
 			filterOrganisationId = ui.cboFilter->currentData().toInt();
+			ChangeFilter();
+		});
+	connect(ui.cboFilter2, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
+		{
+			filterPaymentId = ui.cboFilter2->currentData().toInt();
 			ChangeFilter();
 		});
 }
@@ -37,8 +47,16 @@ INNER JOIN payments ON(p.payment = payments.id) \
 LEFT JOIN organisation2fio ON(p.fio = value) \
 LEFT JOIN organisation ON(organisation2fio.key = organisation.id)";
 
+	if (filterOrganisationId > 0 || filterPaymentId >= 0)
+		query += QString(" WHERE ");
 	if (filterOrganisationId > 0)
-			query += QString(" WHERE organisation.id = %1").arg(filterOrganisationId);
+	{
+		query += QString("organisation.id = %1").arg(filterOrganisationId);
+		if (filterPaymentId >= 0)
+			query += QString(" AND ");
+	}
+	if (filterPaymentId >= 0)
+		query += QString("payments.id = %1").arg(filterPaymentId);
 
 	ui.m_tbl->setQuery(query, headers);
 

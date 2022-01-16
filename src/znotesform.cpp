@@ -8,7 +8,8 @@ ZNotesForm::ZNotesForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbstractFo
 {
 	ui.setupUi(this);
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(applyChanges()));
-	
+	connect(ui.cmdSaveNew, SIGNAL(clicked()), this, SLOT(addNewSlot()));
+
 	ui.dateStart->setDate(QDate::currentDate());
 	ui.dateEnd->setDate(QDate::currentDate());
 
@@ -76,6 +77,12 @@ void ZNotesForm::loadFio()
 	QCompleter* completer = new QCompleter(this);
 	completer->setModel(ui.cboFIO->model());
 	ui.cboFIO->setCompleter(completer);
+}
+
+void ZNotesForm::addNewSlot()
+{
+	curEditId = ADD_UNIC_CODE;
+	applyChanges();
 }
 
 void ZNotesForm::applyChanges()
