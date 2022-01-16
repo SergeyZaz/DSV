@@ -17,10 +17,11 @@ using namespace QXlsx;
 
 int Round(double dVal)
 {
-	if ((dVal - (int)dVal) >= 0.5)
-		return (int)ceil(dVal);
-	else
-		return (int)floor(dVal);
+	return ((int)dVal / 100 + ((int)dVal % 100 >= 50 ? 1 : 0)) * 100;
+//	if ((dVal - (int)dVal) >= 0.5)
+//		return (int)ceil(dVal);
+//	else
+//		return (int)floor(dVal);
 }
 
 ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
@@ -273,11 +274,6 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 #endif
 	}
 
-	updateSumm();
-
-	if (ui.ckbRound->isChecked())
-		roundSumm();
-
 	QFont fnt;
 	n = ui.tree->topLevelItemCount();
 	for (j = 0; j < n; j++)
@@ -309,9 +305,15 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		}
 	}
 
-	QList<int> cols;
-	cols << 2 << 3 << 4 << 5;
-	updateAllSumm(cols);
+	pItem = new QTreeWidgetItem(ui.tree);
+	pItem->setText(0, "Итого:");
+	ui.tree->addTopLevelItem(pItem);
+	fnt = pItem->font(0);
+	fnt.setPointSizeF(14);
+	fnt.setBold(true);
+	pItem->setFont(0, fnt);
+
+	updateSumm();
 
 	for(i=0;i< ui.tree->columnCount();i++)
 		ui.tree->resizeColumnToContents(i);
@@ -337,19 +339,13 @@ void ZProtokol::updateAllSumm(const QList<int>& cols)
 	QTreeWidgetItem* pItem;
 	double v, s;
 	bool fRound = ui.ckbRound->isChecked();
-
-	QTreeWidgetItem* pSummItem = new QTreeWidgetItem(ui.tree);
-	pSummItem->setText(0, "Итого:");
-	ui.tree->addTopLevelItem(pSummItem);
+	QTreeWidgetItem* pSummItem = ui.tree->topLevelItem(n - 1);
 	QFont fnt = pSummItem->font(0);
-	fnt.setPointSizeF(14);
-	fnt.setBold(true);
-	pSummItem->setFont(0, fnt);
 
 	foreach(i, cols)
 	{
 		v = 0;
-		for (j = 0; j < n; j++)
+		for (j = 0; j < n - 1; j++)
 		{
 			pItem = ui.tree->topLevelItem(j);
 			if(i == 3 || i == 4)
@@ -397,6 +393,13 @@ void ZProtokol::updateSumm()
 		if (v < 0)
 			pItem->setBackground(5, QColor(255, 170, 127));
 	}
+
+	if (ui.ckbRound->isChecked())
+		roundSumm();
+
+	QList<int> cols;
+	cols << 2 << 3 << 4 << 5;
+	updateAllSumm(cols);
 }
 
 int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa)
