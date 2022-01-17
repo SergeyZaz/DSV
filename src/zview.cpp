@@ -1,11 +1,8 @@
-#include <QCompleter>
 #include <QDateTime>
 #include <QDateTimeEdit>
 #include <QHelpEvent>
 #include <QMessageBox>
 #include <QPainter>
-//#include <QPrintDialog>
-//#include <QPrinter>
 #include <QHeaderView>
 #include "zview.h"
 #include "ztoolwidget.h"

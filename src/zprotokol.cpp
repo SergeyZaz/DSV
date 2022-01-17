@@ -14,6 +14,7 @@ using namespace QXlsx;
 #define FIO_ID_ROLE			Qt::UserRole
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
+#define COUNT_SMENS_ROLE	Qt::UserRole+3
 
 int Round(double dVal)
 {
@@ -193,7 +194,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 	ui.tree->clear();
 	ui.ckbExpandAll->setCheckState(Qt::Unchecked);
 
-	QTreeWidgetItem* pItem, * pItemGroup;
+	QTreeWidgetItem *pItem, *pItemGroup;
 	QMap<int, QTreeWidgetItem*> mapFIO;
 	int id, num;
 	double v, bonus;
@@ -266,6 +267,10 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		num = query.value(8).toDouble();
 
 		v = getTariffValue(date, id, num, txt, bonus);
+
+		// если в названии тарифа есть слово "смена" то считаю количество - числом смен
+		pItem->setData(0, COUNT_SMENS_ROLE, txt.contains("смена") ? num : 1);
+
 		pItem->setText(3, txt);
 #ifndef MONEY_FORMAT
 		pItem->setText(2, QString::number(v, 'f', 2));
@@ -275,8 +280,18 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 	}
 
 	QFont fnt;
+	pItem = new QTreeWidgetItem(ui.tree);
+	pItem->setText(0, "Итого:");
+	ui.tree->addTopLevelItem(pItem);
+	fnt = pItem->font(0);
+	fnt.setPointSizeF(14);
+	fnt.setBold(true);
+	pItem->setFont(0, fnt);
+
+	updateSumm();
+
 	n = ui.tree->topLevelItemCount();
-	for (j = 0; j < n; j++)
+	for (j = 0; j < n - 1; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
 
@@ -291,12 +306,18 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		}
 
 		//количество смен
-		i = pItem->childCount();
-		pItem->setText(8, QString::number(i));
-		//среднее за смену
-		if (i > 0)
+		int smens = 0, childs = pItem->childCount();
+		for (i = 0; i < childs; i++)
 		{
-			v = QString2Double(pItem->text(2)) / i;
+			pItemGroup = pItem->child(i);
+			smens += pItemGroup->data(0, COUNT_SMENS_ROLE).toInt();
+		}
+		pItem->setText(8, QString::number(smens));
+
+		//среднее за смену
+		if (smens > 0)
+		{
+			v = QString2Double(pItem->text(2)) / smens;
 #ifndef MONEY_FORMAT
 			pItem->setText(9, QString::number(v, 'f', 2));
 #else
@@ -305,17 +326,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		}
 	}
 
-	pItem = new QTreeWidgetItem(ui.tree);
-	pItem->setText(0, "Итого:");
-	ui.tree->addTopLevelItem(pItem);
-	fnt = pItem->font(0);
-	fnt.setPointSizeF(14);
-	fnt.setBold(true);
-	pItem->setFont(0, fnt);
-
-	updateSumm();
-
-	for(i=0;i< ui.tree->columnCount();i++)
+	for(i = 0; i < ui.tree->columnCount(); i++)
 		ui.tree->resizeColumnToContents(i);
 }
 

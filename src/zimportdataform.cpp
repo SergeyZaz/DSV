@@ -85,6 +85,7 @@ void ZImportDataForm::loadCbo(QComboBox *cbo, QString tbl)
 
 	QCompleter* completer = new QCompleter(this);
 	completer->setModel(cbo->model());
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	cbo->setCompleter(completer);
 }
 
