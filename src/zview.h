@@ -56,6 +56,7 @@ class ZView : public QWidget
 	QSqlQueryModel			*model;
 	QPointer<ZEditAbstractForm>		pEditForm;
 	QString					mTable;
+	int						m_Id;
 
 public:
 	ZView(QWidget *parent = 0, Qt::WindowFlags flags = 0);

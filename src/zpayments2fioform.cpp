@@ -26,7 +26,7 @@ int ZPayments2FioForm::init(const QString &table, int id )
 
 	loadFio();
 
-	QString stringQuery = QString("SELECT payment,fio,dt,val,payments.mode FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE payments2fio.id = %1")
+	QString stringQuery = QString("SELECT payment,fio,dt,val,payments.mode,dt_link FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE payments2fio.id = %1")
 		.arg(curEditId);
 
 	// new record
@@ -56,6 +56,7 @@ int ZPayments2FioForm::init(const QString &table, int id )
 			ui.cboPayment->setCurrentIndex(ui.cboPayment->findData(query.value(0).toInt()));
 			ui.dateEdit->setDate(query.value(2).toDate());
 			ui.spinVal->setValue(query.value(3).toDouble());
+			ui.dateLinkEdit->setDate(query.value(5).toDate());			
 		}
 	}	
 	else 
@@ -121,9 +122,9 @@ void ZPayments2FioForm::applyChanges()
 	QString text, stringQuery;
 
 	if (curEditId == ADD_UNIC_CODE)
-		stringQuery = QString("INSERT INTO payments2fio (payment,fio,dt,val) VALUES (?, ?, ?, ?)");
+		stringQuery = QString("INSERT INTO payments2fio (payment,fio,dt,val,dt_link) VALUES (?, ?, ?, ?, ?)");
 	else
-		stringQuery = QString("UPDATE payments2fio SET payment=?, fio=?, dt=?, val=? WHERE id=%1").arg(curEditId);
+		stringQuery = QString("UPDATE payments2fio SET payment=?, fio=?, dt=?, val=?, dt_link=? WHERE id=%1").arg(curEditId);
 
 	QSqlQuery query;
 	query.prepare(stringQuery);
@@ -134,6 +135,8 @@ void ZPayments2FioForm::applyChanges()
 	query.addBindValue(ui.cboFIO->itemData(ui.cboFIO->findText(ui.cboFIO->currentText()), Qt::UserRole));
 	query.addBindValue(ui.dateEdit->date());
 	query.addBindValue(ui.spinVal->value());
+	query.addBindValue(ui.dateLinkEdit->date());
+	
 
 	if(!query.exec())
 	{

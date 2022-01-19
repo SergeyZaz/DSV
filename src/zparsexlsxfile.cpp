@@ -363,11 +363,19 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		progress.setValue(i);
 
 		const QVector<QVariant>& row = m_Data[i];
+		if (row.size() < 5)
+		{
+			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: недостаточно заполненных столбцов!").arg(i + 1));
+			continue;
+		}
 		str_fio = row[1].toString().simplified();
 		str_payment = row[2].toString();
 		double v = QString2Double(row[3].toString());
-		if (v == 0 || str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[3].isNull())// могут быть пустые строки
+		if (v == 0 || str_fio.isEmpty() || str_payment.isEmpty() || row[0].isNull() || row[4].isNull() || row[3].isNull())// могут быть пустые строки
+		{
+			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: недостаточно данных!").arg(i + 1));
 			continue;
+		}
 
 		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio);
 		if (!query.exec(str_query) || !query.next())
@@ -407,14 +415,15 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		}
 		payment = query.value(0).toInt();
 
-		str_query = QString("INSERT INTO payments2fio (dt,fio,payment,val) VALUES('%1', %2, %3, %4);")
+		str_query = QString("INSERT INTO payments2fio (dt,fio,payment,val,dt_link) VALUES('%1', %2, %3, %4, '%5');")
 			.arg(row[0].toString())
 			.arg(fio)
 			.arg(payment)
-			.arg(v, 0, 'f', 2);
+			.arg(v, 0, 'f', 2)
+			.arg(row[4].toString());
 		if (!query.exec(str_query))
 		{
-			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i).arg(query.lastError().text()));
+			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i+1).arg(query.lastError().text()));
 		}
 		else
 		{

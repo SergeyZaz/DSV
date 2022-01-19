@@ -435,7 +435,7 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 		return 0;
 	}
 
-	stringQuery += QString(" AND dt >= '%1' AND dt <= '%2' ORDER BY dt")
+	stringQuery += QString(" AND dt_link >= '%1' AND dt_link <= '%2' ORDER BY dt")
 		.arg(ui.dateStart->date().toString(DATE_FORMAT))
 		.arg(ui.dateEnd->date().toString(DATE_FORMAT));
 

@@ -24,6 +24,7 @@ ZView::ZView(QWidget *parent, Qt::WindowFlags flags)
 	
 void ZView::init()
 {
+	m_Id = -1;
 	model = NULL;
 	ui.setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
@@ -220,7 +221,7 @@ int ZView::init(QList<int> &hideColumns, int sortCol)
 	ui.tbl->horizontalHeader()->setSortIndicator(sortCol, Qt::AscendingOrder); 
 	
 	ui.tbl->resizeColumnsToContents();
-	ui.tbl->resizeRowsToContents();
+	//ui.tbl->resizeRowsToContents();
 
 	ui.tbl->verticalHeader()->setDefaultSectionSize(30);
 
@@ -259,6 +260,28 @@ void ZView::update()
 
 	emit needUpdate();
 	//emit needUpdateVal(-1);
+
+	if (model && m_Id != -1)
+	{
+		QModelIndex index;
+		int i, n = model->rowCount();
+		for (i = 0; i < n; i++)
+		{
+			index = model->index(i, 0);
+			if (model->data(index).toInt() == m_Id)
+			{
+				index = model->index(i, 1);
+				break;
+			}
+		}
+		if (index.isValid() && i != n)
+		{
+			index = sortModel.mapFromSource(index);
+			ui.tbl->setCurrentIndex(index);
+			ui.tbl->scrollTo(index, QAbstractItemView::PositionAtCenter);
+		}
+	}
+
 	QApplication::restoreOverrideCursor();
 }
 
@@ -316,6 +339,7 @@ int ZView::openEditor(int id)
 	if(!model)
 		return 0;
 
+	m_Id = id;
 	printf("edit id = %d\n", id);
 
 	if(!pEditForm || id == 0 || id == -1)
@@ -330,19 +354,9 @@ int ZView::openEditor(int id)
 
 void ZView::applyEditor()
 {
-		QModelIndex indx = ui.tbl->currentIndex();
-		if (!indx.isValid())
-			return;
-		int r = indx.row();
-		int c = indx.column();
-
-		update();
-
-		indx = ui.tbl->model()->index(r, c);
-		ui.tbl->setCurrentIndex(indx);
-		ui.tbl->scrollTo(indx);
-		//ui.tbl->resizeColumnsToContents();
-		ui.tbl->resizeRowsToContents();
+	update();
+	//ui.tbl->resizeColumnsToContents();
+	//ui.tbl->resizeRowsToContents();
 }
 	
 void ZView::setCustomEditor(ZEditAbstractForm *pD)
@@ -450,12 +464,13 @@ void ZView::clickedTbl(const QModelIndex &index)
 	if(!model)
 		return;
 	QModelIndex indx = sortModel.mapToSource(index);
-	int id = model->data(model->index(indx.row(), 0)).toInt();
+	
+	m_Id = model->data(model->index(indx.row(), 0)).toInt();
 
-	ui.cmdDel->setEnabled(id>0); // удалить нельзя
-	ui.cmdEdit->setEnabled(id>0); // редактировать нельзя
+	ui.cmdDel->setEnabled(m_Id > 0); // удалить нельзя
+	ui.cmdEdit->setEnabled(m_Id > 0); // редактировать нельзя
 
-	emit setCurrentElem(QEvent::MouseButtonRelease, id);
+	emit setCurrentElem(QEvent::MouseButtonRelease, m_Id);
 }
 
 void ZView::selectionChanged(const QModelIndex& current, const QModelIndex&)
