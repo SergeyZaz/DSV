@@ -20,7 +20,10 @@ void ZNotebooks::init(const QString &m_TblName)
 	m_tbl->setTable(m_TblName, headers, cRem);	
 	m_tbl->setCustomEditor(new ZNotebooksForm(this));
 
-	m_tbl->init(hideColumns);
+	m_tbl->setResizeRowsToContents(true);
+	m_tbl->setResizeColumnsToContents(true);
+
+	m_tbl->init(hideColumns, 1, Qt::DescendingOrder);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

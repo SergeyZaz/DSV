@@ -57,6 +57,8 @@ class ZView : public QWidget
 	QPointer<ZEditAbstractForm>		pEditForm;
 	QString					mTable;
 	int						m_Id;
+	bool					fResizeColumnsToContents;
+	bool					fResizeRowsToContents;
 
 public:
 	ZView(QWidget *parent = 0, Qt::WindowFlags flags = 0);
@@ -68,7 +70,7 @@ public:
 	void setTable(const QString& tbl) { mTable = tbl; }
 	QString &getTable() { return mTable; }
 	int setQuery(const QString &query, QStringList &headers, bool fRemoveOldModel = true);
-	int init(QList<int> &hideColumns, int sortCol = 1);
+	int init(QList<int> &hideColumns, int sortCol = 1, Qt::SortOrder s = Qt::AscendingOrder);
 	void setRelation(int column, const QString &tbl, const QString &attId, const QString &attValue);
 	void setRelation(int column, QMap<int, QString> *relMap);
 	void updateAndShow(bool fMaximized = false);
@@ -83,6 +85,8 @@ public:
 	QTableView *getTblView() { return ui.tbl;}
 	//bool loadView(int sortCol);
 	QSize	sizeHint() const { return QSize(800, 600); }
+	void setResizeColumnsToContents(bool f) { fResizeColumnsToContents = f; }
+	void setResizeRowsToContents(bool f) { fResizeRowsToContents = f; }
 private:
 	Ui::ZViewClass ui;
 	bool eventFilter(QObject *obj, QEvent *event);

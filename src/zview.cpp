@@ -24,6 +24,8 @@ ZView::ZView(QWidget *parent, Qt::WindowFlags flags)
 	
 void ZView::init()
 {
+	fResizeColumnsToContents = true;
+	fResizeRowsToContents = false;
 	m_Id = -1;
 	model = NULL;
 	ui.setupUi(this);
@@ -184,7 +186,7 @@ int ZView::setQuery(const QString &query, QStringList &headers, bool fRemoveOldM
 	return 1;
 }
 
-int ZView::init(QList<int> &hideColumns, int sortCol)
+int ZView::init(QList<int> &hideColumns, int sortCol, Qt::SortOrder s)
 {
 	if(!model)
 		return 0;
@@ -218,12 +220,14 @@ int ZView::init(QList<int> &hideColumns, int sortCol)
 		ui.cboFilter->removeItem(indx);
 	}
 
-	ui.tbl->horizontalHeader()->setSortIndicator(sortCol, Qt::AscendingOrder); 
+	ui.tbl->horizontalHeader()->setSortIndicator(sortCol, s); 
 	
-	ui.tbl->resizeColumnsToContents();
-	//ui.tbl->resizeRowsToContents();
-
 	ui.tbl->verticalHeader()->setDefaultSectionSize(30);
+
+	if (fResizeColumnsToContents)
+		ui.tbl->resizeColumnsToContents();
+	if (fResizeRowsToContents)
+		ui.tbl->resizeRowsToContents();
 
 	QApplication::restoreOverrideCursor();
 	return 1;
@@ -281,6 +285,11 @@ void ZView::update()
 			ui.tbl->scrollTo(index, QAbstractItemView::PositionAtCenter);
 		}
 	}
+
+	if (fResizeColumnsToContents)
+		ui.tbl->resizeColumnsToContents();
+	if (fResizeRowsToContents)
+		ui.tbl->resizeRowsToContents();
 
 	QApplication::restoreOverrideCursor();
 }
@@ -355,8 +364,6 @@ int ZView::openEditor(int id)
 void ZView::applyEditor()
 {
 	update();
-	//ui.tbl->resizeColumnsToContents();
-	//ui.tbl->resizeRowsToContents();
 }
 	
 void ZView::setCustomEditor(ZEditAbstractForm *pD)
