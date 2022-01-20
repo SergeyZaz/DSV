@@ -209,6 +209,9 @@
     <ClCompile Include="src\zimportdataform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\znotebooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\zimagelabel.h">
@@ -438,6 +441,9 @@
     <QtMoc Include="src\zimportdataform.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\znotebooks.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui">
@@ -480,6 +486,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zimportdataform.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\znotebooksform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

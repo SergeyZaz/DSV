@@ -37,6 +37,7 @@ private slots:
 	void slotCleanMsg();
 	void slotSaveMsg();
 	void slotOpenNotesDialog();
+	void slotOpenNotebooksDialog();
 
 private:
 	void readSettings();

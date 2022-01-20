@@ -26,6 +26,7 @@
 #include "zpayments2fio.h"
 #include "zimportdata.h"
 #include "znotes.h"
+#include "znotebooks.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -52,6 +53,7 @@ ZMainWindow::ZMainWindow()
 	connect(ui.actPayments2fio, SIGNAL(triggered()), this, SLOT(slotOpenPayments2fioDialog()));
 	connect(ui.actImportData, SIGNAL(triggered()), this, SLOT(slotOpenImportDataDialog()));
 	connect(ui.actNotes, SIGNAL(triggered()), this, SLOT(slotOpenNotesDialog()));
+	connect(ui.actNotebooks, SIGNAL(triggered()), this, SLOT(slotOpenNotebooksDialog()));
 
 
 	connect(ui.actProtokol, SIGNAL(triggered()), this,	SLOT(slotOpenProtokolDialog()));
@@ -86,7 +88,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 2.0.2. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 2.0.3. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -401,6 +403,25 @@ void ZMainWindow::slotOpenNotesDialog()
 	ui.mdiArea->addSubWindow(child);
 	child->setWindowTitleAndIcon(ui.actNotes->text(), ui.actNotes->icon());
 	child->init("notes2fio");
+	child->show();
+}
+
+void ZMainWindow::slotOpenNotebooksDialog()
+{
+	foreach(QMdiSubWindow * window, ui.mdiArea->subWindowList())
+	{
+		if (dynamic_cast<ZNotebooks*>(window->widget()))
+		{
+			ui.mdiArea->setActiveSubWindow(window);
+			return;
+		}
+	}
+
+	ZMdiChild* child = new ZNotebooks(this);
+	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
+	ui.mdiArea->addSubWindow(child);
+	child->setWindowTitleAndIcon(ui.actNotebooks->text(), ui.actNotebooks->icon());
+	child->init("notebook");
 	child->show();
 }
 

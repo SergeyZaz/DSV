@@ -95,6 +95,7 @@
     <addaction name="actPayments"/>
     <addaction name="actPayments2fio"/>
     <addaction name="actArchivs"/>
+    <addaction name="actNotebooks"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -135,6 +136,7 @@
    <addaction name="actPayments"/>
    <addaction name="actPayments2fio"/>
    <addaction name="actArchivs"/>
+   <addaction name="actNotebooks"/>
    <addaction name="separator"/>
    <addaction name="actProtokol"/>
   </widget>
@@ -443,6 +445,18 @@
    </property>
    <property name="toolTip">
     <string>Заметки</string>
+   </property>
+  </action>
+  <action name="actNotebooks">
+   <property name="icon">
+    <iconset resource="../DSV.qrc">
+     <normaloff>:/images/idea.png</normaloff>:/images/idea.png</iconset>
+   </property>
+   <property name="text">
+    <string>Примечания</string>
+   </property>
+   <property name="toolTip">
+    <string>Примечания</string>
    </property>
   </action>
  </widget>

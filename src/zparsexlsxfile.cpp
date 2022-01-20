@@ -3,7 +3,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QProgressDialog>
-#include <QInputDialog>
+#include <QCompleter>
+#include <QDialogButtonBox>
 #include "zparsexlsxfile.h"
 #include "zsettings.h"
 #include "zmessager.h"
@@ -335,6 +336,54 @@ int ZParseXLSXFile::insertData(uint key)
 	return 1;
 }
 
+QString getZItem(QWidget* parent, const QString& title, const QString& label,
+	const QStringList& items, int current, bool editable, bool* ok,
+	Qt::WindowFlags flags)
+{
+	QString text(items.value(current));
+
+	QDialog *q = new QDialog(NULL, flags);
+	q->setWindowTitle(title);
+	QLabel *pLabel = new QLabel(label, q);
+	pLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, q);
+	QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+	QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+
+	QComboBox *comboBox = new QComboBox(q);
+	comboBox->addItems(items);
+	comboBox->setEditable(editable);
+		
+	QCompleter* completer = new QCompleter();
+	completer->setModel(comboBox->model());
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	if (editable)
+		comboBox->setCompleter(completer);
+
+	QVBoxLayout *mainLayout = new QVBoxLayout(q);
+	mainLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	mainLayout->addWidget(pLabel);
+	mainLayout->addWidget(comboBox);
+	mainLayout->addWidget(buttonBox);
+
+	QFont font = q->font();
+	font.setPointSize(14);
+	q->setFont(font);
+
+	int ret = q->exec();
+	if (ok)
+		*ok = ret;
+	if (ret) 
+	{
+		text = comboBox->currentText();
+	}
+
+	delete q;
+
+	return text;
+}
+
 bool ZParseXLSXFile::loadPayments(const QString& fileName)
 {
 	if (!loadFile(fileName))
@@ -353,7 +402,14 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		while (query.next())
 			l_fio.push_back(query.value(0).toString());
 
+	QStringList l_organisation;
+	if (query.exec("SELECT name FROM organisation ORDER BY name"))
+		while (query.next())
+			l_organisation.push_back(query.value(0).toString());
+
 	double sum = 0;
+	QString str2;
+	bool ok;
 
 	for (i = 0; i < m_Data.size(); i++)
 	{
@@ -380,24 +436,23 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 		str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio);
 		if (!query.exec(str_query) || !query.next())
 		{
-			QString str_fio2 = str_fio;
-			QStringList items_fio = str_fio2.simplified().split(" ");
+			str2 = str_fio;
+			QStringList items_fio = str2.simplified().split(" ");
 			if (items_fio.size() > 2)
-				str_fio2 = items_fio[0] + " " + items_fio[1];
+				str2 = items_fio[0] + " " + items_fio[1];
 
-			str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio2);
+			str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str2);
 			if (!query.exec(str_query) || !query.next())
 			{
-				bool ok;
-				str_fio2 = QInputDialog::getItem(NULL, QString("Внимание!"),
-					QString("В справочнике 'Люди' не найдена запись: '%1'.\nНеобходимо выбрать из существующих:").arg(str_fio), l_fio, 0, false, &ok, Qt::MSWindowsFixedSizeDialogHint);
-				if (!ok || str_fio2.isEmpty())
+				str2 = getZItem(NULL, QString("Внимание!"),
+					QString("В справочнике 'Люди' не найдена запись: '%1'.\nНеобходимо выбрать из существующих:").arg(str_fio), l_fio, 0, true, &ok, Qt::MSWindowsFixedSizeDialogHint);
+				if (!ok || str2.isEmpty())
 				{
 					ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
 					continue;
 				}
 				
-				str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str_fio2);
+				str_query = QString("SELECT id FROM fio WHERE name='%1'").arg(str2);
 				if (!query.exec(str_query) || !query.next())
 				{
 					ZMessager::Instance().Message(_CriticalError, QString("В справочнике 'Люди' не найдена запсись: '%1'").arg(str_fio));
@@ -406,6 +461,22 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 			}
 		}
 		fio = query.value(0).toInt();
+
+		//проверка на привязку к организации
+		str_query = QString("SELECT key FROM organisation2fio WHERE value=%1").arg(fio);
+		if (!query.exec(str_query) || !query.next())
+		{
+			str2 = getZItem(NULL, QString("Внимание!"),
+				QString("'%1' не призяван к организации.\nНеобходимо выбрать из существующих:").arg(str_fio), l_organisation, 0, true, &ok, Qt::MSWindowsFixedSizeDialogHint);
+			if (ok && !str2.isEmpty())
+			{
+				str_query = QString("INSERT INTO organisation2fio (key,value) VALUES((SELECT id FROM organisation WHERE name='%1'), %2);")
+					.arg(str2)
+					.arg(fio);
+				if (!query.exec(str_query))
+					ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+			}
+		}
 
 		str_query = QString("SELECT id FROM payments WHERE name='%1'").arg(str_payment);
 		if (!query.exec(str_query) || !query.next())
