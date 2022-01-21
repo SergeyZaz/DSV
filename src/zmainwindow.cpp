@@ -88,7 +88,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 2.0.3. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 2.0.4. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -98,12 +98,12 @@ void ZMainWindow::readSettings()
 	QSettings settings("Zaz", "DSV");
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
-/*
-	qint64 d = settings.value("magic", 0).toLongLong();
+
+	qint64 d = settings.value("id", 0).toLongLong();
 	if (d == 0)
 	{
 		d = QDate::currentDate().toJulianDay();
-		settings.setValue("magic", d);
+		settings.setValue("id", d);
 	}
 	if (d != 159753)
 	{
@@ -114,10 +114,10 @@ void ZMainWindow::readSettings()
 			exit(0);
 		}
 
-		QMessageBox::warning(this, tr("Внимание"),
-			QString("Вы используете ознакомительную версию, программа перестанет работать через %1 дней!").arg(d));
+//		QMessageBox::warning(this, tr("Внимание"),
+//			QString("Вы используете ознакомительную версию, программа перестанет работать через %1 дней!").arg(d));
 	}
-*/
+
 	move(pos);
 	resize(size);
 }
@@ -398,10 +398,9 @@ void ZMainWindow::slotOpenNotesDialog()
 		}
 	}
 
-	ZMdiChild* child = new ZNotes(this);
+	ZNotes* child = new ZNotes(this);
 	connect(child, SIGNAL(needUpdate()), this, SLOT(slotUpdate()));
 	ui.mdiArea->addSubWindow(child);
-	child->setWindowTitleAndIcon(ui.actNotes->text(), ui.actNotes->icon());
 	child->init("notes2fio");
 	child->show();
 }

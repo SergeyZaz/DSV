@@ -385,9 +385,6 @@
     <ClInclude Include="src\zimportdata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\znotes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\zeditbaseform.h">
@@ -444,6 +441,9 @@
     <QtMoc Include="src\znotebooks.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\znotes.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui">
@@ -489,6 +489,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\znotebooksform.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\znotes.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

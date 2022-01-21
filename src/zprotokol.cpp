@@ -241,7 +241,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 
 			pItemGroup->setSizeHint(0, QSize(100, 50));
 
-			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND begin_dt <= '%3'))")
+			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
 				.arg(id).arg(dateStartStr).arg(dateEndStr);
 			QSqlQuery query2;
 			if (query2.exec(stringQuery2))
@@ -279,6 +279,74 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 #endif
 	}
 
+	//добавляю ФИО для которых нет смен но есть заметки!
+	stringQuery = QString("SELECT notes2fio.fio, fio.name, organisation.id, organisation.name, groups.id, notes2fio.note, fio.comment FROM notes2fio \
+INNER JOIN fio ON(notes2fio.fio = fio.id) \
+INNER JOIN organisation2fio ON(notes2fio.fio = value) \
+INNER JOIN organisation ON(organisation2fio.key = organisation.id) \
+LEFT JOIN groups2fio ON(notes2fio.fio = groups2fio.value) \
+LEFT JOIN groups ON(groups2fio.key = groups.id) \
+WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%2')) AND char_length(note) > 0 ORDER BY fio.name")
+.arg(dateStartStr)
+.arg(dateEndStr);
+
+	if (!query.exec(stringQuery))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
+		return;
+	}	
+	while (query.next())
+	{
+		if (groupId != 0 && groupId != query.value(4).toInt())
+			continue;
+
+		id = query.value(0).toInt();
+		pItemGroup = mapFIO.value(id);
+		if (!pItemGroup)
+		{
+			pItemGroup = new QTreeWidgetItem(ui.tree);
+			pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
+
+			pItemGroup->setText(0, query.value(3).toString());
+			pItemGroup->setText(1, query.value(1).toString());
+			pItemGroup->setData(1, FIO_ID_ROLE, id);
+			pItemGroup->setText(6, query.value(6).toString());
+
+			ui.tree->addTopLevelItem(pItemGroup);
+			mapFIO.insert(id, pItemGroup);
+
+			for (i = 3; i < 5; i++)
+			{
+				pItemGroup->setData(i, FIO_ID_ROLE, id);
+
+				getTextForPayment(id, i, txt, vList, v);
+
+				pItemGroup->setText(i, txt);
+				pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
+
+				pItemGroup->setData(i, PAYMENT_ROLE, v);
+			}
+			pItemGroup->setData(6, FIO_ID_ROLE, id);
+
+			pItemGroup->setSizeHint(0, QSize(100, 50));
+
+			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
+				.arg(id).arg(dateStartStr).arg(dateEndStr);
+			QSqlQuery query2;
+			if (query2.exec(stringQuery2))
+			{
+				stringQuery2.clear();
+
+				while (query2.next())
+				{
+					stringQuery2 += query2.value(0).toString() + "\n";
+				}
+				stringQuery2.chop(1);
+				pItemGroup->setText(7, stringQuery2);
+			}
+		}
+	}
+	
 	QFont fnt;
 	pItem = new QTreeWidgetItem(ui.tree);
 	pItem->setText(0, "Итого:");
