@@ -891,8 +891,9 @@ int ZTreeDataDelegate::openEditor(int id)
 	}
 	pD->ui.cboFIO->setEnabled(false);
 	pD->ui.cboMode->setEnabled(false);
-	pD->ui.dateEdit->setMinimumDate(pEditor->ui.dateStart->date());
-	pD->ui.dateEdit->setMaximumDate(pEditor->ui.dateEnd->date());
+	pD->ui.dateLinkEdit->setMinimumDate(pEditor->ui.dateStart->date());
+	pD->ui.dateLinkEdit->setMaximumDate(pEditor->ui.dateEnd->date());
+	pD->ui.dateLinkEdit->setDate(pEditor->ui.dateEnd->date());
 
 	if(id== ADD_UNIC_CODE)
 		pD->ui.cboFIO->setCurrentIndex(pD->ui.cboFIO->findData(fio_id));

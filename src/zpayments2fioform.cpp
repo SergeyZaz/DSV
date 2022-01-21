@@ -12,6 +12,7 @@ ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : Z
 	connect(ui.cboMode, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMode(int)));
 
 	ui.dateEdit->setDate(QDate::currentDate());
+	ui.dateLinkEdit->setDate(QDate::currentDate());
 	ui.cboMode->addItem("бонус", 0);
 	ui.cboMode->addItem("вычет", 1);
 
