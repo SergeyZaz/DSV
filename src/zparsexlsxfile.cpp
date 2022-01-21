@@ -175,7 +175,7 @@ int ZParseXLSXFile::insertData(uint key)
 		++iT;
 	}
 	
-	if (!query.exec("SELECT id,txt,mode FROM tariff"))
+	if (!query.exec("SELECT id,txt,mode,type FROM tariff"))
 	{
 		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
 		return 0;
@@ -188,7 +188,8 @@ int ZParseXLSXFile::insertData(uint key)
 	struct TariffInfo
 	{
 		int id;
-		int mode;
+		int mode; // 0-столбец "станок" (вид работы), 1-столбец "модель шины" содержит txt, 2-столбец "модель шины" начинается с txt, 3-столбец "модель шины" заканчивается txt, 4-столбец "Rate" значение txt
+		int type; // 0 - за смену, 1 - за штуку
 		QString txt;
 	};
 	QList<TariffInfo> Tariffs;
@@ -199,10 +200,11 @@ int ZParseXLSXFile::insertData(uint key)
 		info.id = query.value(0).toInt();
 		info.mode = query.value(2).toInt();
 		info.txt = query.value(1).toString();
+		info.type = query.value(3).toInt();
 		Tariffs << info;
 	}
 		
-	int fio_id, tariff_id;
+	int fio_id, tariff_id, tariff_type = 0;
 
 	for (i = 1; i < m_Data.size(); i++)
 	{
@@ -216,15 +218,34 @@ int ZParseXLSXFile::insertData(uint key)
 		//разбираю тариф
 		//mode: 0-столбец "станок" (вид работы), 1-столбец "модель шины" содержит txt, 2-столбец "модель шины" начинается с txt, 3-столбец "модель шины" заканчивается txt, 4-столбец "Rate" значение txt
 		tariff_id = 0;
-		// 1. проверяю столбец "Rate"
-		foreach(TariffInfo tar, Tariffs)
+		// 0. проверяю столбец "станок начинается с ..."
+		if (tariff_id == 0)
 		{
-			if (tar.mode != 4)
-				continue;
-			if (row[columnMap[IMPORT_TAG_RATE]].toString().compare(tar.txt, Qt::CaseInsensitive)==0)// == tar.txt)
+			foreach(TariffInfo tar, Tariffs)
 			{
-				tariff_id = tar.id;
-				break;
+				if (tar.mode != 5)
+					continue;
+				if (row[columnMap[IMPORT_TAG_WORK]].toString().startsWith(tar.txt, Qt::CaseInsensitive))
+				{
+					tariff_id = tar.id;
+					tariff_type = tar.type;
+					break;
+				}
+			}
+		}
+		// 1. проверяю столбец "Rate"
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 4)
+					continue;
+				if (row[columnMap[IMPORT_TAG_RATE]].toString().compare(tar.txt, Qt::CaseInsensitive) == 0)// == tar.txt)
+				{
+					tariff_id = tar.id;
+					tariff_type = tar.type;
+					break;
+				}
 			}
 		}
 		// 2. проверяю столбец "станок / вид работы"
@@ -237,6 +258,37 @@ int ZParseXLSXFile::insertData(uint key)
 				if (row[columnMap[IMPORT_TAG_WORK]].toString().compare(tar.txt, Qt::CaseInsensitive) == 0)// == tar.txt)
 				{
 					tariff_id = tar.id;
+					tariff_type = tar.type;
+					break;
+				}
+			}
+		}
+		// 2.1 проверяю столбец "станок заканчивается ..."
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 7)
+					continue;
+				if (row[columnMap[IMPORT_TAG_WORK]].toString().endsWith(tar.txt, Qt::CaseInsensitive))
+				{
+					tariff_id = tar.id;
+					tariff_type = tar.type;
+					break;
+				}
+			}
+		}
+		// 2.2 проверяю столбец "станок содержит ..."
+		if (tariff_id == 0)
+		{
+			foreach(TariffInfo tar, Tariffs)
+			{
+				if (tar.mode != 6)
+					continue;
+				if (row[columnMap[IMPORT_TAG_WORK]].toString().contains(tar.txt, Qt::CaseInsensitive))
+				{
+					tariff_id = tar.id;
+					tariff_type = tar.type;
 					break;
 				}
 			}
@@ -252,6 +304,7 @@ int ZParseXLSXFile::insertData(uint key)
 				if (str_tmpl.endsWith(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
+					tariff_type = tar.type;
 					break;
 				}
 			}
@@ -266,6 +319,7 @@ int ZParseXLSXFile::insertData(uint key)
 				if (str_tmpl.startsWith(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
+					tariff_type = tar.type;
 					break;
 				}
 			}
@@ -280,6 +334,7 @@ int ZParseXLSXFile::insertData(uint key)
 				if (str_tmpl.contains(tar.txt, Qt::CaseInsensitive))
 				{
 					tariff_id = tar.id;
+					tariff_type = tar.type;
 					break;
 				}
 			}
@@ -323,7 +378,7 @@ int ZParseXLSXFile::insertData(uint key)
 			.arg(row[columnMap[IMPORT_TAG_SMENA]].toString())
 			.arg(tariff_id)
 			.arg(fio_id)
-			.arg(row[columnMap[IMPORT_TAG_NUM]].toInt())
+			.arg(tariff_type == 0 ? 0 : row[columnMap[IMPORT_TAG_NUM]].toInt())
 			.arg(key)
 			.arg(i+1);
 		if (!query.exec(str_query))
