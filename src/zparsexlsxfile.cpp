@@ -175,7 +175,7 @@ int ZParseXLSXFile::insertData(uint key)
 		++iT;
 	}
 	
-	if (!query.exec("SELECT id,txt,mode,type FROM tariff"))
+	if (!query.exec("SELECT id,txt,mode,type,pr FROM tariff ORDER BY pr"))
 	{
 		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
 		return 0;
@@ -188,9 +188,13 @@ int ZParseXLSXFile::insertData(uint key)
 	struct TariffInfo
 	{
 		int id;
-		int mode; // 0-столбец "станок" (вид работы), 1-столбец "модель шины" содержит txt, 2-столбец "модель шины" начинается с txt, 3-столбец "модель шины" заканчивается txt, 4-столбец "Rate" значение txt
+		//0 - станок ..., 1 - станок начинается с ..., 2 - станок содержит ..., 3 - станок заканчивается ...,
+		//4 - модель шины ..., 5 - модель шины начинается с ..., 6 - модель шины содержит ..., 7 - модель шины заканчивается ...,
+		//8 - Rate ..., 9 - Rate начинается с ..., 10 - Rate содержит ..., 11 - Rate заканчивается ...		
+		int mode;
 		int type; // 0 - за смену, 1 - за штуку
 		QString txt;
+		int prioritet; // приоритет
 	};
 	QList<TariffInfo> Tariffs;
 
@@ -201,6 +205,7 @@ int ZParseXLSXFile::insertData(uint key)
 		info.mode = query.value(2).toInt();
 		info.txt = query.value(1).toString();
 		info.type = query.value(3).toInt();
+		info.prioritet = query.value(4).toInt();
 		Tariffs << info;
 	}
 		
@@ -216,127 +221,67 @@ int ZParseXLSXFile::insertData(uint key)
 		const QVector<QVariant>& row = m_Data[i];
 
 		//разбираю тариф
-		//mode: 0-столбец "станок" (вид работы), 1-столбец "модель шины" содержит txt, 2-столбец "модель шины" начинается с txt, 3-столбец "модель шины" заканчивается txt, 4-столбец "Rate" значение txt
+		//0 - станок ..., 1 - станок начинается с ..., 2 - станок содержит ..., 3 - станок заканчивается ...,
+		//4 - модель шины ..., 5 - модель шины начинается с ..., 6 - модель шины содержит ..., 7 - модель шины заканчивается ...,
+		//8 - Rate ..., 9 - Rate начинается с ..., 10 - Rate содержит ..., 11 - Rate заканчивается ...		
 		tariff_id = 0;
-		// 0. проверяю столбец "станок начинается с ..."
-		if (tariff_id == 0)
+		foreach(TariffInfo tar, Tariffs)
 		{
-			foreach(TariffInfo tar, Tariffs)
+			switch (tar.mode)
 			{
-				if (tar.mode != 5)
-					continue;
-				if (row[columnMap[IMPORT_TAG_WORK]].toString().startsWith(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				str_tmpl = row[columnMap[IMPORT_TAG_WORK]].toString();
+				break;
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				str_tmpl = row[columnMap[IMPORT_TAG_TYRE]].toString();
+				break;
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+				str_tmpl = row[columnMap[IMPORT_TAG_RATE]].toString();
+				break;
+			default:
+				continue;
 			}
-		}
-		// 1. проверяю столбец "Rate"
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
+
+			fNoData = true;
+			switch (tar.mode)
 			{
-				if (tar.mode != 4)
-					continue;
-				if (row[columnMap[IMPORT_TAG_RATE]].toString().compare(tar.txt, Qt::CaseInsensitive) == 0)// == tar.txt)
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
+			case 0:
+			case 4:
+			case 8:
+				fNoData = !(str_tmpl.compare(tar.txt, Qt::CaseInsensitive) == 0);
+				break;
+			case 1:
+			case 5:
+			case 9:
+				fNoData = !(str_tmpl.startsWith(tar.txt, Qt::CaseInsensitive));
+				break;
+			case 2:
+			case 6:
+			case 10:
+				fNoData = !(str_tmpl.contains(tar.txt, Qt::CaseInsensitive));
+				break;
+			case 3:
+			case 7:
+			case 11:
+				fNoData = !(str_tmpl.endsWith(tar.txt, Qt::CaseInsensitive));
+				break;
+			default:
+				break;
 			}
-		}
-		// 2. проверяю столбец "станок / вид работы"
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
+			if (!fNoData)
 			{
-				if (tar.mode != 0)
-					continue;
-				if (row[columnMap[IMPORT_TAG_WORK]].toString().compare(tar.txt, Qt::CaseInsensitive) == 0)// == tar.txt)
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
-			}
-		}
-		// 2.1 проверяю столбец "станок заканчивается ..."
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
-			{
-				if (tar.mode != 7)
-					continue;
-				if (row[columnMap[IMPORT_TAG_WORK]].toString().endsWith(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
-			}
-		}
-		// 2.2 проверяю столбец "станок содержит ..."
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
-			{
-				if (tar.mode != 6)
-					continue;
-				if (row[columnMap[IMPORT_TAG_WORK]].toString().contains(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
-			}
-		}
-		str_tmpl = row[columnMap[IMPORT_TAG_TYRE]].toString();
-		// 3. проверяю столбец "модель шины" заканчивается txt
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
-			{
-				if (tar.mode != 3)
-					continue;
-				if (str_tmpl.endsWith(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
-			}
-		}
-		// 4. проверяю столбец "модель шины" начинается txt
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
-			{
-				if (tar.mode != 2)
-					continue;
-				if (str_tmpl.startsWith(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
-			}
-		}
-		// 5. проверяю столбец "модель шины" содержит txt
-		if (tariff_id == 0)
-		{
-			foreach(TariffInfo tar, Tariffs)
-			{
-				if (tar.mode != 1)
-					continue;
-				if (str_tmpl.contains(tar.txt, Qt::CaseInsensitive))
-				{
-					tariff_id = tar.id;
-					tariff_type = tar.type;
-					break;
-				}
+				tariff_id = tar.id;
+				tariff_type = tar.type;
+				break;
 			}
 		}
 
