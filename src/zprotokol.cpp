@@ -74,7 +74,7 @@ void ZProtokol::expandAll(bool fCheck)
 void ZProtokol::loadTariffs()
 {
 	QSqlQuery query, query2;
-	auto result = query.exec(QString("SELECT id, txt, mode, bonus, type FROM tariff ORDER BY id"));
+	auto result = query.exec(QString("SELECT id, txt, mode, bonus, type FROM tariff ORDER BY pr"));
 	if (!result)
 	{
 		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
@@ -100,7 +100,7 @@ void ZProtokol::loadTariffs()
 				txt = l_T[t.mode];
 				t.name = query.value(1).toString();
 				if (txt.contains("..."))
-					t.name = txt.replace("...", t.name);
+					t.name = txt.replace("...", "\"" + t.name + "\"");
 			}
 			t.type = query.value(4).toInt();// плата: 0-за смену, 1-за штуку
 			t.bonus = query.value(3).toDouble();
