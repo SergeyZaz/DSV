@@ -15,6 +15,7 @@ using namespace QXlsx;
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
 #define COUNT_SMENS_ROLE	Qt::UserRole+3
+#define BONUS_ROLE			Qt::UserRole+4
 
 int Round(double dVal)
 {
@@ -179,8 +180,8 @@ void ZProtokol::buildProtokol()
 
 	QString stringQuery = QString("SELECT dt, import_data.fio, fio.name, organisation.id, organisation.name, smena, smena.name, tariff, num, groups.id, fio.comment  FROM import_data \
 INNER JOIN fio ON(import_data.fio = fio.id) \
-INNER JOIN organisation2fio ON(import_data.fio = value) \
-INNER JOIN organisation ON(organisation2fio.key = organisation.id) \
+LEFT JOIN organisation2fio ON(import_data.fio = value) \
+LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
 INNER JOIN smena ON(smena.id = smena) \
 LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
@@ -271,6 +272,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		num = query.value(8).toDouble();
 
 		v = getTariffValue(date, id, num, txt, bonus);
+		pItem->setData(0, BONUS_ROLE, bonus);
 
 		// если в названии тарифа есть слово "смена" то считаю количество - числом смен
 		pItem->setData(0, COUNT_SMENS_ROLE, txt.contains("смена") ? num : 1);
@@ -283,11 +285,48 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 #endif
 	}
 
+	//пересчитываю доплаты, которые начислились в один день (заменяю на средние значения)
+	n = ui.tree->topLevelItemCount();
+	for (j = 0; j < n - 1; j++)
+	{
+		pItem = ui.tree->topLevelItem(j);
+		if (!pItem)
+			continue;
+		int childs = pItem->childCount();
+		for (i = 0; i < childs; i++)
+		{
+			QList<QTreeWidgetItem*> l_Itms;
+			QTreeWidgetItem *pIt1 = pItem->child(i);
+			for (int ii = i + 1; ii < childs; ii++)
+			{
+				QTreeWidgetItem* pIt2 = pItem->child(ii);
+				if (pIt1->text(0) == pIt2->text(0) && pIt1->text(1) == pIt2->text(1))
+					l_Itms << pIt2;
+			}
+			if (l_Itms.size() == 0)
+				continue;
+			l_Itms << pIt1;
+			double s_d = 0;
+			foreach(pIt1, l_Itms)
+				s_d += pIt1->data(0, BONUS_ROLE).toDouble();
+			s_d /= l_Itms.size() * l_Itms.size(); //среднее на строку
+			foreach(pIt1, l_Itms)
+			{
+				v = QString2Double(pIt1->text(2)) - pIt1->data(0, BONUS_ROLE).toDouble() + s_d;
+#ifndef MONEY_FORMAT
+				pIt1->setText(2, QString::number(v, 'f', 2));
+#else
+				pIt1->setText(2, QString("%L1").arg(v, 0, 'f', 2));
+#endif
+			}
+		}
+	}
+
 	//добавляю ФИО для которых нет смен но есть заметки!
 	stringQuery = QString("SELECT notes2fio.fio, fio.name, organisation.id, organisation.name, groups.id, notes2fio.note, fio.comment FROM notes2fio \
 INNER JOIN fio ON(notes2fio.fio = fio.id) \
-INNER JOIN organisation2fio ON(notes2fio.fio = value) \
-INNER JOIN organisation ON(organisation2fio.key = organisation.id) \
+LEFT JOIN organisation2fio ON(notes2fio.fio = value) \
+LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
 LEFT JOIN groups2fio ON(notes2fio.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
 WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%2')) AND char_length(note) > 0 ORDER BY fio.name")
@@ -680,7 +719,7 @@ void ZProtokol::saveProtokol()
 		xlsxW.groupRows(curRowSave, curRow - 1);
 	}
 	
-	xlsxW.autosizeColumnWidth(1, colunms);
+	//xlsxW.autosizeColumnWidth(1, colunms);
 	xlsxW.setDocumentProperty("title", "Офигенный отчет");
 	xlsxW.setDocumentProperty("subject", "А вам слабо!?");
 	xlsxW.setDocumentProperty("company", "zaz@29.ru");

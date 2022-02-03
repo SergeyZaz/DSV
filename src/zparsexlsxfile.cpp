@@ -328,8 +328,8 @@ int ZParseXLSXFile::insertData(uint key)
 			.arg(i+1);
 		if (!query.exec(str_query))
 		{
-			//str_query = query.lastError().text();
-			ZMessager::Instance().Message(_CriticalError, QString("В строке %1: %2").arg(i + 1).arg(query.lastError().text()));
+			str_query = query.lastError().text();
+			ZMessager::Instance().Message(str_query.contains("import_data_key") ? _Warning : _CriticalError, QString("В строке %1: %2").arg(i + 1).arg(str_query));
 		}
 	}
 
@@ -504,7 +504,7 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 	}
 
 	if (rc > 0)
-		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей, на сумму %2").arg(rc).arg(sum), "Внимание");
+		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей, на сумму %2").arg(rc).arg(QString::number(sum, 'f', 2)), "Внимание");
 	QApplication::restoreOverrideCursor();
 	return (rc > 0);
 }
