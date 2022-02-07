@@ -131,6 +131,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="autoScroll">
+      <bool>false</bool>
+     </property>
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>

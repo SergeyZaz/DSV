@@ -63,6 +63,10 @@ WorksheetPrivate::WorksheetPrivate(Worksheet *p, Worksheet::CreateFlag flag)
 
 	default_row_height = 15;
 	default_row_zeroed = false;
+	
+	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
+	frozen_rows = 0;
+	frozen_cols = 0;
 }
 
 WorksheetPrivate::~WorksheetPrivate()
@@ -1351,6 +1355,21 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
 	if (!d->showWhiteSpace)
 		writer.writeAttribute(QStringLiteral("showWhiteSpace"), QStringLiteral("0"));
 	writer.writeAttribute(QStringLiteral("workbookViewId"), QStringLiteral("0"));
+
+	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
+	if (d->frozen_cols > 0 || d->frozen_rows > 0)
+	{
+		writer.writeStartElement(QStringLiteral("pane"));
+		if (d->frozen_cols > 0)
+			writer.writeAttribute(QStringLiteral("xSplit"), QString::number(d->frozen_cols));//задаетс€ количество фиксированных столбцов
+		if (d->frozen_rows > 0)
+			writer.writeAttribute(QStringLiteral("ySplit"), QString::number(d->frozen_rows));//задаетс€ количество фиксированных строк
+		writer.writeAttribute(QStringLiteral("topLeftCell"), CellReference(d->frozen_rows + 1, d->frozen_cols + 1).toString());// надо задать следующую за зафиксированной областью €чейку
+		writer.writeAttribute(QStringLiteral("activePane"), QStringLiteral("bottomRight"));
+		writer.writeAttribute(QStringLiteral("state"), QStringLiteral("frozenSplit"));
+		writer.writeEndElement();//pane
+	}
+	
 	writer.writeEndElement();//sheetView
 	writer.writeEndElement();//sheetViews
 
@@ -1526,6 +1545,22 @@ bool Worksheet::setStartPage(int spagen)
     return true;
 }
 //}}
+
+///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
+void Worksheet::setFrozenRows(int rows)
+{
+    Q_D(Worksheet);
+
+	d->frozen_rows=rows;
+}
+
+void Worksheet::setFrozenColumns(int cols)
+{
+   Q_D(Worksheet);
+
+   d->frozen_cols=cols;
+}
+
 
 void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 {

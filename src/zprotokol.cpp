@@ -721,8 +721,9 @@ void ZProtokol::saveProtokol()
 		}
 		xlsxW.groupRows(curRowSave, curRow - 1);
 	}
-	
-	//xlsxW.autosizeColumnWidth(1, colunms);
+	xlsxW.currentWorksheet()->setFrozenRows(5);
+	xlsxW.currentWorksheet()->setFrozenColumns(2);
+	xlsxW.autosizeColumnWidth(1, colunms);
 	xlsxW.setDocumentProperty("title", "Офигенный отчет");
 	xlsxW.setDocumentProperty("subject", "А вам слабо!?");
 	xlsxW.setDocumentProperty("company", "zaz@29.ru");

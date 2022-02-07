@@ -209,6 +209,10 @@ public:
     int outline_row_level;
     int outline_col_level;
 
+	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
+	int frozen_rows;
+    int frozen_cols;
+
     int default_row_height;
     bool default_row_zeroed;
 

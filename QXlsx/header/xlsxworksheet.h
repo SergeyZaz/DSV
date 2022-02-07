@@ -155,6 +155,10 @@ public:
  	bool setStartPage(int spagen); //add by liufeijin20181028
 
     QVector<CellLocation> getFullCells(int* maxRow, int* maxCol);
+    
+	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
+	void setFrozenRows(int rows);
+    void setFrozenColumns(int cols);
 
 private:
     void saveToXmlFile(QIODevice *device) const;
