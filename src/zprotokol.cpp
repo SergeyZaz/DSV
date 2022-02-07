@@ -292,6 +292,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		pItem = ui.tree->topLevelItem(j);
 		if (!pItem)
 			continue;
+		//QString sTxt = pItem->text(1);
 		int childs = pItem->childCount();
 		for (i = 0; i < childs; i++)
 		{
@@ -305,6 +306,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 			}
 			if (l_Itms.size() == 0)
 				continue;
+			i += l_Itms.size();
 			l_Itms << pIt1;
 			double s_d = 0;
 			foreach(pIt1, l_Itms)
@@ -312,6 +314,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 			s_d /= l_Itms.size() * l_Itms.size(); //среднее на строку
 			foreach(pIt1, l_Itms)
 			{
+				//QString sTxt1 = pIt1->text(0);
 				v = QString2Double(pIt1->text(2)) - pIt1->data(0, BONUS_ROLE).toDouble() + s_d;
 #ifndef MONEY_FORMAT
 				pIt1->setText(2, QString::number(v, 'f', 2));
