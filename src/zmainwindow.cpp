@@ -88,7 +88,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 2.0.6. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 2.1.0. (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -98,7 +98,7 @@ void ZMainWindow::readSettings()
 	QSettings settings("Zaz", "DSV");
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
-
+/*
 	qint64 d = settings.value("id", 0).toLongLong();
 	if (d == 0)
 	{
@@ -117,7 +117,7 @@ void ZMainWindow::readSettings()
 //		QMessageBox::warning(this, tr("Внимание"),
 //			QString("Вы используете ознакомительную версию, программа перестанет работать через %1 дней!").arg(d));
 	}
-
+*/
 	move(pos);
 	resize(size);
 }

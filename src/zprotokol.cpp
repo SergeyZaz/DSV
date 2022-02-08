@@ -304,14 +304,23 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 				if (pIt1->text(0) == pIt2->text(0) && pIt1->text(1) == pIt2->text(1))
 					l_Itms << pIt2;
 			}
-			if (l_Itms.size() == 0)
+
+			int s = l_Itms.size();
+			if (s == 0)
 				continue;
-			i += l_Itms.size();
+			
+			i += s;
+			
+			int nn = l_Itms[0]->data(0, COUNT_SMENS_ROLE).toInt();
+			l_Itms[0]->setData(0, COUNT_SMENS_ROLE, QString::number(nn - s));
+
 			l_Itms << pIt1;
+			s++;
+
 			double s_d = 0;
 			foreach(pIt1, l_Itms)
 				s_d += pIt1->data(0, BONUS_ROLE).toDouble();
-			s_d /= l_Itms.size() * l_Itms.size(); //среднее на строку
+			s_d /= s * s; //среднее на строку
 			foreach(pIt1, l_Itms)
 			{
 				//QString sTxt1 = pIt1->text(0);
