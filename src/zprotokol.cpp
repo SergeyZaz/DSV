@@ -732,6 +732,8 @@ void ZProtokol::saveProtokol()
 	}
 	xlsxW.currentWorksheet()->setFrozenRows(5);
 	xlsxW.currentWorksheet()->setFrozenColumns(2);
+	xlsxW.currentWorksheet()->setFilterRange(QXlsx::CellRange(5, 2, curRow - 1, 2));
+
 	xlsxW.autosizeColumnWidth(1, colunms);
 	xlsxW.setDocumentProperty("title", "Офигенный отчет");
 	xlsxW.setDocumentProperty("subject", "А вам слабо!?");

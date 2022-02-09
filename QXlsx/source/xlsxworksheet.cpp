@@ -1327,6 +1327,17 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
 	//    writer.writeAttribute("xmlns:mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
 	//    writer.writeAttribute("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
 	//    writer.writeAttribute("mc:Ignorable", "x14ac");
+	
+	// ZAZ: группировка, чтобы плюсики были сверху сгруппированных строк, а не снизу! 
+	//<sheetPr>
+	//  <outlinePr summaryBelow="0" summaryRight="0" /> 
+	//</sheetPr>
+	writer.writeStartElement(QStringLiteral("sheetPr"));
+	writer.writeStartElement(QStringLiteral("outlinePr"));
+	writer.writeAttribute(QStringLiteral("summaryBelow"), "0");
+	writer.writeAttribute(QStringLiteral("summaryRight"), "0");
+	writer.writeEndElement();//outlinePr
+	writer.writeEndElement();//sheetPr
 
 	writer.writeStartElement(QStringLiteral("dimension"));
 	writer.writeAttribute(QStringLiteral("ref"), d->generateDimensionString());
@@ -1425,7 +1436,21 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
 		cf.saveToXml(writer);
 	d->saveXmlDataValidations(writer);
 
-    //{{ liufeijin :  write  pagesettings  add by liufeijin 20181028
+	//ZAZ fiters
+ 	if(d->filterRange.isValid())
+	{
+		//<autoFilter ref="C2:D21">
+		//	<filterColumn colId="0">
+		//		<filters>
+		//			<filter val="s"/>
+		//		</filters>
+		//	</filterColumn>
+		//</autoFilter>
+		writer.writeStartElement(QStringLiteral("autoFilter"));
+		writer.writeAttribute(QStringLiteral("ref"), d->filterRange.toString());
+		writer.writeEndElement();//autoFilter
+	}
+   //{{ liufeijin :  write  pagesettings  add by liufeijin 20181028
 
     // fixed by j2doll [dev18]
     // NOTE: empty element is not problem. but, empty structure of element is not parsed by Excel.
@@ -1561,6 +1586,13 @@ void Worksheet::setFrozenColumns(int cols)
    d->frozen_cols=cols;
 }
 
+///////////////////////// ZAZ: autoFilter! /////////////////////////
+void Worksheet::setFilterRange(const CellRange &range)
+{
+   Q_D(Worksheet);
+
+   d->filterRange=range;
+}
 
 void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 {

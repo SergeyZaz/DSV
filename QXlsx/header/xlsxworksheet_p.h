@@ -212,6 +212,8 @@ public:
 	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
 	int frozen_rows;
     int frozen_cols;
+	///////////////////////// ZAZ: autoFilter! /////////////////////////
+	CellRange filterRange;
 
     int default_row_height;
     bool default_row_zeroed;

@@ -159,6 +159,8 @@ public:
 	///////////////////////// ZAZ: fix(freeze) rows and columns! /////////////////////////
 	void setFrozenRows(int rows);
     void setFrozenColumns(int cols);
+	///////////////////////// ZAZ: autoFilter! /////////////////////////
+    void setFilterRange(const CellRange &range);
 
 private:
     void saveToXmlFile(QIODevice *device) const;
