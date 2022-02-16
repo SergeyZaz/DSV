@@ -16,6 +16,8 @@ using namespace QXlsx;
 #define PAYMENT_ROLE		Qt::UserRole+2
 #define COUNT_SMENS_ROLE	Qt::UserRole+3
 #define BONUS_ROLE			Qt::UserRole+4
+#define TARIFF_ROLE			Qt::UserRole+5
+#define COUNT_ROLE			Qt::UserRole+6
 
 int Round(double dVal)
 {
@@ -122,11 +124,13 @@ void ZProtokol::loadTariffs()
 	}
 }
 
-double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &txt, double &bonus)
+double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &txt, double& bonus, double& t_val, bool &fSmena)
 {
 	double v = 0;
 
+	t_val = 0;
 	bonus = 0;
+	fSmena = true;
 
 	foreach(tariff t, l_tariffs)
 	{
@@ -141,8 +145,15 @@ double ZProtokol::getTariffValue(const QDate &date, int id, int num, QString &tx
 				break;
 			v = tH.val;
 		}
+
+		t_val = v;
+
 		if (t.type == 1) //за штуку
+		{
+			fSmena = false;
 			v *= num;
+		}
+
 		v += t.bonus;
 		break;
 	}
@@ -202,12 +213,13 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 	QTreeWidgetItem *pItem, *pItemGroup;
 	QMap<int, QTreeWidgetItem*> mapFIO;
 	int id, num;
-	double v, bonus;
+	double v, bonus, tV;
 	QString txt;
 	QDate date;
 	int i, j, n;
 	QVariantList vList;
 	QStringList sList;
+	bool isSmena;
 
 	int groupId = ui.cboFilter->currentData().toInt();
 
@@ -271,13 +283,16 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 		id = query.value(7).toInt();
 		num = query.value(8).toDouble();
 
-		v = getTariffValue(date, id, num, txt, bonus);
+		v = getTariffValue(date, id, num, txt, bonus, tV, isSmena);
 		pItem->setData(0, BONUS_ROLE, bonus);
+		pItem->setData(0, TARIFF_ROLE, tV);
+		pItem->setData(0, COUNT_ROLE, isSmena ? 1 : num);
 
 		// если в названии тарифа есть слово "смена" то считаю количество - числом смен
 		pItem->setData(0, COUNT_SMENS_ROLE, txt.contains("смена") ? num : 1);
 
 		pItem->setText(3, txt);
+		
 #ifndef MONEY_FORMAT
 		pItem->setText(2, QString::number(v, 'f', 2));
 #else
@@ -330,12 +345,48 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
 #else
 				pIt1->setText(2, QString("%L1").arg(v, 0, 'f', 2));
 #endif
+				pIt1->setData(0, BONUS_ROLE, s_d);
 			}
 		}
 	}
 
-	//добавляю ФИО для которых нет смен но есть заметки!
-	stringQuery = QString("SELECT notes2fio.fio, fio.name, organisation.id, organisation.name, groups.id, notes2fio.note, fio.comment FROM notes2fio \
+	//добавляю формулу расчета начислений
+	for (j = 0; j < n - 1; j++)
+	{
+		pItem = ui.tree->topLevelItem(j);
+		if (!pItem)
+			continue;
+		int childs = pItem->childCount();
+		for (i = 0; i < childs; i++)
+		{
+			QTreeWidgetItem* pIt1 = pItem->child(i);
+
+			bonus = pIt1->data(0, BONUS_ROLE).toDouble();
+			num = pIt1->data(0, COUNT_ROLE).toInt();
+			tV = pIt1->data(0, TARIFF_ROLE).toDouble();
+			pIt1->setText(4, QString("(%1 * %2) + %3").arg(tV, 0, 'f', 2).arg(num).arg(bonus, 0, 'f', 2));
+		}
+	}
+
+	for (int zz = 0; zz < 2; zz++)
+	{
+		//добавляю ФИО для которых нет смен но есть выплаты!
+		stringQuery = (zz == 0) ? 
+
+			QString("SELECT payments2fio.fio, fio.name, organisation.id, organisation.name, groups.id, fio.comment FROM payments2fio \
+INNER JOIN fio ON(payments2fio.fio = fio.id) \
+LEFT JOIN organisation2fio ON(payments2fio.fio = value) \
+LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
+LEFT JOIN groups2fio ON(payments2fio.fio = groups2fio.value) \
+LEFT JOIN groups ON(groups2fio.key = groups.id) \
+WHERE dt_link >= '2022-01-16' AND dt_link <= '2022-02-16' ORDER BY fio.name")
+.arg(dateStartStr)
+.arg(dateEndStr)
+
+		:
+
+			//добавляю ФИО для которых нет смен но есть заметки!
+			QString("SELECT notes2fio.fio, fio.name, organisation.id, organisation.name, groups.id, fio.comment FROM notes2fio \
 INNER JOIN fio ON(notes2fio.fio = fio.id) \
 LEFT JOIN organisation2fio ON(notes2fio.fio = value) \
 LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
@@ -345,59 +396,60 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 .arg(dateStartStr)
 .arg(dateEndStr);
 
-	if (!query.exec(stringQuery))
-	{
-		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
-		return;
-	}	
-	while (query.next())
-	{
-		if (groupId != 0 && groupId != query.value(4).toInt())
-			continue;
-
-		id = query.value(0).toInt();
-		pItemGroup = mapFIO.value(id);
-		if (!pItemGroup)
+		if (!query.exec(stringQuery))
 		{
-			pItemGroup = new QTreeWidgetItem(ui.tree);
-			pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
+			ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
+			return;
+		}
+		while (query.next())
+		{
+			if (groupId != 0 && groupId != query.value(4).toInt())
+				continue;
 
-			pItemGroup->setText(0, query.value(3).toString());
-			pItemGroup->setText(1, query.value(1).toString());
-			pItemGroup->setData(1, FIO_ID_ROLE, id);
-			pItemGroup->setText(6, query.value(6).toString());
-
-			ui.tree->addTopLevelItem(pItemGroup);
-			mapFIO.insert(id, pItemGroup);
-
-			for (i = 3; i < 5; i++)
+			id = query.value(0).toInt();
+			pItemGroup = mapFIO.value(id);
+			if (!pItemGroup)
 			{
-				pItemGroup->setData(i, FIO_ID_ROLE, id);
+				pItemGroup = new QTreeWidgetItem(ui.tree);
+				pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
 
-				getTextForPayment(id, i, txt, vList, v);
+				pItemGroup->setText(0, query.value(3).toString());
+				pItemGroup->setText(1, query.value(1).toString());
+				pItemGroup->setData(1, FIO_ID_ROLE, id);
+				pItemGroup->setText(6, query.value(5).toString());
 
-				pItemGroup->setText(i, txt);
-				pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
+				ui.tree->addTopLevelItem(pItemGroup);
+				mapFIO.insert(id, pItemGroup);
 
-				pItemGroup->setData(i, PAYMENT_ROLE, v);
-			}
-			pItemGroup->setData(6, FIO_ID_ROLE, id);
-
-			pItemGroup->setSizeHint(0, QSize(100, 50));
-
-			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
-				.arg(id).arg(dateStartStr).arg(dateEndStr);
-			QSqlQuery query2;
-			if (query2.exec(stringQuery2))
-			{
-				stringQuery2.clear();
-
-				while (query2.next())
+				for (i = 3; i < 5; i++)
 				{
-					stringQuery2 += query2.value(0).toString() + "\n";
+					pItemGroup->setData(i, FIO_ID_ROLE, id);
+
+					getTextForPayment(id, i, txt, vList, v);
+
+					pItemGroup->setText(i, txt);
+					pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
+
+					pItemGroup->setData(i, PAYMENT_ROLE, v);
 				}
-				stringQuery2.chop(1);
-				pItemGroup->setText(7, stringQuery2);
+				pItemGroup->setData(6, FIO_ID_ROLE, id);
+
+				pItemGroup->setSizeHint(0, QSize(100, 50));
+
+				QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
+					.arg(id).arg(dateStartStr).arg(dateEndStr);
+				QSqlQuery query2;
+				if (query2.exec(stringQuery2))
+				{
+					stringQuery2.clear();
+
+					while (query2.next())
+					{
+						stringQuery2 += query2.value(0).toString() + "\n";
+					}
+					stringQuery2.chop(1);
+					pItemGroup->setText(7, stringQuery2);
+				}
 			}
 		}
 	}

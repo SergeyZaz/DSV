@@ -26,6 +26,15 @@ using namespace QXlsx;
 #define IMPORT_TAG_TYRE "tyre"
 #define IMPORT_TAG_RATE "rate"
 
+ZParseXLSXFile::ZParseXLSXFile() 
+{
+	maxRow = -1; maxCol = -1; 
+}
+
+ZParseXLSXFile::~ZParseXLSXFile()
+{
+}
+
 bool ZParseXLSXFile::loadFile(const QString& fileName)
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -371,6 +380,8 @@ QString getZItem(QWidget* parent, const QString& title, const QString& label,
 	font.setPointSize(14);
 	q->setFont(font);
 
+	comboBox->setFocus();
+
 	int ret = q->exec();
 	if (ok)
 		*ok = ret;
@@ -388,6 +399,8 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 {
 	if (!loadFile(fileName))
 		return false;
+
+	QApplication::restoreOverrideCursor();
 
 	int i, fio, payment, rc = 0;
 	QProgressDialog progress("Обработка данных...", "Отмена", 0, m_Data.size(), QApplication::activeWindow());
@@ -505,6 +518,5 @@ bool ZParseXLSXFile::loadPayments(const QString& fileName)
 
 	if (rc > 0)
 		ZMessager::Instance().Message(_Warning, QString("Импортирование успешно выполнено, добавлено %1 записей, на сумму %2").arg(rc).arg(QString::number(sum, 'f', 2)), "Внимание");
-	QApplication::restoreOverrideCursor();
 	return (rc > 0);
 }
