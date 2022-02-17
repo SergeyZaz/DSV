@@ -380,6 +380,8 @@ QString getZItem(QWidget* parent, const QString& title, const QString& label,
 	font.setPointSize(14);
 	q->setFont(font);
 
+	completer->popup()->setFont(font);
+
 	comboBox->setFocus();
 
 	int ret = q->exec();

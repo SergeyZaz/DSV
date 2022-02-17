@@ -61,3 +61,6 @@ public:
 };
 
 
+QString getZItem(QWidget* parent, const QString& title, const QString& label,
+	const QStringList& items, int current, bool editable, bool* ok,
+	Qt::WindowFlags flags);

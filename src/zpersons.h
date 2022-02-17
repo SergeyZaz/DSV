@@ -5,6 +5,7 @@
 
 class ZPersons : public ZMdiChild
 {
+	void execCustomAction(const QString&);
 
 public:
     ZPersons(QWidget* parent, Qt::WindowFlags flags = 0);

@@ -196,7 +196,7 @@ LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
 INNER JOIN smena ON(smena.id = smena) \
 LEFT JOIN groups2fio ON(import_data.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
-WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt")
+WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 .arg(dateStartStr)
 .arg(dateEndStr);
 
