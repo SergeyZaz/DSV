@@ -23,7 +23,7 @@ class ZProtokol : public QWidget
 	};
 	QList<tariff> l_tariffs;
 
-	double getTariffValue(const QDate& date, int id, int num, QString& txt, double& bonus);
+	double getTariffValue(const QDate& date, int id, int num, QString& txt, double& bonus, double& t_val, bool& fSmena);
 	void loadItemsTo(QComboBox* cbo, const QString& tableName);
 	void loadTariffs();
 	QSize	sizeHint() const;

@@ -10,8 +10,8 @@ class ZParseXLSXFile
 	QVector< QVector<QVariant> > m_Data;
 	int insertData(uint key);
 public:
-	ZParseXLSXFile() { maxRow = -1; maxCol = -1;}
-	~ZParseXLSXFile(){};
+	ZParseXLSXFile();
+	~ZParseXLSXFile();
 	bool loadFile(const QString& fileName);
 	bool loadImportData(const QString& fileName);
 	bool loadPayments(const QString& fileName);
