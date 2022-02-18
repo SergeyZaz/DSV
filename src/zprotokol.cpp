@@ -302,7 +302,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 
 	//пересчитываю доплаты, которые начислились в один день (заменяю на средние значения)
 	n = ui.tree->topLevelItemCount();
-	for (j = 0; j < n - 1; j++)
+	for (j = 0; j < n; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
 		if (!pItem)
@@ -351,7 +351,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 	}
 
 	//добавляю формулу расчета начислений
-	for (j = 0; j < n - 1; j++)
+	for (j = 0; j < n; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
 		if (!pItem)
@@ -364,15 +364,15 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			bonus = pIt1->data(0, BONUS_ROLE).toDouble();
 			num = pIt1->data(0, COUNT_ROLE).toInt();
 			tV = pIt1->data(0, TARIFF_ROLE).toDouble();
-			pIt1->setText(4, QString("(%1 * %2) + %3").arg(tV, 0, 'f', 2).arg(num).arg(bonus, 0, 'f', 2));
+			pIt1->setText(4, QString("(%1 * %2) + %3").arg(tV, 0, 'f', 2).arg(num).arg(bonus, 0, 'f', 2).replace(".", ","));
 		}
 	}
 
 	for (int zz = 0; zz < 2; zz++)
 	{
-		//добавляю ФИО для которых нет смен но есть выплаты!
 		stringQuery = (zz == 0) ? 
 
+			//добавляю ФИО для которых нет смен но есть выплаты!
 			QString("SELECT payments2fio.fio, fio.name, organisation.id, organisation.name, groups.id, fio.comment FROM payments2fio \
 INNER JOIN fio ON(payments2fio.fio = fio.id) \
 LEFT JOIN organisation2fio ON(payments2fio.fio = value) \

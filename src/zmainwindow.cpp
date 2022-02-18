@@ -153,6 +153,7 @@ int ZMainWindow::readIniFile()
 		ZMessager::Instance().Message(_CriticalError, db.lastError().text(), tr("Ошибка"));
         return 0;
     }
+	setWindowTitle(windowTitle() + " (" + db.databaseName() + " на " + db.hostName() + ")");
 
 	int size = settings.beginReadArray("Import");
 	for (int i = 0; i < size; ++i) 
