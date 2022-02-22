@@ -22,7 +22,7 @@ class ZViewGroups : public QWidget
 
 	ZFioModel* modelFIO;
 	QSqlQueryModel* model;
-	QSortFilterProxyModel sortModelFIO, sortModel;
+	ZSortFilterProxyModel sortModelFIO, sortModel;
 	enum OPERATION { INSERT_OPERATION, DELETE_OPERATION };
 	QString linkTableName;
 	int currentId;

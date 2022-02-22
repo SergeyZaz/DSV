@@ -48,7 +48,7 @@ void ZViewGroups::setup()
 
 	ui.tbl_3->setModel(&sortModelFIO);
 	ui.tbl_3->setColumnHidden(0, true);
-	ui.tbl_3->verticalHeader()->hide();
+	//ui.tbl_3->verticalHeader()->hide();
 	ui.tbl_3->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 	//ui.tbl_3->horizontalHeader()->setStretchLastSection(true);
 
@@ -120,7 +120,7 @@ void  ZViewGroups::Update()
 
 	ui.tbl_2->setModel(&sortModel);
 	ui.tbl_2->setColumnHidden(0, true);
-	ui.tbl_2->verticalHeader()->hide();
+	//ui.tbl_2->verticalHeader()->hide();
 	ui.tbl_2->horizontalHeader()->setSortIndicator(1, Qt::AscendingOrder);
 	//ui.tbl_2->horizontalHeader()->setStretchLastSection(true);
 

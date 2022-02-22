@@ -45,7 +45,7 @@ void ZView::init()
 	sortModel.setFilterKeyColumn(1); 
 
 	ui.tbl->horizontalHeader()->setSectionsMovable(true);
-	ui.tbl->verticalHeader()->hide();
+	//ui.tbl->verticalHeader()->hide();
 	ui.tbl->installEventFilter(this);
 
 	ui.cmdPrint->setVisible(false);
@@ -661,6 +661,18 @@ QVariant ZSortFilterProxyModel::data( const QModelIndex & index, int role) const
 	return v;
 }
 
+QVariant ZSortFilterProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	// переопределение сортировки нумерации строк
+	if (role == Qt::DisplayRole) 
+	{
+		if (orientation == Qt::Vertical) 
+		{
+			return section + 1;
+		}
+	}
+	return QSortFilterProxyModel::headerData(section, orientation, role);
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ZQueryModel::ZQueryModel(QObject* parent): QSqlQueryModel(parent)

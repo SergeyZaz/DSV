@@ -42,6 +42,7 @@ public:
 class ZSortFilterProxyModel : public QSortFilterProxyModel
 {
 	bool lessThan ( const QModelIndex & left, const QModelIndex & right ) const;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 public:
 	ZSortFilterProxyModel(){};
 	~ZSortFilterProxyModel(){};

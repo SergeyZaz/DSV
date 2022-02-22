@@ -52,6 +52,7 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
 	loadItemsToComboBox(ui.cboFilter, "groups");
+	loadItemsToComboBox(ui.cboFilterOrg, "organisation");
 	buildProtokol();
 }
 
@@ -222,10 +223,13 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 	bool isSmena;
 
 	int groupId = ui.cboFilter->currentData().toInt();
+	int organisationId = ui.cboFilterOrg->currentData().toInt();
 
 	while (query.next())
 	{
 		if (groupId != 0 && groupId != query.value(9).toInt())
+			continue;
+		if (organisationId != 0 && organisationId != query.value(3).toInt())
 			continue;
 
 		id = query.value(1).toInt();
@@ -404,6 +408,8 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 		while (query.next())
 		{
 			if (groupId != 0 && groupId != query.value(4).toInt())
+				continue;
+			if (organisationId != 0 && organisationId != query.value(2).toInt())
 				continue;
 
 			id = query.value(0).toInt();
@@ -689,6 +695,8 @@ void ZProtokol::saveProtokol()
 
 	xlsxW.write(3, 1, "Группа:", fBold);
 	xlsxW.write(3, 2, ui.cboFilter->currentText());
+	xlsxW.write(4, 1, "Организация:", fBold);
+	xlsxW.write(4, 2, ui.cboFilterOrg->currentText());
 
 	int i, j, n_child, k, n = ui.tree->topLevelItemCount();
 	QTreeWidgetItem* pItem;
