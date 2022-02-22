@@ -19,6 +19,19 @@ using namespace QXlsx;
 #define TARIFF_ROLE			Qt::UserRole+5
 #define COUNT_ROLE			Qt::UserRole+6
 
+
+#define DATE_COLUMN				0
+#define FIO_COLUMN				1
+#define PAYMENT_COLUMN			2
+#define BONUS_COLUMN			3
+#define MINUS_COLUMN			4
+#define BALANCE_COLUMN			5
+#define COMMENT_COLUMN			6
+#define NOTES_COLUMN			7
+#define NUM_SMENS_COLUMN		8
+#define MIDDLE_SMENS_COLUMN		9
+#define INDEX_COLUMN			10
+
 int Round(double dVal)
 {
 	return ((int)dVal / 100 + ((int)dVal % 100 >= 50 ? 1 : 0)) * 100;
@@ -42,12 +55,13 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	ui.lblSumma->setVisible(false);
 
-	ui.tree->setColumnWidth(0, 200);
-	ui.tree->setColumnWidth(1, 200);
-	ui.tree->setColumnWidth(2, 250);
-	ui.tree->setColumnWidth(3, 250);
-	ui.tree->setColumnWidth(4, 300);
-	ui.tree->setColumnWidth(5, 200);
+	ui.tree->setColumnWidth(INDEX_COLUMN, 20);
+	ui.tree->setColumnWidth(DATE_COLUMN, 200);
+	ui.tree->setColumnWidth(FIO_COLUMN, 200);
+	ui.tree->setColumnWidth(PAYMENT_COLUMN, 250);
+	ui.tree->setColumnWidth(BONUS_COLUMN, 250);
+	ui.tree->setColumnWidth(MINUS_COLUMN, 300);
+	ui.tree->setColumnWidth(BALANCE_COLUMN, 200);
 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
@@ -221,6 +235,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 	QVariantList vList;
 	QStringList sList;
 	bool isSmena;
+	int allRowNum = 0;
 
 	int groupId = ui.cboFilter->currentData().toInt();
 	int organisationId = ui.cboFilterOrg->currentData().toInt();
@@ -239,15 +254,16 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			pItemGroup = new QTreeWidgetItem(ui.tree);
 			pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
 
-			pItemGroup->setText(0, query.value(4).toString());
-			pItemGroup->setText(1, query.value(2).toString());
-			pItemGroup->setData(1, FIO_ID_ROLE, id);
-			pItemGroup->setText(6, query.value(10).toString());
-			
+			pItemGroup->setText(DATE_COLUMN, query.value(4).toString());
+			pItemGroup->setText(FIO_COLUMN, query.value(2).toString());
+			pItemGroup->setData(FIO_COLUMN, FIO_ID_ROLE, id);
+			pItemGroup->setText(COMMENT_COLUMN, query.value(10).toString());
+			pItemGroup->setText(INDEX_COLUMN, QString::number(++allRowNum));
+
 			ui.tree->addTopLevelItem(pItemGroup);
 			mapFIO.insert(id, pItemGroup);
 
-			for (i = 3; i < 5; i++)
+			for (i = BONUS_COLUMN; i < BALANCE_COLUMN; i++)
 			{
 				pItemGroup->setData(i, FIO_ID_ROLE, id);
 
@@ -258,9 +274,9 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 
 				pItemGroup->setData(i, PAYMENT_ROLE, v);
 			}
-			pItemGroup->setData(6, FIO_ID_ROLE, id);
+			//pItemGroup->setData(6, FIO_ID_ROLE, id);
 
-			pItemGroup->setSizeHint(0, QSize(100, 50));
+			pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
 			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
 				.arg(id).arg(dateStartStr).arg(dateEndStr);
@@ -274,33 +290,33 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 					stringQuery2 += query2.value(0).toString() + "\n";
 				}
 				stringQuery2.chop(1);
-				pItemGroup->setText(7, stringQuery2);
+				pItemGroup->setText(NOTES_COLUMN, stringQuery2);
 			}
 		}
 
 		pItem = new QTreeWidgetItem(pItemGroup);
 
 		date = query.value(0).toDate();
-		pItem->setText(0, date.toString(DATE_FORMAT));
-		pItem->setText(1, query.value(6).toString());
+		pItem->setText(DATE_COLUMN, date.toString(DATE_FORMAT));
+		pItem->setText(FIO_COLUMN, query.value(6).toString());
 
 		id = query.value(7).toInt();
 		num = query.value(8).toDouble();
 
 		v = getTariffValue(date, id, num, txt, bonus, tV, isSmena);
-		pItem->setData(0, BONUS_ROLE, bonus);
-		pItem->setData(0, TARIFF_ROLE, tV);
-		pItem->setData(0, COUNT_ROLE, isSmena ? 1 : num);
+		pItem->setData(DATE_COLUMN, BONUS_ROLE, bonus);
+		pItem->setData(DATE_COLUMN, TARIFF_ROLE, tV);
+		pItem->setData(DATE_COLUMN, COUNT_ROLE, isSmena ? 1 : num);
 
 		// если в названии тарифа есть слово "смена" то считаю количество - числом смен
-		pItem->setData(0, COUNT_SMENS_ROLE, txt.contains("смена") ? num : 1);
+		pItem->setData(DATE_COLUMN, COUNT_SMENS_ROLE, txt.contains("смена") ? num : 1);
 
-		pItem->setText(3, txt);
+		pItem->setText(BONUS_COLUMN, txt);
 		
 #ifndef MONEY_FORMAT
-		pItem->setText(2, QString::number(v, 'f', 2));
+		pItem->setText(PAYMENT_COLUMN, QString::number(v, 'f', 2));
 #else
-		pItem->setText(2, QString("%L1").arg(v, 0, 'f', 2));
+		pItem->setText(PAYMENT_COLUMN, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 	}
 
@@ -320,7 +336,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			for (int ii = i + 1; ii < childs; ii++)
 			{
 				QTreeWidgetItem* pIt2 = pItem->child(ii);
-				if (pIt1->text(0) == pIt2->text(0) && pIt1->text(1) == pIt2->text(1))
+				if (pIt1->text(DATE_COLUMN) == pIt2->text(DATE_COLUMN) && pIt1->text(FIO_COLUMN) == pIt2->text(FIO_COLUMN))
 					l_Itms << pIt2;
 			}
 
@@ -330,26 +346,25 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			
 			i += s;
 			
-			int nn = l_Itms[0]->data(0, COUNT_SMENS_ROLE).toInt();
-			l_Itms[0]->setData(0, COUNT_SMENS_ROLE, QString::number(nn - s));
+			int nn = l_Itms[0]->data(DATE_COLUMN, COUNT_SMENS_ROLE).toInt();
+			l_Itms[0]->setData(DATE_COLUMN, COUNT_SMENS_ROLE, QString::number(nn - s));
 
 			l_Itms << pIt1;
 			s++;
 
 			double s_d = 0;
 			foreach(pIt1, l_Itms)
-				s_d += pIt1->data(0, BONUS_ROLE).toDouble();
+				s_d += pIt1->data(DATE_COLUMN, BONUS_ROLE).toDouble();
 			s_d /= s * s; //среднее на строку
 			foreach(pIt1, l_Itms)
 			{
-				//QString sTxt1 = pIt1->text(0);
-				v = QString2Double(pIt1->text(2)) - pIt1->data(0, BONUS_ROLE).toDouble() + s_d;
+				v = QString2Double(pIt1->text(PAYMENT_COLUMN)) - pIt1->data(DATE_COLUMN, BONUS_ROLE).toDouble() + s_d;
 #ifndef MONEY_FORMAT
-				pIt1->setText(2, QString::number(v, 'f', 2));
+				pIt1->setText(PAYMENT_COLUMN, QString::number(v, 'f', 2));
 #else
-				pIt1->setText(2, QString("%L1").arg(v, 0, 'f', 2));
+				pIt1->setText(PAYMENT_COLUMN, QString("%L1").arg(v, 0, 'f', 2));
 #endif
-				pIt1->setData(0, BONUS_ROLE, s_d);
+				pIt1->setData(DATE_COLUMN, BONUS_ROLE, s_d);
 			}
 		}
 	}
@@ -365,10 +380,10 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 		{
 			QTreeWidgetItem* pIt1 = pItem->child(i);
 
-			bonus = pIt1->data(0, BONUS_ROLE).toDouble();
-			num = pIt1->data(0, COUNT_ROLE).toInt();
-			tV = pIt1->data(0, TARIFF_ROLE).toDouble();
-			pIt1->setText(4, QString("(%1 * %2) + %3").arg(tV, 0, 'f', 2).arg(num).arg(bonus, 0, 'f', 2).replace(".", ","));
+			bonus = pIt1->data(DATE_COLUMN, BONUS_ROLE).toDouble();
+			num = pIt1->data(DATE_COLUMN, COUNT_ROLE).toInt();
+			tV = pIt1->data(DATE_COLUMN, TARIFF_ROLE).toDouble();
+			pIt1->setText(MINUS_COLUMN, QString("(%1 * %2) + %3").arg(tV, 0, 'f', 2).arg(num).arg(bonus, 0, 'f', 2).replace(".", ","));
 		}
 	}
 
@@ -419,15 +434,16 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 				pItemGroup = new QTreeWidgetItem(ui.tree);
 				pItemGroup->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
 
-				pItemGroup->setText(0, query.value(3).toString());
-				pItemGroup->setText(1, query.value(1).toString());
-				pItemGroup->setData(1, FIO_ID_ROLE, id);
-				pItemGroup->setText(6, query.value(5).toString());
+				pItemGroup->setText(DATE_COLUMN, query.value(3).toString());
+				pItemGroup->setText(FIO_COLUMN, query.value(1).toString());
+				pItemGroup->setData(FIO_COLUMN, FIO_ID_ROLE, id);
+				pItemGroup->setText(COMMENT_COLUMN, query.value(5).toString());
+				pItemGroup->setText(INDEX_COLUMN, QString::number(++allRowNum));
 
 				ui.tree->addTopLevelItem(pItemGroup);
 				mapFIO.insert(id, pItemGroup);
 
-				for (i = 3; i < 5; i++)
+				for (i = BONUS_COLUMN; i < BALANCE_COLUMN; i++)
 				{
 					pItemGroup->setData(i, FIO_ID_ROLE, id);
 
@@ -438,9 +454,9 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 
 					pItemGroup->setData(i, PAYMENT_ROLE, v);
 				}
-				pItemGroup->setData(6, FIO_ID_ROLE, id);
+				//pItemGroup->setData(6, FIO_ID_ROLE, id);
 
-				pItemGroup->setSizeHint(0, QSize(100, 50));
+				pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
 				QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
 					.arg(id).arg(dateStartStr).arg(dateEndStr);
@@ -454,7 +470,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 						stringQuery2 += query2.value(0).toString() + "\n";
 					}
 					stringQuery2.chop(1);
-					pItemGroup->setText(7, stringQuery2);
+					pItemGroup->setText(NOTES_COLUMN, stringQuery2);
 				}
 			}
 		}
@@ -462,12 +478,12 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 	
 	QFont fnt;
 	pItem = new QTreeWidgetItem(ui.tree);
-	pItem->setText(0, "Итого:");
+	pItem->setText(DATE_COLUMN, "Итого:");
 	ui.tree->addTopLevelItem(pItem);
-	fnt = pItem->font(0);
+	fnt = pItem->font(DATE_COLUMN);
 	fnt.setPointSizeF(14);
 	fnt.setBold(true);
-	pItem->setFont(0, fnt);
+	pItem->setFont(DATE_COLUMN, fnt);
 
 	updateSumm();
 
@@ -479,7 +495,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 		for (i = 0; i < pItem->columnCount(); i++)
 		{
 			fnt = pItem->font(i);
-			if (i > 2 && i < 5 || i == 6)
+			if (i > PAYMENT_COLUMN && i < BALANCE_COLUMN || i == COMMENT_COLUMN)
 				fnt.setPointSizeF(10);
 			else
 				fnt.setBold(true);
@@ -491,18 +507,18 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 		for (i = 0; i < childs; i++)
 		{
 			pItemGroup = pItem->child(i);
-			smens += pItemGroup->data(0, COUNT_SMENS_ROLE).toInt();
+			smens += pItemGroup->data(DATE_COLUMN, COUNT_SMENS_ROLE).toInt();
 		}
-		pItem->setText(8, QString::number(smens));
+		pItem->setText(NUM_SMENS_COLUMN, QString::number(smens));
 
 		//среднее за смену
 		if (smens > 0)
 		{
-			v = QString2Double(pItem->text(2)) / smens;
+			v = QString2Double(pItem->text(PAYMENT_COLUMN)) / smens;
 #ifndef MONEY_FORMAT
-			pItem->setText(9, QString::number(v, 'f', 2));
+			pItem->setText(MIDDLE_SMENS_COLUMN, QString::number(v, 'f', 2));
 #else
-			pItem->setText(9, QString("%L1").arg(v, 0, 'f', 2));
+			pItem->setText(MIDDLE_SMENS_COLUMN, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 		}
 	}
@@ -520,8 +536,8 @@ void ZProtokol::roundSumm()
 	for (j = 0; j < n; j++)
 	{
 		pItem = ui.tree->topLevelItem(j);
-		v = QString2Double(pItem->text(5));
-		pItem->setText(5, QString("%L1").arg(Round(v)));
+		v = QString2Double(pItem->text(BALANCE_COLUMN));
+		pItem->setText(BALANCE_COLUMN, QString("%L1").arg(Round(v)));
 	}	
 }
 
@@ -532,7 +548,7 @@ void ZProtokol::updateAllSumm(const QList<int>& cols)
 	double v, s;
 	bool fRound = ui.ckbRound->isChecked();
 	QTreeWidgetItem* pSummItem = ui.tree->topLevelItem(n - 1);
-	QFont fnt = pSummItem->font(0);
+	QFont fnt = pSummItem->font(DATE_COLUMN);
 
 	foreach(i, cols)
 	{
@@ -540,7 +556,7 @@ void ZProtokol::updateAllSumm(const QList<int>& cols)
 		for (j = 0; j < n - 1; j++)
 		{
 			pItem = ui.tree->topLevelItem(j);
-			if(i == 3 || i == 4)
+			if(i == BONUS_COLUMN || i == MINUS_COLUMN)
 				s = pItem->data(i, PAYMENT_ROLE).toDouble();
 			else
 				s = QString2Double(pItem->text(i));
@@ -565,32 +581,32 @@ void ZProtokol::updateSumm()
 	{
 		pItem = ui.tree->topLevelItem(j);
 
-		v = getSumma(pItem, 2);
+		v = getSumma(pItem, PAYMENT_COLUMN);
 #ifndef MONEY_FORMAT
-		pItem->setText(2, QString::number(v, 'f', 2));
+		pItem->setText(PAYMENT_COLUMN, QString::number(v, 'f', 2));
 #else
-		pItem->setText(2, QString("%L1").arg(v, 0, 'f', 2));
+		pItem->setText(PAYMENT_COLUMN, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 
-		for (i = 3; i < 5; i++)
+		for (i = BONUS_COLUMN; i < BALANCE_COLUMN; i++)
 		{
 			v += pItem->data(i, PAYMENT_ROLE).toDouble();
 		}
 
 #ifndef MONEY_FORMAT
-		pItem->setText(5, QString::number(v, 'f', 2));
+		pItem->setText(BALANCE_COLUMN, QString::number(v, 'f', 2));
 #else
-		pItem->setText(5, QString("%L1").arg(v, 0, 'f', 2));
+		pItem->setText(BALANCE_COLUMN, QString("%L1").arg(v, 0, 'f', 2));
 #endif
 		if (v < 0)
-			pItem->setBackground(5, QColor(255, 170, 127));
+			pItem->setBackground(BALANCE_COLUMN, QColor(255, 170, 127));
 	}
 
 	if (ui.ckbRound->isChecked())
 		roundSumm();
 
 	QList<int> cols;
-	cols << 2 << 3 << 4 << 5;
+	cols << PAYMENT_COLUMN << BONUS_COLUMN << MINUS_COLUMN << BALANCE_COLUMN;
 	updateAllSumm(cols);
 }
 
@@ -602,14 +618,10 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
 	switch (col)
 	{
-	case 3://Бонусы
+	case BONUS_COLUMN://Бонусы
 		stringQuery += "payments.mode = 0";
-//		stringQuery += "payments.mode = 0 AND payment <> 0";
 		break;
-//	case 3://Аванс
-//		stringQuery += "payment = 0";
-//		break;
-	case 4://Вычеты
+	case MINUS_COLUMN://Вычеты
 		stringQuery += "payments.mode = 1";
 		break;
 	default:
@@ -713,11 +725,11 @@ void ZProtokol::saveProtokol()
 		xlsxW.write(curRow, i + 1, pItem->text(i), fBold);
 		switch (i)
 		{
-		case 0:
-		case 2:
-		case 5:
-		case 8:
-		case 9:
+		case DATE_COLUMN:
+		case PAYMENT_COLUMN:
+		case BALANCE_COLUMN:
+		case NUM_SMENS_COLUMN:
+		case MIDDLE_SMENS_COLUMN:
 			xlsxW.setColumnWidth(i + 1, 30);
 			break;
 		default:
@@ -753,7 +765,7 @@ void ZProtokol::saveProtokol()
 		for (j = 0; j < colunms; j++)
 		{
 			v = pItem->data(j, Qt::DisplayRole);
-			if (j == 2 || j == 5 || j == 9 || (i == n-1 && (j == 3 || j == 4)))
+			if (j == PAYMENT_COLUMN || j == BALANCE_COLUMN || j == MIDDLE_SMENS_COLUMN || (i == n-1 && (j == BONUS_COLUMN || j == MINUS_COLUMN)))
 			{
 				s = v.toString();
 				v = QString2Double(s);
@@ -777,7 +789,7 @@ void ZProtokol::saveProtokol()
 			for (j = 0; j < colunms; j++)
 			{
 				v = pItemChild->data(j, Qt::DisplayRole);
-				if (j == 2)
+				if (j == PAYMENT_COLUMN)
 				{
 					s = v.toString();
 					v = QString2Double(s);
@@ -792,7 +804,7 @@ void ZProtokol::saveProtokol()
 	}
 	xlsxW.currentWorksheet()->setFrozenRows(5);
 	xlsxW.currentWorksheet()->setFrozenColumns(2);
-	xlsxW.currentWorksheet()->setFilterRange(QXlsx::CellRange(5, 2, curRow - 1, 2));
+	xlsxW.currentWorksheet()->setFilterRange(QXlsx::CellRange(5, PAYMENT_COLUMN, curRow - 1, PAYMENT_COLUMN));
 
 	xlsxW.autosizeColumnWidth(1, colunms);
 	xlsxW.setDocumentProperty("title", "Офигенный отчет");
