@@ -478,7 +478,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 	
 	QFont fnt;
 	pItem = new QTreeWidgetItem(ui.tree);
-	pItem->setText(DATE_COLUMN, "Итого:");
+	pItem->setText(0, "Итого:");
 	ui.tree->addTopLevelItem(pItem);
 	fnt = pItem->font(DATE_COLUMN);
 	fnt.setPointSizeF(14);
@@ -661,7 +661,7 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 		vList.push_back(pay_id);
 	}
 
-	if (col == 4)//Вычеты
+	if (col == MINUS_COLUMN)//Вычеты
 		summa *= -1;
 
 	text = sList.join("\n");
@@ -803,7 +803,7 @@ void ZProtokol::saveProtokol()
 		xlsxW.groupRows(curRowSave, curRow - 1);
 	}
 	xlsxW.currentWorksheet()->setFrozenRows(5);
-	xlsxW.currentWorksheet()->setFrozenColumns(2);
+	xlsxW.currentWorksheet()->setFrozenColumns(PAYMENT_COLUMN);
 	xlsxW.currentWorksheet()->setFilterRange(QXlsx::CellRange(5, PAYMENT_COLUMN, curRow - 1, PAYMENT_COLUMN));
 
 	xlsxW.autosizeColumnWidth(1, colunms);
