@@ -101,6 +101,7 @@
     <property name="title">
      <string>Помощь</string>
     </property>
+    <addaction name="actUsers"/>
     <addaction name="actAbout"/>
     <addaction name="actAboutQt"/>
    </widget>
@@ -457,6 +458,11 @@
    </property>
    <property name="toolTip">
     <string>Примечания</string>
+   </property>
+  </action>
+  <action name="actUsers">
+   <property name="text">
+    <string>Пользователи</string>
    </property>
   </action>
  </widget>
