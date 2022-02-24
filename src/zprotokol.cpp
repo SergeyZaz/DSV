@@ -398,7 +398,7 @@ LEFT JOIN organisation2fio ON(payments2fio.fio = value) \
 LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
 LEFT JOIN groups2fio ON(payments2fio.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
-WHERE dt_link >= '2022-01-16' AND dt_link <= '2022-02-16' ORDER BY fio.name")
+WHERE dt_link >= '%1' AND dt_link <= '%2' ORDER BY fio.name")
 .arg(dateStartStr)
 .arg(dateEndStr)
 
