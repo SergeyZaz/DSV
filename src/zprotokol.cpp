@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QProgressDialog>
+
 #include "zprotokol.h"
 #include "zmessager.h"
 #include "ztariffs.h"
@@ -199,6 +201,13 @@ double ZProtokol::getSumma(QTreeWidgetItem* pItemRoot, int col)
 
 void ZProtokol::buildProtokol()
 {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	QProgressDialog progress("Получение данных...", "Отмена", 0, 0, QApplication::activeWindow());
+	progress.setWindowModality(Qt::WindowModal);
+	progress.show();
+	QApplication::processEvents();
+
 	loadTariffs();
 
 	QString dateStartStr = ui.dateStart->date().toString(DATE_FORMAT);
@@ -218,6 +227,8 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 	QSqlQuery query;
 	if (!query.exec(stringQuery))
 	{
+		progress.close();
+		QApplication::restoreOverrideCursor();
 		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 		return;
 	}
@@ -274,7 +285,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 
 				pItemGroup->setData(i, PAYMENT_ROLE, v);
 			}
-			//pItemGroup->setData(6, FIO_ID_ROLE, id);
+			pItemGroup->setData(6, FIO_ID_ROLE, id);
 
 			pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
@@ -417,8 +428,10 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 
 		if (!query.exec(stringQuery))
 		{
+			progress.close();
+			QApplication::restoreOverrideCursor();
 			ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
-			return;
+			continue;
 		}
 		while (query.next())
 		{
@@ -454,7 +467,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 
 					pItemGroup->setData(i, PAYMENT_ROLE, v);
 				}
-				//pItemGroup->setData(6, FIO_ID_ROLE, id);
+				pItemGroup->setData(6, FIO_ID_ROLE, id);
 
 				pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
@@ -525,6 +538,9 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 
 	for(i = 0; i < ui.tree->columnCount(); i++)
 		ui.tree->resizeColumnToContents(i);
+	
+	progress.close();
+	QApplication::restoreOverrideCursor();
 }
 
 void ZProtokol::roundSumm()
@@ -846,7 +862,7 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 
 	if (fio_id > 0)
 	{
-		if (column > 2 && column < 5)
+		if (column > PAYMENT_COLUMN && column < BALANCE_COLUMN)
 		{
 			w = new QWidget(parent);
 			w->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -881,7 +897,7 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 			pLayout->addWidget(tb3, 2, 1, Qt::AlignTop);
 			return w;
 		}
-		if (column == 6)
+		if (column == COMMENT_COLUMN)
 		{
 			textEdit = new QTextEdit(parent);
 			textEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -1009,14 +1025,10 @@ int ZTreeDataDelegate::openEditor(int id)
 
 	switch (column)
 	{
-	case 3://Бонусы
+	case BONUS_COLUMN://Бонусы
 		pD->ui.cboMode->setCurrentIndex(0);
-//		pD->ui.cboPayment->removeItem(0);
 		break;
-//	case 3://Аванс
-//		pD->ui.cboPayment->setEnabled(false);
-//		break;
-	case 4://Вычеты
+	case MINUS_COLUMN://Вычеты
 		pD->ui.cboMode->setCurrentIndex(1);
 		break;
 	default:
