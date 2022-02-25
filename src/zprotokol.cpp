@@ -7,7 +7,7 @@
 #include "zmessager.h"
 #include "ztariffs.h"
 #include "zpayments2fioform.h"
-
+#include "zsettings.h"
 #include "xlsxdocument.h"
 using namespace QXlsx;
 
@@ -833,6 +833,9 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 	const QStyleOptionViewItem& option,
 	const QModelIndex& index) const
 {
+	if (ZSettings::Instance().m_UserType == 1)
+		return NULL;
+
 	column = index.column();
 
 	fio_id = index.model()->data(index, FIO_ID_ROLE).toInt();

@@ -134,6 +134,7 @@
     <ClCompile Include="QXlsx\source\xlsxzipreader.cpp" />
     <ClCompile Include="QXlsx\source\xlsxzipwriter.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\zauth.cpp" />
     <ClCompile Include="src\zgroups.cpp" />
     <ClCompile Include="src\zimportdata.cpp" />
     <ClCompile Include="src\zimportdataform.cpp" />
@@ -213,6 +214,7 @@
     <QtMoc Include="src\ztariffhistory.h" />
     <QtMoc Include="QXlsx\header\xlsxdocument.h" />
     <ClInclude Include="resource.h" />
+    <QtMoc Include="src\zauth.h" />
     <ClInclude Include="src\zgroups.h" />
     <QtMoc Include="src\zviewgroups.h" />
     <ClInclude Include="src\zimagelabel.h" />
@@ -242,6 +244,7 @@
     <QtMoc Include="src\zeditbaseform.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="src\zauth.ui" />
     <QtUic Include="src\zeditbaseform.ui" />
     <QtUic Include="src\zimportdataform.ui" />
     <QtUic Include="src\znotebooksform.ui" />

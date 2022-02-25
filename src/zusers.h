@@ -4,6 +4,7 @@
 #include "zeditbaseform.h"
 #include "zmdichild.h"
 
+bool CheckPwd(const QString& login, const QString& psw, int* pType = NULL);
 
 class ZUsersForm : public ZEditAbstractForm
 {

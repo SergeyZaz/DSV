@@ -29,6 +29,7 @@
 #include "znotes.h"
 #include "znotebooks.h"
 #include "zusers.h"
+#include "zauth.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -91,7 +92,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 2.1.5 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 3.0.0 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -101,6 +102,7 @@ void ZMainWindow::readSettings()
 	QSettings settings("Zaz", "DSV");
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
+	ZSettings::Instance().m_UserName = settings.value("user", "").toString();
 /*
 	qint64 d = settings.value("id", 0).toLongLong();
 	if (d == 0)
@@ -130,6 +132,7 @@ void ZMainWindow::writeSettings()
 	QSettings settings("Zaz", "DSV");
 	settings.setValue("pos", pos());
 	settings.setValue("size", size());
+	settings.setValue("user", ZSettings::Instance().m_UserName);
 }
 
 int ZMainWindow::readIniFile()
@@ -165,6 +168,26 @@ int ZMainWindow::readIniFile()
 		ZSettings::Instance().importTags.insert(settings.value("key").toString(), settings.value("value").toString());
 	}
 	settings.endArray();
+
+	ZAuthForm auth(this);
+	if (auth.exec() != 1)
+		return 0;
+
+	switch (ZSettings::Instance().m_UserType)
+	{
+	case 1:// Пользователь
+		ui.actGroups->setEnabled(false);
+		ui.actSmens->setEnabled(false);
+		ui.actTariffs->setEnabled(false);
+		ui.actOrganisations->setEnabled(false);
+		ui.actArchivs->setEnabled(false);
+		ui.actPayments->setEnabled(false);
+		ui.actNotes->setEnabled(false);
+		ui.actNotebooks->setEnabled(false);
+		break;
+	default:
+		break;
+	}
     return 1;
 }
 	
@@ -433,7 +456,7 @@ void ZMainWindow::slotOpenUsersDialog()
 	bool ok;
 	QString text = QInputDialog::getText(this, tr("Введите пароль администратора"),
 		tr("пароль:"), QLineEdit::Password, "", &ok);
-	if (!ok || text.isEmpty() || text != "HelloWorld")
+	if (!ok || text.isEmpty() || !CheckPwd("администратор", text))
 	{
 		ZMessager::Instance().Message(_CriticalError, tr("Пароль неверный!"), tr("Ошибка"));
 		return;

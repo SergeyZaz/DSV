@@ -20,6 +20,11 @@ void ZUsers::init(const QString &m_TblName)
 
 	m_tbl->setTable(m_TblName, headers, cRem);	
 	m_tbl->setCustomEditor(new ZUsersForm(this));
+	
+	QMap<int, QString>* pMap0 = new QMap<int, QString>;
+	pMap0->insert(0, "Администратор");
+	pMap0->insert(1, "Пользователь");
+	m_tbl->setRelation(3, pMap0);
 
 	m_tbl->init(hideColumns, 1, Qt::DescendingOrder);
 }
@@ -123,4 +128,26 @@ void ZUsersForm::applyChanges()
 	}
 
 	accept();
+}
+
+bool CheckPwd(const QString& login, const QString& psw, int *pType)
+{
+	QSqlQuery query;
+	if (!query.exec(QString("SELECT pwd, mode FROM users WHERE name = '%1'").arg(login)))
+	{
+		QMessageBox::critical(NULL, QString("Ошибка"), query.lastError().text());
+		return false;
+	}
+	
+	if (!query.next())
+	{
+		QMessageBox::critical(NULL, QString("Ошибка"), QString("Данные отсутствуют!"));
+		return false;
+	}
+
+	if (pType)
+		(*pType) = query.value(1).toInt();
+
+	QString txt = QCryptographicHash::hash(psw.toLocal8Bit(), QCryptographicHash::Md5).toHex();
+	return (query.value(0).toString() == txt);
 }

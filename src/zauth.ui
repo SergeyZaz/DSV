@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ZUsersForm</class>
- <widget class="QWidget" name="ZUsersForm">
+ <class>ZAuthForm</class>
+ <widget class="QWidget" name="ZAuthForm">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>180</height>
+    <width>372</width>
+    <height>125</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
-    <height>180</height>
+    <width>100</width>
+    <height>100</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Добавление (изменение) пользователя</string>
+   <string>Авторизация</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../DSV.qrc">
-    <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+    <normaloff>:/images/table.png</normaloff>:/images/table.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -57,53 +57,6 @@
         <property name="text">
          <string>Логин:</string>
         </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QLineEdit" name="txtPwd2">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lblSectionPlus_3">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Повторите пароль:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="lblSectionPlus_4">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Тип:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1" colspan="2">
-       <widget class="QComboBox" name="cboMode">
-        <item>
-         <property name="text">
-          <string>Администратор</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Пользователь</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="3" column="1" colspan="2">
@@ -149,40 +102,11 @@
         </font>
        </property>
        <property name="text">
-        <string>Внести изменения</string>
+        <string>Подтвердить</string>
        </property>
        <property name="icon">
         <iconset resource="../DSV.qrc">
-         <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cmdSaveNew">
-       <property name="minimumSize">
-        <size>
-         <width>120</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Добавить новую запись</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../DSV.qrc">
-         <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+         <normaloff>:/images/apply_ok.png</normaloff>:/images/apply_ok.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -229,10 +153,7 @@
  <tabstops>
   <tabstop>txtLogin</tabstop>
   <tabstop>txtPwd</tabstop>
-  <tabstop>txtPwd2</tabstop>
-  <tabstop>cboMode</tabstop>
   <tabstop>cmdSave</tabstop>
-  <tabstop>cmdSaveNew</tabstop>
   <tabstop>cmdCancel</tabstop>
  </tabstops>
  <resources>
@@ -242,7 +163,7 @@
   <connection>
    <sender>cmdCancel</sender>
    <signal>clicked()</signal>
-   <receiver>ZUsersForm</receiver>
+   <receiver>ZAuthForm</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
