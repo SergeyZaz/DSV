@@ -13,6 +13,9 @@
 #include "xlsxdocument.h"
 using namespace QXlsx;
 
+#define HIGHLIGHT_LABEL		"!!!"
+#define HIGHLIGHT_COLOR		QColor(0, 128, 255)
+
 #define FIO_ID_ROLE			Qt::UserRole
 #define PAYMENT_ID_ROLE		Qt::UserRole+1
 #define PAYMENT_ROLE		Qt::UserRole+2
@@ -271,7 +274,12 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			pItemGroup->setText(DATE_COLUMN, query.value(4).toString());
 			pItemGroup->setText(FIO_COLUMN, query.value(2).toString());
 			pItemGroup->setData(FIO_COLUMN, FIO_ID_ROLE, id);
-			pItemGroup->setText(COMMENT_COLUMN, query.value(10).toString());
+
+			txt = query.value(10).toString();
+			pItemGroup->setText(COMMENT_COLUMN, txt);
+			if(txt.contains(HIGHLIGHT_LABEL))
+				pItemGroup->setData(FIO_COLUMN, Qt::BackgroundColorRole, HIGHLIGHT_COLOR);
+
 			pItemGroup->setText(INDEX_COLUMN, QString::number(++allRowNum));
 
 			ui.tree->addTopLevelItem(pItemGroup);
@@ -453,7 +461,12 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 				pItemGroup->setText(DATE_COLUMN, query.value(3).toString());
 				pItemGroup->setText(FIO_COLUMN, query.value(1).toString());
 				pItemGroup->setData(FIO_COLUMN, FIO_ID_ROLE, id);
-				pItemGroup->setText(COMMENT_COLUMN, query.value(5).toString());
+
+				txt = query.value(5).toString();
+				pItemGroup->setText(COMMENT_COLUMN, txt);
+				if (txt.contains(HIGHLIGHT_LABEL))
+					pItemGroup->setData(FIO_COLUMN, Qt::BackgroundColorRole, HIGHLIGHT_COLOR);
+
 				pItemGroup->setText(INDEX_COLUMN, QString::number(++allRowNum));
 
 				ui.tree->addTopLevelItem(pItemGroup);
@@ -962,8 +975,12 @@ void ZTreeDataDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 	{
 		QString txt = textEdit->toPlainText();
 
-		if(pEditor->updateComment(fio_id, txt))
+		if (pEditor->updateComment(fio_id, txt))
+		{
 			model->setData(index, txt, Qt::EditRole);
+			if (txt.contains(HIGHLIGHT_LABEL))
+				model->setData(model->index(index.row(), FIO_COLUMN, index.parent()), HIGHLIGHT_COLOR, Qt::BackgroundColorRole);
+		}
 
 		return;
 	}
