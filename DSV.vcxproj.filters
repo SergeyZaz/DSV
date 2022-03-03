@@ -218,6 +218,9 @@
     <ClCompile Include="src\zauth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\zconfigform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\zimagelabel.h">
@@ -456,6 +459,9 @@
     <QtMoc Include="src\zauth.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\zconfigform.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\zeditbaseform.ui">
@@ -510,6 +516,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="src\zauth.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="src\zconfigform.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

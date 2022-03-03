@@ -38,6 +38,7 @@ private slots:
 	void slotOpenNotesDialog();
 	void slotOpenNotebooksDialog();
 	void slotOpenUsersDialog();
+	void slotOpenConfigDialog();
 
 private:
 	void readSettings();

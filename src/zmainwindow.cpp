@@ -30,6 +30,7 @@
 #include "znotebooks.h"
 #include "zusers.h"
 #include "zauth.h"
+#include "zconfigform.h"
 
 #define	CFG_FILE "config.ini"
 #define	PROGRAMM_NAME "ДСВ"
@@ -58,6 +59,7 @@ ZMainWindow::ZMainWindow()
 	connect(ui.actNotes, SIGNAL(triggered()), this, SLOT(slotOpenNotesDialog()));
 	connect(ui.actNotebooks, SIGNAL(triggered()), this, SLOT(slotOpenNotebooksDialog()));
 	connect(ui.actUsers, SIGNAL(triggered()), this, SLOT(slotOpenUsersDialog()));
+	connect(ui.actConfig, SIGNAL(triggered()), this, SLOT(slotOpenConfigDialog()));
 
 
 	connect(ui.actProtokol, SIGNAL(triggered()), this,	SLOT(slotOpenProtokolDialog()));
@@ -92,7 +94,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 3.0.0 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 3.0.1 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -184,10 +186,14 @@ int ZMainWindow::readIniFile()
 		ui.actPayments->setEnabled(false);
 		ui.actNotes->setEnabled(false);
 		ui.actNotebooks->setEnabled(false);
+		ui.actConfig->setEnabled(false);
+		ui.actUsers->setEnabled(false);
 		break;
 	default:
 		break;
 	}
+
+	GetCloseDate();
     return 1;
 }
 	
@@ -449,6 +455,12 @@ void ZMainWindow::slotOpenNotebooksDialog()
 	child->setWindowTitleAndIcon(ui.actNotebooks->text(), ui.actNotebooks->icon());
 	child->init("notebook");
 	child->show();
+}
+
+void ZMainWindow::slotOpenConfigDialog()
+{
+	ZConfigForm dial(this);
+	dial.exec();
 }
 
 void ZMainWindow::slotOpenUsersDialog()

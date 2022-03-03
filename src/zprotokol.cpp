@@ -50,12 +50,12 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	ui.dateStart->setDate(QDate::currentDate().addMonths(-1));
 	ui.dateEnd->setDate(QDate::currentDate());
+	
+	ui.lblReadOnly->setVisible(false);
 
 	connect(ui.cmdBuild, SIGNAL(clicked()), this, SLOT(buildProtokol()));
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(saveProtokol()));
 	connect(ui.ckbExpandAll, SIGNAL(clicked(bool)), this, SLOT(expandAll(bool)));
-
-	ui.lblSumma->setVisible(false);
 
 	ui.tree->setColumnWidth(INDEX_COLUMN, 20);
 	ui.tree->setColumnWidth(DATE_COLUMN, 200);
@@ -212,6 +212,9 @@ void ZProtokol::buildProtokol()
 
 	QString dateStartStr = ui.dateStart->date().toString(DATE_FORMAT);
 	QString dateEndStr = ui.dateEnd->date().toString(DATE_FORMAT);
+
+	ZSettings::Instance().f_ReadOnly = ZSettings::Instance().m_CloseDate.isValid() && (ui.dateStart->date() < ZSettings::Instance().m_CloseDate);
+	ui.lblReadOnly->setVisible(ZSettings::Instance().f_ReadOnly || ZSettings::Instance().m_UserType == 1);
 
 	QString stringQuery = QString("SELECT dt, import_data.fio, fio.name, organisation.id, organisation.name, smena, smena.name, tariff, num, groups.id, fio.comment  FROM import_data \
 INNER JOIN fio ON(import_data.fio = fio.id) \
@@ -849,7 +852,7 @@ QWidget* ZTreeDataDelegate::createEditor(QWidget* parent,
 	const QStyleOptionViewItem& option,
 	const QModelIndex& index) const
 {
-	if (ZSettings::Instance().m_UserType == 1)
+	if (ZSettings::Instance().f_ReadOnly || ZSettings::Instance().m_UserType == 1)
 		return NULL;
 
 	column = index.column();
