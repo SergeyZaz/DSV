@@ -391,9 +391,6 @@
     <ClInclude Include="src\zgroups.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\zimportdata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\zeditbaseform.h">
@@ -460,6 +457,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\zconfigform.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\zimportdata.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

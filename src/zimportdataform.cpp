@@ -1,8 +1,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QCompleter>
-#include <QMessageBox>
 #include "zimportdataform.h"
+#include "zsettings.h"
+#include "zmessager.h"
 
 ZImportDataForm::ZImportDataForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbstractForm(parent, flags)
 {
@@ -11,6 +12,8 @@ ZImportDataForm::ZImportDataForm(QWidget* parent, Qt::WindowFlags flags) : ZEdit
 	connect(ui.cmdSaveNew, SIGNAL(clicked()), this, SLOT(addNewSlot()));
 
 	ui.date->setDate(QDate::currentDate());
+	if (ZSettings::Instance().m_CloseDate.isValid())
+		ui.date->setMinimumDate(ZSettings::Instance().m_CloseDate.addDays(1));
 
 	ui.cboFIO->setEditable(true);
 	ui.cboTariff->setEditable(true);
@@ -51,16 +54,23 @@ int ZImportDataForm::init(const QString &table, int id )
 		{
 			int indx = query.value(4).toInt();
 
+			QDate d = query.value(0).toDate();
+			if (ZSettings::Instance().m_CloseDate.isValid() && d < ZSettings::Instance().m_CloseDate)
+			{
+				ZMessager::Instance().Message(_CriticalError, tr("Дата привязки меньше даты закрытия!"), tr("Редактирование запрещено"));
+				return false;
+			}
+
 			ui.cboFIO->setCurrentIndex(ui.cboFIO->findData(query.value(3).toInt()));
 			ui.cboTariff->setCurrentIndex(ui.cboTariff->findData(query.value(2).toInt()));
 			ui.cboSmena->setCurrentIndex(ui.cboSmena->findData(query.value(1).toInt()));
-			ui.date->setDate(query.value(0).toDate());
+			ui.date->setDate(d);
 			ui.spinNum->setValue(query.value(4).toInt());
 		}
 	}	
 	else 
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 	}
 
 	return result;
@@ -80,7 +90,7 @@ void ZImportDataForm::loadCbo(QComboBox *cbo, QString tbl)
 	}
 	else
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 	}
 
 	QCompleter* completer = new QCompleter(this);
@@ -115,7 +125,7 @@ void ZImportDataForm::applyChanges()
 
 	if(!query.exec())
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 		return;
 	}
 	

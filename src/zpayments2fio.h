@@ -21,5 +21,6 @@ public slots:
 	void ChangeFilter();
 	void dateChangedSlot(const QDate&);
 	void ImportSlot();
+	void SelectionChanged(const QItemSelection&, const QItemSelection&);
 };
 

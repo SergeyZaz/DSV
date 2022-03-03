@@ -1,8 +1,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QCompleter>
-#include <QMessageBox>
 #include "zpayments2fioform.h"
+#include "zsettings.h"
+#include "zmessager.h"
 
 ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : ZEditAbstractForm(parent, flags)
 {
@@ -15,6 +16,9 @@ ZPayments2FioForm::ZPayments2FioForm(QWidget* parent, Qt::WindowFlags flags) : Z
 	ui.dateLinkEdit->setDate(QDate::currentDate());
 	ui.cboMode->addItem("бонус", 0);
 	ui.cboMode->addItem("вычет", 1);
+
+	if (ZSettings::Instance().m_CloseDate.isValid())
+		ui.dateLinkEdit->setMinimumDate(ZSettings::Instance().m_CloseDate.addDays(1));
 
 	ui.cboFIO->setEditable(true);
 }
@@ -53,16 +57,23 @@ int ZPayments2FioForm::init(const QString &table, int id )
 			ui.cboMode->setCurrentIndex(ui.cboMode->findData(indx));
 			changeMode(indx);
 
+			QDate d = query.value(5).toDate();
+			if (ZSettings::Instance().m_CloseDate.isValid() && d < ZSettings::Instance().m_CloseDate)
+			{
+				ZMessager::Instance().Message(_CriticalError, tr("Дата привязки меньше даты закрытия!"), tr("Редактирование запрещено"));
+				return false;
+			}
+
 			ui.cboFIO->setCurrentIndex(ui.cboFIO->findData(query.value(1).toInt()));
 			ui.cboPayment->setCurrentIndex(ui.cboPayment->findData(query.value(0).toInt()));
 			ui.dateEdit->setDate(query.value(2).toDate());
 			ui.spinVal->setValue(query.value(3).toDouble());
-			ui.dateLinkEdit->setDate(query.value(5).toDate());			
+			ui.dateLinkEdit->setDate(d);			
 		}
 	}	
 	else 
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 	}
 
 	return result;
@@ -82,7 +93,7 @@ void ZPayments2FioForm::loadFio()
 	}
 	else
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 	}
 
 	QCompleter* completer = new QCompleter(this);
@@ -108,7 +119,7 @@ void ZPayments2FioForm::changeMode(int indx)
 	}
 	else
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 	}
 }
 
@@ -141,7 +152,7 @@ void ZPayments2FioForm::applyChanges()
 
 	if(!query.exec())
 	{
-		QMessageBox::critical(this, tr("Ошибка"), query.lastError().text());
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
 		return;
 	}
 	

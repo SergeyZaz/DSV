@@ -1,6 +1,7 @@
 #include "zpayments2fio.h"
 #include "zpayments2fioform.h"
 #include "zparsexlsxfile.h"
+#include "zsettings.h"
 #include <QFileDialog>
 
 
@@ -20,7 +21,7 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(p
 	connect(ui.m_tbl, SIGNAL(needUpdateVal(int)), this, SLOT(UpdateSumma(int)));
 //	connect(ui.date, SIGNAL(dateChanged(const QDate&)), this, SLOT(dateChangedSlot(const QDate&)));
 	connect(ui.cmdImport, SIGNAL(clicked()), this, SLOT(ImportSlot()));
-	
+
 	connect(ui.cboFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
 		{
 			filterOrganisationId = ui.cboFilter->currentData().toInt();
@@ -66,6 +67,10 @@ LEFT JOIN organisation ON(organisation2fio.key = organisation.id)";
 
 	ui.m_tbl->setColorHighligthIfColumnContain(8, 0, QColor(128, 255, 128));
 	ui.m_tbl->setColorHighligthIfColumnContain(8, 1, QColor(255, 128, 128));
+	
+	connect(ui.m_tbl->getTblView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+		this, SLOT(SelectionChanged(const QItemSelection&, const QItemSelection&)));
+
 
 	UpdateSumma();
 }
@@ -119,4 +124,20 @@ void ZPayments2fio::ImportSlot()
 	{
 		ChangeFilter();
 	}
+}
+
+void ZPayments2fio::SelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+	QModelIndexList indxs = ui.m_tbl->getTblView()->selectionModel()->selectedIndexes();
+	if (indxs.size() == 0)
+		return;
+
+	bool fEdit = true;
+	foreach(auto indx, indxs)
+	{
+		QDate d = indx.model()->data(indx.model()->index(indx.row(), 9)).toDate();
+		if (ZSettings::Instance().m_CloseDate.isValid() && d < ZSettings::Instance().m_CloseDate)
+			fEdit = false;
+	}
+	ui.m_tbl->setReadOnly(!fEdit, false, !fEdit);
 }

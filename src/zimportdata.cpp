@@ -1,5 +1,6 @@
 #include "zimportdata.h"
 #include "zimportdataform.h"
+#include "zsettings.h"
 
 ZImportData::ZImportData(QWidget* parent, Qt::WindowFlags flags): ZMdiChild(parent, flags)
 {
@@ -29,5 +30,24 @@ void ZImportData::init(const QString &m_TblName)
 //	m_tbl->setReadOnly(true, true, false);
 
 //	m_tbl->getTblView()->verticalHeader()->setVisible(true);
+
+	connect(m_tbl->getTblView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+		this, SLOT(SelectionChanged(const QItemSelection&, const QItemSelection&)));
+
 }
 
+void ZImportData::SelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+	QModelIndexList indxs = m_tbl->getTblView()->selectionModel()->selectedIndexes();
+	if (indxs.size() == 0)
+		return;
+
+	bool fEdit = true;
+	foreach(auto indx, indxs)
+	{
+		QDate d = indx.model()->data(indx.model()->index(indx.row(), 1)).toDate();
+		if (ZSettings::Instance().m_CloseDate.isValid() && d < ZSettings::Instance().m_CloseDate)
+			fEdit = false;
+	}
+	m_tbl->setReadOnly(!fEdit, false, !fEdit);
+}

@@ -221,7 +221,7 @@
     <QtMoc Include="src\zviewgroups.h" />
     <ClInclude Include="src\zimagelabel.h" />
     <QtMoc Include="src\zmessager.h" />
-    <ClInclude Include="src\zimportdata.h" />
+    <QtMoc Include="src\zimportdata.h" />
     <QtMoc Include="src\znotesform.h" />
     <QtMoc Include="src\zimportdataform.h" />
     <QtMoc Include="src\znotebooks.h" />
