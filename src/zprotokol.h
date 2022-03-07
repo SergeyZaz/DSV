@@ -22,6 +22,7 @@ class ZProtokol : public QWidget
 		QList< tariff_history > l_history;
 	};
 	QList<tariff> l_tariffs;
+	int curFindId;
 
 	double getTariffValue(const QDate& date, int id, int num, QString& txt, double& bonus, double& t_val, bool& fSmena);
 	void loadItemsTo(QComboBox* cbo, const QString& tableName);
@@ -30,6 +31,7 @@ class ZProtokol : public QWidget
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
 	void updateAllSumm(const QList<int>& cols);
 	void roundSumm();
+	int findCam(const QString& text);
 
 
 public:
@@ -45,6 +47,8 @@ public slots:
 	void buildProtokol();
 	void saveProtokol();
 	void expandAll(bool fCheck);
+	void findNextSlot();
+	void findFirstSlot(const QString& text);
 
 };
 

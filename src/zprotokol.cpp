@@ -59,6 +59,8 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	connect(ui.cmdBuild, SIGNAL(clicked()), this, SLOT(buildProtokol()));
 	connect(ui.cmdSave, SIGNAL(clicked()), this, SLOT(saveProtokol()));
 	connect(ui.ckbExpandAll, SIGNAL(clicked(bool)), this, SLOT(expandAll(bool)));
+	connect(ui.cmdFind, SIGNAL(clicked()), this, SLOT(findNextSlot()));
+	connect(ui.txtFind, SIGNAL(textChanged(const QString&)), this, SLOT(findFirstSlot(const QString&)));
 
 	ui.tree->setColumnWidth(INDEX_COLUMN, 20);
 	ui.tree->setColumnWidth(DATE_COLUMN, 200);
@@ -73,6 +75,8 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	loadItemsToComboBox(ui.cboFilter, "groups");
 	loadItemsToComboBox(ui.cboFilterOrg, "organisation");
 	buildProtokol();
+
+	curFindId = -1;
 }
 
 
@@ -851,7 +855,51 @@ void ZProtokol::saveProtokol()
 	QDesktopServices::openUrl(QUrl("file:///" + fileName, QUrl::TolerantMode));
 }
 
+void ZProtokol::findFirstSlot(const QString& text)
+{
+	curFindId = -1;
+	findCam(text);
+}
 
+void ZProtokol::findNextSlot()
+{
+	QString text = ui.txtFind->text();
+	findCam(text);
+}
+
+int ZProtokol::findCam(const QString& text)
+{
+	ui.tree->clearSelection();
+
+	bool fExist = false;
+	QTreeWidgetItemIterator iT(ui.tree);
+	while (*iT)
+	{
+		if ((*iT)->text(FIO_COLUMN).contains(text, Qt::CaseInsensitive))
+		{
+			if (curFindId != -1)
+			{
+				if (curFindId == (*iT)->data(FIO_COLUMN, FIO_ID_ROLE).toInt())
+					curFindId = -1;
+				iT++;
+				continue;
+			}
+			curFindId = (*iT)->data(FIO_COLUMN, FIO_ID_ROLE).toInt();
+			ui.tree->scrollToItem(*iT);
+			ui.tree->setItemSelected(*iT, true);
+			fExist = true;
+			break;
+		}
+		iT++;
+	}
+
+	if (!fExist && curFindId != -1)
+	{
+		curFindId = -1;
+		findCam(text);
+	}
+	return 1;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
 	: QItemDelegate(parent), pEditor(Editor)
