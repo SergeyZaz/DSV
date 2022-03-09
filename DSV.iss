@@ -42,7 +42,8 @@ Type: files; Name: "{app}\*.*"
 
 [Run]
 Filename: "{app}\vcredist_x64.exe"; Parameters: "/quiet"
-Filename: "{app}\vcredist_x64_vc2013.exe"; Parameters: "/quiet"
-Filename: "{app}\scripts\x86\create_db.bat"; WorkingDir: "{app}\scripts\x86";  Check: "not IsWin64" 
-Filename: "{app}\scripts\create_db.bat"; WorkingDir: "{app}\scripts";  Check: IsWin64   
+;Filename: "{app}\vcredist_x64_vc2013.exe"; Parameters: "/quiet"
+;Filename: "{app}\scripts\x86\create_db.bat"; WorkingDir: "{app}\scripts\x86";  Check: "not IsWin64" 
+;Filename: "{app}\scripts\create_db.bat"; WorkingDir: "{app}\scripts";  Check: IsWin64   
+Filename: "{app}\scripts\create_db.bat"; WorkingDir: "{app}\scripts" 
 
