@@ -94,7 +94,7 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 3.0.4 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		QString("Программа: \"%1\".<p>Версия 3.0.5 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
 		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
 }
 
@@ -104,6 +104,7 @@ void ZMainWindow::readSettings()
 	QSettings settings("Zaz", "DSV");
 	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 	QSize size = settings.value("size", QSize(640, 480)).toSize();
+
 	ZSettings::Instance().m_UserName = settings.value("user", "").toString();
 /*
 	qint64 d = settings.value("id", 0).toLongLong();
@@ -171,8 +172,13 @@ int ZMainWindow::readIniFile()
 	}
 	settings.endArray();
 
+	ZSettings::Instance().m_Password = settings.value("password").toString();
+	QString user = settings.value("user").toString();
+	if (!user.isEmpty())
+		ZSettings::Instance().m_UserName = user;
+
 	ZAuthForm auth(this);
-	if (auth.exec() != 1)
+	if (auth.execute() != 1)
 		return 0;
 
 	switch (ZSettings::Instance().m_UserType)
@@ -184,10 +190,12 @@ int ZMainWindow::readIniFile()
 		ui.actOrganisations->setEnabled(false);
 		ui.actArchivs->setEnabled(false);
 		ui.actPayments->setEnabled(false);
+		ui.actPayments2fio->setEnabled(false);
 		ui.actNotes->setEnabled(false);
 		ui.actNotebooks->setEnabled(false);
 		ui.actConfig->setEnabled(false);
 		ui.actUsers->setEnabled(false);
+		ui.actPersons->setEnabled(false);
 		break;
 	default:
 		break;

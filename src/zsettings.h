@@ -13,7 +13,8 @@ public:
     int m_UserType;// 0-администратор, 1-пользователь
     bool f_ReadOnly;
     QString m_UserName;
-	static ZSettings& Instance();
+    QString m_Password;
+    static ZSettings& Instance();
 };
 
 

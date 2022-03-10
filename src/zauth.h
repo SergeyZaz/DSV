@@ -13,6 +13,8 @@ public:
 
 	Ui::ZAuthForm ui;
 
+	int execute();
+
 protected slots:
 	void applyChanges();
 };
