@@ -44,6 +44,8 @@ int ZUsersForm::init(const QString& table, int id)
 {
 	ZEditAbstractForm::init(table, id);
 
+	ui.txtLogin->setEnabled(id != 0);
+	ui.cboMode->setEnabled(id != 0);
 	ui.txtLogin->setText("");
 	ui.txtPwd->setText("");
 	ui.txtPwd2->setText("");

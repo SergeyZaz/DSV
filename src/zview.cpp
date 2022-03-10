@@ -351,7 +351,7 @@ int ZView::openEditor(int id)
 	m_Id = id;
 	printf("edit id = %d\n", id);
 
-	if(!pEditForm || id == 0 || id == -1)
+	if(!pEditForm || (id == 0  && mTable != "users")|| id == -1)
 		return 0;
 
 	if(!pEditForm->init(mTable, id))
