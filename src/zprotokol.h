@@ -37,7 +37,7 @@ class ZProtokol : public QWidget
 public:
 	ZProtokol(QWidget* parent, Qt::WindowFlags flags = 0);
 	~ZProtokol();
-	int getTextForPayment(int id, int col, QString& text, QVariantList &vList, double &summa);
+	int getTextForPayment(int id, int col, QString& text, QVariantList &vList, double &summa, QString& comm);
 	void updateSumm();
 	int updateComment(int id, const QString& text);
 

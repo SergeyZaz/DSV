@@ -250,7 +250,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 	QMap<int, QTreeWidgetItem*> mapFIO;
 	int id, num;
 	double v, bonus, tV;
-	QString txt;
+	QString txt, comm;
 	QDate date;
 	int i, j, n;
 	QVariantList vList;
@@ -289,11 +289,13 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			ui.tree->addTopLevelItem(pItemGroup);
 			mapFIO.insert(id, pItemGroup);
 
+			comm.clear();
+
 			for (i = BONUS_COLUMN; i < BALANCE_COLUMN; i++)
 			{
 				pItemGroup->setData(i, FIO_ID_ROLE, id);
 
-				getTextForPayment(id, i, txt, vList, v);
+				getTextForPayment(id, i, txt, vList, v, comm);
 
 				pItemGroup->setText(i, txt);
 				pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
@@ -316,7 +318,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 					stringQuery2 += query2.value(0).toString() + "\n";
 				}
 				stringQuery2.chop(1);
-				pItemGroup->setText(NOTES_COLUMN, stringQuery2);
+				pItemGroup->setText(NOTES_COLUMN, comm + stringQuery2);
 			}
 		}
 
@@ -476,11 +478,13 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 				ui.tree->addTopLevelItem(pItemGroup);
 				mapFIO.insert(id, pItemGroup);
 
+				comm.clear();
+
 				for (i = BONUS_COLUMN; i < BALANCE_COLUMN; i++)
 				{
 					pItemGroup->setData(i, FIO_ID_ROLE, id);
 
-					getTextForPayment(id, i, txt, vList, v);
+					getTextForPayment(id, i, txt, vList, v, comm);
 
 					pItemGroup->setText(i, txt);
 					pItemGroup->setData(i, PAYMENT_ID_ROLE, vList);
@@ -503,7 +507,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 						stringQuery2 += query2.value(0).toString() + "\n";
 					}
 					stringQuery2.chop(1);
-					pItemGroup->setText(NOTES_COLUMN, stringQuery2);
+					pItemGroup->setText(NOTES_COLUMN, comm + stringQuery2);
 				}
 			}
 		}
@@ -646,12 +650,12 @@ void ZProtokol::updateSumm()
 	updateAllSumm(cols);
 }
 
-int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa)
+int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &vList, double& summa, QString& comm)
 {
 	vList.clear();
 	summa = 0;
 
-	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
+	QString stringQuery = QString("SELECT payments2fio.id, dt, payments.name, val, payments2fio.comment  FROM payments2fio INNER JOIN payments ON(payments.id = payment) WHERE fio = %1 AND ").arg(id);
 	switch (col)
 	{
 	case BONUS_COLUMN://Бонусы
@@ -695,6 +699,13 @@ int ZProtokol::getTextForPayment(int id, int col, QString &text, QVariantList &v
 
 		sList.push_back(txt);
 		vList.push_back(pay_id);
+
+		txt = query.value(4).toString();
+		if (!txt.isEmpty())
+		{
+			comm += txt;
+			comm += " \n";
+		}
 	}
 
 	if (col == MINUS_COLUMN)//Вычеты
@@ -1005,12 +1016,12 @@ void ZTreeDataDelegate::setModelData(QWidget* editor, QAbstractItemModel* model,
 	if (listWidget)
 	{
 		QVariantList vList;
-		QString txt;
+		QString txt, comm;
 		double v;
 
 		int col = index.column();
 
-		pEditor->getTextForPayment(fio_id, col, txt, vList, v);
+		pEditor->getTextForPayment(fio_id, col, txt, vList, v, comm);
 
 		model->setData(index, vList, PAYMENT_ID_ROLE);
 		model->setData(index, v, PAYMENT_ROLE);
@@ -1107,6 +1118,7 @@ int ZTreeDataDelegate::openEditor(int id)
 	pD->ui.dateLinkEdit->setMinimumDate(pEditor->ui.dateStart->date());
 	pD->ui.dateLinkEdit->setMaximumDate(pEditor->ui.dateEnd->date());
 	pD->ui.dateLinkEdit->setDate(pEditor->ui.dateEnd->date());
+	pD->ui.dateEdit->setDate(pEditor->ui.dateStart->date());
 
 	if(id== ADD_UNIC_CODE)
 		pD->ui.cboFIO->setCurrentIndex(pD->ui.cboFIO->findData(fio_id));

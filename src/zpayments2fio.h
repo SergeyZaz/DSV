@@ -22,5 +22,6 @@ public slots:
 	void dateChangedSlot(const QDate&);
 	void ImportSlot();
 	void SelectionChanged(const QItemSelection&, const QItemSelection&);
+	QSize	sizeHint() const { return QSize(1000, 600); }
 };
 

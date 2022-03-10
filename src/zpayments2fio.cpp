@@ -40,9 +40,9 @@ void ZPayments2fio::ChangeFilter()
 	QStringList headers;
 
 	hideColumns << 0 << 2 << 3 << 8;
-	headers << tr("id") << tr("Дата") << tr("fio_id") << tr("payment_id") << tr("ФИО") << tr("Организация") << tr("Выплата") << tr("Значение") << tr("mode") << tr("Дата привязки");
+	headers << tr("id") << tr("Дата") << tr("fio_id") << tr("payment_id") << tr("ФИО") << tr("Организация") << tr("Выплата") << tr("Значение") << tr("mode") << tr("Дата привязки") << tr("Заметка");
 
-	QString query = "SELECT p.id, p.dt, p.fio, p.payment, fio.name, organisation.name, payments.name, p.val, payments.mode, p.dt_link  FROM payments2fio AS p \
+	QString query = "SELECT p.id, p.dt, p.fio, p.payment, fio.name, organisation.name, payments.name, p.val, payments.mode, p.dt_link, p.comment FROM payments2fio AS p \
 INNER JOIN fio ON(p.fio = fio.id) \
 INNER JOIN payments ON(p.payment = payments.id) \
 LEFT JOIN organisation2fio ON(p.fio = value) \
