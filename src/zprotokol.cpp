@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QSettings>
 
 #include "zprotokol.h"
 #include "zmessager.h"
@@ -77,12 +78,16 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	buildProtokol();
 
 	curFindId = -1;
+
+	QSettings settings("Zaz", "DSV");
+	ui.txtMemo->setPlainText(settings.value("memo", "").toString());
 }
 
 
 ZProtokol::~ZProtokol()
 {
-
+	QSettings settings("Zaz", "DSV");
+	settings.setValue("memo", ui.txtMemo->toPlainText());
 }
 
 QSize ZProtokol::sizeHint() const
