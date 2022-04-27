@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QHeaderView>
+#include <QCompleter>
 #include "zview.h"
 #include "ztoolwidget.h"
 #include "zmessager.h"
@@ -724,7 +725,10 @@ void loadItemsToComboBox(QComboBox* cbo, const QString& tableName)
 {
 	QSqlQuery query;
 	cbo->clear();
-	auto result = query.exec(QString("SELECT id, name FROM %1 ORDER BY id").arg(tableName));
+	if(tableName == "fio")
+		cbo->addItem("не задано", 0);
+
+	auto result = query.exec(QString("SELECT id, name FROM %1 ORDER BY name").arg(tableName));
 	if (result)
 	{
 		while (query.next())
@@ -732,5 +736,11 @@ void loadItemsToComboBox(QComboBox* cbo, const QString& tableName)
 			cbo->addItem(query.value(1).toString(), query.value(0).toInt());
 		}
 	}
-	cbo->setCurrentIndex(0);
+	cbo->setCurrentIndex(cbo->findText("не задано"));
+
+	cbo->setEditable(true);
+	QCompleter* completer = new QCompleter();
+	completer->setModel(cbo->model());
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	cbo->setCompleter(completer);
 }

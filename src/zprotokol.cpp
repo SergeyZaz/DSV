@@ -6,6 +6,7 @@
 #include <QProgressDialog>
 #include <QSettings>
 
+
 #include "zprotokol.h"
 #include "zmessager.h"
 #include "ztariffs.h"
@@ -82,6 +83,8 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	loadItemsToComboBox(ui.cboFilter, "groups");
 	loadItemsToComboBox(ui.cboFilterOrg, "organisation");
+	loadItemsToComboBox(ui.cboFilterFIO, "fio");
+	
 	buildProtokol();
 
 	ui.tree->header()->moveSection(INDEX_COLUMN, 1);
@@ -274,6 +277,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 
 	int groupId = ui.cboFilter->currentData().toInt();
 	int organisationId = ui.cboFilterOrg->currentData().toInt();
+	int fioId = ui.cboFilterFIO->currentData().toInt();
 
 	while (query.next())
 	{
@@ -283,6 +287,10 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 			continue;
 
 		id = query.value(1).toInt();
+
+		if (fioId != 0 && fioId != id)
+			continue;
+
 		pItemGroup = mapFIO.value(id);
 		if (!pItemGroup)
 		{
@@ -472,6 +480,10 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 				continue;
 
 			id = query.value(0).toInt();
+
+			if (fioId != 0 && fioId != id)
+				continue;
+
 			pItemGroup = mapFIO.value(id);
 			if (!pItemGroup)
 			{
