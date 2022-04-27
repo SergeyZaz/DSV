@@ -32,8 +32,9 @@
 #include "zauth.h"
 #include "zconfigform.h"
 
-#define	CFG_FILE "config.ini"
-#define	PROGRAMM_NAME "ДСВ"
+#define	CFG_FILE		"config.ini"
+#define	PROGRAMM_NAME	"ДСВ"
+#define	VERSION			"3.0.7"
 
 ZMainWindow::ZMainWindow()
 {
@@ -94,8 +95,8 @@ void ZMainWindow::closeEvent(QCloseEvent *event)
 void ZMainWindow::slotAbout()
 {
 	QMessageBox::about(this, tr("О программе"),
-		QString("Программа: \"%1\".<p>Версия 3.0.6 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
-		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ));
+		QString("Программа: \"%1\".<p>Версия %4 (Сборка: %2 %3) Автор: <a href=\"mailto:zaz@29.ru\">Zaz</a>")
+		.arg( windowTitle() ).arg( __DATE__ ).arg( __TIME__ ).arg(VERSION));
 }
 
 

@@ -509,6 +509,14 @@
     </widget>
    </item>
   </layout>
+  <action name="actChangeOrg">
+   <property name="text">
+    <string>Изменить организацию</string>
+   </property>
+   <property name="toolTip">
+    <string>Изменить организацию</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

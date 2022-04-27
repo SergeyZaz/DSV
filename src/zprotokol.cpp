@@ -73,9 +73,18 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	ui.tree->setItemDelegate(new ZTreeDataDelegate(this, ui.tree));
 
+
+	QList<QAction*> contextMnuActions;
+	contextMnuActions.append(ui.actChangeOrg);
+	ui.tree->setContextMenuPolicy(Qt::ActionsContextMenu);
+	ui.tree->addActions(contextMnuActions);
+	connect(ui.actChangeOrg, SIGNAL(triggered()), this, SLOT(changeOrgSlot()));
+
 	loadItemsToComboBox(ui.cboFilter, "groups");
 	loadItemsToComboBox(ui.cboFilterOrg, "organisation");
 	buildProtokol();
+
+	ui.tree->header()->moveSection(INDEX_COLUMN, 1);
 
 	curFindId = -1;
 
@@ -874,16 +883,16 @@ void ZProtokol::saveProtokol()
 void ZProtokol::findFirstSlot(const QString& text)
 {
 	curFindId = -1;
-	findCam(text);
+	findText(text);
 }
 
 void ZProtokol::findNextSlot()
 {
 	QString text = ui.txtFind->text();
-	findCam(text);
+	findText(text);
 }
 
-int ZProtokol::findCam(const QString& text)
+int ZProtokol::findText(const QString& text)
 {
 	ui.tree->clearSelection();
 
@@ -891,7 +900,7 @@ int ZProtokol::findCam(const QString& text)
 	QTreeWidgetItemIterator iT(ui.tree);
 	while (*iT)
 	{
-		if ((*iT)->text(FIO_COLUMN).contains(text, Qt::CaseInsensitive))
+		if ((*iT)->text(FIO_COLUMN).contains(text, Qt::CaseInsensitive) || (*iT)->text(DATE_COLUMN).contains(text, Qt::CaseInsensitive))
 		{
 			if (curFindId != -1)
 			{
@@ -912,10 +921,51 @@ int ZProtokol::findCam(const QString& text)
 	if (!fExist && curFindId != -1)
 	{
 		curFindId = -1;
-		findCam(text);
+		findText(text);
 	}
 	return 1;
 }
+
+void ZProtokol::changeOrgSlot()
+{
+	QList<QTreeWidgetItem*> sItems = ui.tree->selectedItems();
+	if (sItems.size() == 0)
+		return;
+	int curId = sItems.at(0)->data(FIO_COLUMN, FIO_ID_ROLE).toInt();
+
+	QSqlQuery query;
+	QStringList l_organisation;
+	if (query.exec("SELECT name FROM organisation ORDER BY name"))
+		while (query.next())
+			l_organisation.push_back(query.value(0).toString());
+
+	bool ok;
+	QString str_query, str = getZItem(this, QString("Изменение организации"),
+		QString("Организации:"), l_organisation, 0, true, &ok, Qt::MSWindowsFixedSizeDialogHint);
+	if (!ok || str.isEmpty())
+		return;
+
+	str_query = QString("DELETE FROM organisation2fio WHERE value=%1;").arg(curId);
+	if (!query.exec(str_query))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+		return;
+	}
+
+	if (str != "не задано")
+	{
+		str_query = QString("INSERT INTO organisation2fio (key,value) VALUES((SELECT id FROM organisation WHERE name='%1'), %2);")
+			.arg(str)
+			.arg(curId);
+		if (!query.exec(str_query))
+		{
+			ZMessager::Instance().Message(_CriticalError, query.lastError().text());
+			return;
+		}
+	}
+	buildProtokol();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ZTreeDataDelegate::ZTreeDataDelegate(ZProtokol* Editor, QObject* parent)
 	: QItemDelegate(parent), pEditor(Editor)

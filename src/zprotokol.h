@@ -31,7 +31,7 @@ class ZProtokol : public QWidget
 	double getSumma(QTreeWidgetItem* pItemRoot, int col);
 	void updateAllSumm(const QList<int>& cols);
 	void roundSumm();
-	int findCam(const QString& text);
+	int findText(const QString& text);
 
 
 public:
@@ -49,6 +49,7 @@ public slots:
 	void expandAll(bool fCheck);
 	void findNextSlot();
 	void findFirstSlot(const QString& text);
+	void changeOrgSlot();
 
 };
 
