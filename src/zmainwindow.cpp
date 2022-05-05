@@ -34,7 +34,7 @@
 
 #define	CFG_FILE		"config.ini"
 #define	PROGRAMM_NAME	"ДСВ"
-#define	VERSION			"3.0.7"
+#define	VERSION			"3.0.8"
 
 ZMainWindow::ZMainWindow()
 {

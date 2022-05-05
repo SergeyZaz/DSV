@@ -3,7 +3,7 @@
 #define CDateD GetDateTimeString('dd', '#0', '#0')
 #define CProgName "ÄÑÂ"
 #define CProg "DSV"
-#define CVersion "3.0.6"
+#define CVersion "3.0.8"
 
 
 [Setup]

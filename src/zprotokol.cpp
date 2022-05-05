@@ -4,7 +4,6 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QProgressDialog>
-#include <QSettings>
 
 
 #include "zprotokol.h"
@@ -91,15 +90,37 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 
 	curFindId = -1;
 
-	QSettings settings("Zaz", "DSV");
-	ui.txtMemo->setPlainText(settings.value("memo", "").toString());
+	QSqlQuery query;
+	if (!query.exec("SELECT value FROM config WHERE key = 'memo'"))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), "Ошибка");
+	}
+
+	if (query.next())
+		ui.txtMemo->setPlainText(query.value(0).toString());
+
+	ui.txtMemo->setReadOnly(ZSettings::Instance().m_UserType == 1);
+
 }
 
 
 ZProtokol::~ZProtokol()
 {
-	QSettings settings("Zaz", "DSV");
-	settings.setValue("memo", ui.txtMemo->toPlainText());
+	if (ZSettings::Instance().m_UserType == 1)
+		return;
+
+	QSqlQuery query;
+	if (!query.exec("DELETE FROM config WHERE key = 'memo'"))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
+		return;
+	}
+
+	if (!query.exec(QString("INSERT INTO config(key, value) VALUES('memo','%1')").arg(ui.txtMemo->toPlainText())))
+	{
+		ZMessager::Instance().Message(_CriticalError, query.lastError().text(), tr("Ошибка"));
+		return;
+	}
 }
 
 QSize ZProtokol::sizeHint() const
