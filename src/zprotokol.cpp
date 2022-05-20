@@ -349,7 +349,7 @@ WHERE dt >= '%1' AND dt <= '%2' ORDER BY fio.name,dt,smena")
 
 			pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
-			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
+			QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND end_dt >= '%2' AND begin_dt <= '%3'")
 				.arg(id).arg(dateStartStr).arg(dateEndStr);
 			QSqlQuery query2;
 			if (query2.exec(stringQuery2))
@@ -482,7 +482,7 @@ LEFT JOIN organisation2fio ON(notes2fio.fio = value) \
 LEFT JOIN organisation ON(organisation2fio.key = organisation.id) \
 LEFT JOIN groups2fio ON(notes2fio.fio = groups2fio.value) \
 LEFT JOIN groups ON(groups2fio.key = groups.id) \
-WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%2')) AND char_length(note) > 0 ORDER BY fio.name")
+WHERE end_dt >= '%1' AND begin_dt <= '%2' AND char_length(note) > 0 ORDER BY fio.name")
 .arg(dateStartStr)
 .arg(dateEndStr);
 
@@ -542,7 +542,7 @@ WHERE((begin_dt >= '%1' AND begin_dt <= '%2') OR(end_dt >= '%1' AND end_dt <= '%
 
 				pItemGroup->setSizeHint(DATE_COLUMN, QSize(100, 50));
 
-				QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND ((begin_dt >= '%2' AND begin_dt <= '%3') OR (end_dt >= '%2' AND end_dt <= '%3'))")
+				QString stringQuery2 = QString("SELECT note FROM notes2fio WHERE fio = %1 AND end_dt >= '%2' AND begin_dt <= '%3'")
 					.arg(id).arg(dateStartStr).arg(dateEndStr);
 				QSqlQuery query2;
 				if (query2.exec(stringQuery2))
