@@ -1188,6 +1188,8 @@ void ZTreeDataDelegate::del_clicked()
 int ZTreeDataDelegate::openEditor(int id)
 {
 	ZPayments2FioForm* pD = new ZPayments2FioForm(listWidget->parentWidget());
+	
+	pD->init("payments2fio", id);
 
 	switch (column)
 	{
@@ -1207,7 +1209,6 @@ int ZTreeDataDelegate::openEditor(int id)
 	pD->ui.dateLinkEdit->setDate(pEditor->ui.dateEnd->date());
 	pD->ui.dateEdit->setDate(pEditor->ui.dateStart->date());
 	
-	pD->init("payments2fio", id);
 
 	if(id== ADD_UNIC_CODE)
 		pD->ui.cboFIO->setCurrentIndex(pD->ui.cboFIO->findData(fio_id));
