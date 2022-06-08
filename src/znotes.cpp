@@ -1,10 +1,18 @@
 #include "znotes.h"
 #include "znotesform.h"
+#include <QSettings>
 
 ZNotes::ZNotes(QWidget* parent, Qt::WindowFlags flags): QWidget(parent, flags)
 {
 	ui.setupUi(this);
 
+	QSettings settings("Zaz", "DSV");
+	QDate dd = settings.value("dateBegin").toDate();
+	if (dd.isValid())
+		ui.date_begin->setDate(dd);
+	dd = settings.value("dateEnd").toDate();
+	if (dd.isValid())
+		ui.date_end->setDate(dd);
 //	ui.date_begin->setDate(QDate::currentDate().addMonths(-1));
 //	ui.date_end->setDate(QDate::currentDate());
 

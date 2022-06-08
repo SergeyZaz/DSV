@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QSettings>
 
 
 #include "zprotokol.h"
@@ -52,8 +53,9 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	ui.setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
 
-	ui.dateStart->setDate(QDate::currentDate().addMonths(-1));
-	ui.dateEnd->setDate(QDate::currentDate());
+	QSettings settings("Zaz", "DSV");
+	ui.dateStart->setDate(settings.value("dateBegin", QDate::currentDate().addMonths(-1)).toDate());
+	ui.dateEnd->setDate(settings.value("dateEnd", QDate::currentDate()).toDate());
 	
 	ui.lblReadOnly->setVisible(false);
 
@@ -257,6 +259,10 @@ void ZProtokol::buildProtokol()
 
 	QString dateStartStr = ui.dateStart->date().toString(DATE_FORMAT);
 	QString dateEndStr = ui.dateEnd->date().toString(DATE_FORMAT);
+	
+	QSettings settings("Zaz", "DSV");
+	settings.setValue("dateBegin", ui.dateStart->date());
+	settings.setValue("dateEnd", ui.dateEnd->date());
 
 	ZSettings::Instance().f_ReadOnly = ZSettings::Instance().m_CloseDate.isValid() && (ui.dateStart->date() < ZSettings::Instance().m_CloseDate);
 	ui.lblReadOnly->setVisible(ZSettings::Instance().f_ReadOnly || ZSettings::Instance().m_UserType == 1);
