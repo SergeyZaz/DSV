@@ -49,6 +49,16 @@
         </item>
         <item row="3" column="1">
          <widget class="QDateEdit" name="date_end">
+          <property name="dateTime">
+           <datetime>
+            <hour>0</hour>
+            <minute>0</minute>
+            <second>0</second>
+            <year>2050</year>
+            <month>1</month>
+            <day>1</day>
+           </datetime>
+          </property>
           <property name="calendarPopup">
            <bool>true</bool>
           </property>

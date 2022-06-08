@@ -1189,29 +1189,31 @@ int ZTreeDataDelegate::openEditor(int id)
 {
 	ZPayments2FioForm* pD = new ZPayments2FioForm(listWidget->parentWidget());
 	
-	pD->init("payments2fio", id);
-
-	switch (column)
-	{
-	case BONUS_COLUMN://Бонусы
-		pD->ui.cboMode->setCurrentIndex(0);
-		break;
-	case MINUS_COLUMN://Вычеты
-		pD->ui.cboMode->setCurrentIndex(1);
-		break;
-	default:
-		return 0;
-	}
 	pD->ui.cboFIO->setEnabled(false);
 	pD->ui.cboMode->setEnabled(false);
-	pD->ui.dateLinkEdit->setMinimumDate(pEditor->ui.dateStart->date());
-	pD->ui.dateLinkEdit->setMaximumDate(pEditor->ui.dateEnd->date());
+//	pD->ui.dateLinkEdit->setMinimumDate(pEditor->ui.dateStart->date());
+//	pD->ui.dateLinkEdit->setMaximumDate(pEditor->ui.dateEnd->date());
 	pD->ui.dateLinkEdit->setDate(pEditor->ui.dateEnd->date());
 	pD->ui.dateEdit->setDate(pEditor->ui.dateStart->date());
 	
+	pD->init("payments2fio", id);
 
-	if(id== ADD_UNIC_CODE)
+	if (id == ADD_UNIC_CODE)
+	{
 		pD->ui.cboFIO->setCurrentIndex(pD->ui.cboFIO->findData(fio_id));
+
+		switch (column)
+		{
+		case BONUS_COLUMN://Бонусы
+			pD->ui.cboMode->setCurrentIndex(0);
+			break;
+		case MINUS_COLUMN://Вычеты
+			pD->ui.cboMode->setCurrentIndex(1);
+			break;
+		default:
+			return 0;
+		}
+	}
 
 	if (pD->exec() != QDialog::Accepted)
 		return 0;

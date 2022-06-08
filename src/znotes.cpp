@@ -5,8 +5,8 @@ ZNotes::ZNotes(QWidget* parent, Qt::WindowFlags flags): QWidget(parent, flags)
 {
 	ui.setupUi(this);
 
-	ui.date_begin->setDate(QDate::currentDate().addMonths(-1));
-	ui.date_end->setDate(QDate::currentDate());
+//	ui.date_begin->setDate(QDate::currentDate().addMonths(-1));
+//	ui.date_end->setDate(QDate::currentDate());
 
 	beginDate = ui.date_begin->date();
 	endDate = ui.date_end->date();
