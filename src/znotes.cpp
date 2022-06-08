@@ -32,7 +32,7 @@ void ZNotes::ChangeFilter()
 	headers << tr("id") << tr("ФИО") << tr("Начало") << tr("Окончание")  << tr("Заметка");
 
 	QString query = QString("SELECT n.id, fio.name, begin_dt, end_dt, note FROM public.notes2fio AS n \
-INNER JOIN fio ON(n.fio = fio.id) WHERE begin_dt>='%1' AND end_dt<='%2'")
+INNER JOIN fio ON(n.fio = fio.id) WHERE begin_dt<='%2' AND end_dt>='%1'") 
 		.arg(beginDate.toString(DATE_FORMAT)).arg(endDate.toString(DATE_FORMAT));
 
 	ui.m_tbl->setQuery(query, headers);

@@ -48,6 +48,8 @@ int Round(double dVal)
 //		return (int)floor(dVal);
 }
 
+QString oldMemo;
+
 ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, flags)
 {
 	ui.setupUi(this);
@@ -99,7 +101,10 @@ ZProtokol::ZProtokol(QWidget* parent, Qt::WindowFlags flags)//: QDialog(parent, 
 	}
 
 	if (query.next())
-		ui.txtMemo->setPlainText(query.value(0).toString());
+	{
+		oldMemo = query.value(0).toString();
+		ui.txtMemo->setPlainText(oldMemo);
+	}
 
 	ui.txtMemo->setReadOnly(ZSettings::Instance().m_UserType == 1);
 
@@ -111,6 +116,12 @@ ZProtokol::~ZProtokol()
 	if (ZSettings::Instance().m_UserType == 1)
 		return;
 
+	if (oldMemo == ui.txtMemo->toPlainText())
+		return;
+
+	if (QMessageBox::question(this, tr("Внимание"), tr("Вы действительно хотите изменить комментарий?"), tr("Да"), tr("Нет"), QString::null, 0, 1) != 0)
+		return;
+	
 	QSqlQuery query;
 	if (!query.exec("DELETE FROM config WHERE key = 'memo'"))
 	{
