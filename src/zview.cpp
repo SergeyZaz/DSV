@@ -430,6 +430,8 @@ void ZView::changeFilter(int indx)
 	if(!model)
 		return;
 
+	m_curFilter = indx;
+
 	ui.cboFilter->blockSignals(true);
 	ui.cboFilter->setCurrentIndex(indx);
 	ui.cboFilter->blockSignals(false);

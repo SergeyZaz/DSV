@@ -9,29 +9,39 @@ ZPayments2fio::ZPayments2fio(QWidget* parent, Qt::WindowFlags flags) : QWidget(p
 {
 	filterOrganisationId = -1;
 	filterPaymentId = -1;
+	filterFioId = -1;
+
 	ui.setupUi(this);
 	
-	loadItemsToComboBox(ui.cboFilter, "organisation");
+	loadItemsToComboBox(ui.cboFilterORG, "organisation");
+	loadItemsToComboBox(ui.cboFilterFIO, "fio");
+	loadItemsToComboBox(ui.cboFilterPAY, "payments");
 
-	loadItemsToComboBox(ui.cboFilter2, "payments");
-	ui.cboFilter2->insertItem(0, "не задано", -1);
-	ui.cboFilter2->setCurrentIndex(0);
+	ui.cboFilterPAY->insertItem(0, "не задано", -1);
+	ui.cboFilterPAY->setCurrentIndex(0);
 	//	ui.date->setDate(QDate::currentDate());
 
 	connect(ui.m_tbl, SIGNAL(needUpdateVal(int)), this, SLOT(UpdateSumma(int)));
 //	connect(ui.date, SIGNAL(dateChanged(const QDate&)), this, SLOT(dateChangedSlot(const QDate&)));
 	connect(ui.cmdImport, SIGNAL(clicked()), this, SLOT(ImportSlot()));
 
-	connect(ui.cboFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
+	connect(ui.cboFilterORG, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
 		{
-			filterOrganisationId = ui.cboFilter->currentData().toInt();
+			filterOrganisationId = ui.cboFilterORG->currentData().toInt();
 			ChangeFilter();
 		});
-	connect(ui.cboFilter2, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
+	connect(ui.cboFilterFIO, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
 		{
-			filterPaymentId = ui.cboFilter2->currentData().toInt();
+			filterFioId = ui.cboFilterFIO->currentData().toInt();
 			ChangeFilter();
 		});
+	connect(ui.cboFilterPAY, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index)
+		{
+			filterPaymentId = ui.cboFilterPAY->currentData().toInt();
+			ChangeFilter();
+		});
+
+	ui.m_tbl->setResizeColumnsToContents(false);
 }
 
 void ZPayments2fio::ChangeFilter()
@@ -48,16 +58,24 @@ INNER JOIN payments ON(p.payment = payments.id) \
 LEFT JOIN organisation2fio ON(p.fio = value) \
 LEFT JOIN organisation ON(organisation2fio.key = organisation.id)";
 
-	if (filterOrganisationId > 0 || filterPaymentId >= 0)
+	if (filterOrganisationId > 0 || filterPaymentId >= 0 || filterFioId > 0)//filterFioId = 0 - не задано
 		query += QString(" WHERE ");
 	if (filterOrganisationId > 0)
 	{
 		query += QString("organisation.id = %1").arg(filterOrganisationId);
+		if (filterPaymentId >= 0 || filterFioId > 0)
+			query += QString(" AND ");
+	}
+	if (filterFioId > 0)
+	{
+		query += QString("fio.id = %1").arg(filterFioId);
 		if (filterPaymentId >= 0)
 			query += QString(" AND ");
 	}
 	if (filterPaymentId >= 0)
 		query += QString("payments.id = %1").arg(filterPaymentId);
+
+	int curFilter = ui.m_tbl->getCurrentFilterIndex();
 
 	ui.m_tbl->setQuery(query, headers);
 
@@ -71,6 +89,7 @@ LEFT JOIN organisation ON(organisation2fio.key = organisation.id)";
 	connect(ui.m_tbl->getTblView()->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
 		this, SLOT(SelectionChanged(const QItemSelection&, const QItemSelection&)));
 
+	ui.m_tbl->changeFilter(curFilter);
 
 	UpdateSumma();
 }

@@ -58,6 +58,7 @@ class ZView : public QWidget
 	QPointer<ZEditAbstractForm>		pEditForm;
 	QString					mTable;
 	int						m_Id;
+	int						m_curFilter;
 	bool					fResizeColumnsToContents;
 	bool					fResizeRowsToContents;
 
@@ -88,6 +89,7 @@ public:
 	QSize	sizeHint() const { return QSize(800, 600); }
 	void setResizeColumnsToContents(bool f) { fResizeColumnsToContents = f; }
 	void setResizeRowsToContents(bool f) { fResizeRowsToContents = f; }
+	int getCurrentFilterIndex() { return m_curFilter; }
 private:
 	Ui::ZViewClass ui;
 	bool eventFilter(QObject *obj, QEvent *event);
